@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стадион им. Ленинского комсомола, Красноярск — 3D-модель реконструкции</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b23; --panel2:#1c232e; --line:#2a3442;
+    --txt:#e8edf3; --mut:#8b98a8; --acc:#f0a429; --acc2:#3fa7ff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; overflow:hidden; background:var(--bg); color:var(--txt);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif; font-size:14px}
+  #app{display:flex; flex-direction:column; height:100%}
+  header{display:flex; align-items:center; gap:18px; padding:10px 16px; background:var(--panel);
+    border-bottom:1px solid var(--line); flex:0 0 auto}
+  header h1{font-size:15px; font-weight:600; letter-spacing:.2px; white-space:nowrap}
+  header .sub{color:var(--mut); font-size:12px}
+  header .stats{margin-left:auto; display:flex; gap:16px; color:var(--mut); font-size:12px; white-space:nowrap}
+  header .stats b{color:var(--txt); font-weight:600}
+  #main{flex:1; display:flex; min-height:0}
+  #side{width:250px; background:var(--panel); border-right:1px solid var(--line); overflow-y:auto; flex:0 0 auto; padding:12px}
+  #side h2{font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--mut); margin:14px 0 6px}
+  #side h2:first-child{margin-top:0}
+  .flt{display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px; cursor:pointer}
+  .flt:hover{background:var(--panel2)}
+  .flt input{accent-color:var(--acc); cursor:pointer}
+  .flt .cnt{margin-left:auto; color:var(--mut); font-size:11px}
+  .flt .dot{width:10px; height:10px; border-radius:3px; flex:0 0 auto}
+  #search{width:100%; padding:7px 10px; background:var(--panel2); border:1px solid var(--line);
+    border-radius:6px; color:var(--txt); outline:none}
+  #search:focus{border-color:var(--acc2)}
+  #results{margin-top:6px; max-height:220px; overflow-y:auto}
+  .res{padding:5px 8px; border-radius:5px; cursor:pointer; font-size:12px; display:flex; gap:6px}
+  .res:hover{background:var(--panel2)}
+  .res .c{color:var(--mut)}
+  #view{position:relative; flex:1; min-width:0}
+  canvas{display:block}
+  #info{position:absolute; top:12px; right:12px; width:330px; max-height:calc(100% - 24px); overflow-y:auto;
+    background:rgba(22,27,35,.94); border:1px solid var(--line); border-radius:10px; padding:14px; display:none; backdrop-filter:blur(6px)}
+  #info h3{font-size:14px; margin-bottom:2px; word-break:break-word}
+  #info .cls{color:var(--acc); font-size:12px; margin-bottom:10px}
+  #info table{width:100%; border-collapse:collapse; font-size:12px}
+  #info td{padding:4px 6px; border-bottom:1px solid var(--line); vertical-align:top; word-break:break-word}
+  #info td:first-child{color:var(--mut); width:45%}
+  #info .guid{color:var(--mut); font-size:10px; margin-top:8px; word-break:break-all}
+  #infoClose{position:absolute; top:8px; right:10px; background:none; border:none; color:var(--mut); font-size:16px; cursor:pointer}
+  #infoClose:hover{color:var(--txt)}
+  #toolbar{position:absolute; left:12px; top:12px; display:flex; gap:6px}
+  .tbtn{background:rgba(22,27,35,.92); border:1px solid var(--line); color:var(--txt); padding:6px 12px;
+    border-radius:7px; cursor:pointer; font-size:12px}
+  .tbtn:hover{border-color:var(--acc2)}
+  .tbtn.on{border-color:var(--acc); color:var(--acc)}
+  #hint{position:absolute; left:12px; bottom:12px; color:var(--mut); font-size:11px; background:rgba(22,27,35,.8);
+    padding:6px 10px; border-radius:7px; border:1px solid var(--line)}
+  #loading{position:absolute; inset:0; background:var(--bg); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; z-index:10}
+  #loading .t{font-size:15px}
+  #bar{width:320px; height:6px; background:var(--panel2); border-radius:3px; overflow:hidden}
+  #barfill{height:100%; width:0%; background:var(--acc); transition:width .15s}
+  #loadmsg{color:var(--mut); font-size:12px}
+  ::-webkit-scrollbar{width:8px}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div>
+      <h1>Стадион имени Ленинского комсомола · Красноярск</h1>
+      <div class="sub">Интерактивная 3D-модель · проект реконструкции · источник: BIM (IFC, ARCHICAD)</div>
+    </div>
+    <div class="stats">
+      <span>Элементов: <b id="stEl">—</b></span>
+      <span>Треугольников: <b id="stTr">—</b></span>
+      <span>Этажей: <b id="stFl">—</b></span>
+    </div>
+  </header>
+  <div id="main">
+    <div id="side">
+      <h2>Поиск по марке / имени</h2>
+      <input id="search" placeholder="например: ПЕР-009, МРФ-025">
+      <div id="results"></div>
+      <h2>Этажи</h2>
+      <div id="floors"></div>
+      <h2>Конструкции</h2>
+      <div id="classes"></div>
+    </div>
+    <div id="view">
+      <div id="toolbar">
+        <button class="tbtn" id="vIso">Изометрия</button>
+        <button class="tbtn" id="vTop">Сверху</button>
+        <button class="tbtn" id="vWire">Каркас</button>
+        <button class="tbtn" id="vReset">Сброс вида</button>
+        <a class="tbtn" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">← Концепция</a>
+      </div>
+      <div id="info">
+        <button id="infoClose">✕</button>
+        <h3 id="iName"></h3>
+        <div class="cls" id="iCls"></div>
+        <table id="iProps"></table>
+        <div class="guid" id="iGuid"></div>
+      </div>
+      <div id="hint">ЛКМ — вращение · ПКМ — сдвиг · колесо — масштаб · клик по элементу — свойства · Esc — снять выбор</div>
+      <div id="loading">
+        <div class="t">Загрузка модели стадиона…</div>
+        <div id="bar"><div id="barfill"></div></div>
+        <div id="loadmsg">подключение…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/loaders/GLTFLoader.js';
+import {MeshoptDecoder} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/meshopt_decoder.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/controls/OrbitControls.js';
+
+const CLS_RU={
+  IFCSLAB:'Плиты (трибуны, перекрытия)', IFCBEAM:'Балки и ригели',
+  IFCWALL:'Стены', IFCWALLSTANDARDCASE:'Стены (типовые)',
+  IFCBUILDINGELEMENTPROXY:'Металлоконструкции (фермы, связи)',
+  IFCCOLUMN:'Колонны', IFCWINDOW:'Окна и витражи', IFCDOOR:'Двери',
+  IFCSITE:'Рельеф и площадка', IFCSTAIR:'Лестницы', IFCROOF:'Покрытие'
+};
+const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE'];
+const FLOOR_ORDER=['1-й этаж','2-й этаж','3-й этаж','4-й этаж','5. Этаж','6. Этаж','7. Этаж','Площадка','Без этажа'];
+
+const view=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+view.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0e1116);
+scene.fog=new THREE.Fog(0x0e1116,900,2600);
+
+const camera=new THREE.PerspectiveCamera(50,1,0.5,6000);
+camera.position.set(330,240,330);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.08;
+controls.maxDistance=2000;
+
+scene.add(new THREE.HemisphereLight(0xdfe8f5,0x2a2f36,1.15));
+const sun=new THREE.DirectionalLight(0xfff2df,1.6); sun.position.set(300,420,180); scene.add(sun);
+const fill=new THREE.DirectionalLight(0xbcd2ff,0.5); fill.position.set(-260,180,-220); scene.add(fill);
+
+const grid=new THREE.GridHelper(600,30,0x2a3442,0x1c232e);
+grid.position.y=-0.05; scene.add(grid);
+
+function resize(){
+  const w=view.clientWidth,h=view.clientHeight;
+  renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+addEventListener('resize',resize); resize();
+
+let META=null, meshes=[], eidxCache={}, wireOn=false;
+let highlight=null;
+
+const fmt=n=>n.toLocaleString('ru-RU');
+
+async function boot(){
+  META=await (await fetch('elements.json')).json();
+  document.getElementById('stEl').textContent=fmt(META.elements.length);
+
+  const loader=new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+
+  // Если model.glb доступен напрямую — грузим его; иначе собираем из base64-чанков
+  // (вариант публикации на GitHub, где бинарные файлы хранятся как текстовые части)
+  const CHUNKS=3;
+  function setProg(done,total){
+    const p=Math.round(done/total*100);
+    document.getElementById('barfill').style.width=p+'%';
+    document.getElementById('loadmsg').textContent=`модель: ${(done/1e6).toFixed(1)} / ${(total/1e6).toFixed(1)} МБ`;
+  }
+  async function fetchBuf(url,onProgress){
+    const r=await fetch(url);
+    if(!r.ok) throw new Error(url+': '+r.status);
+    const total=+r.headers.get('Content-Length')||0;
+    const rd=r.body.getReader(); const chunks=[]; let got=0;
+    for(;;){ const {done,value}=await rd.read(); if(done)break;
+      chunks.push(value); got+=value.length; onProgress&&onProgress(got,total); }
+    const u8=new Uint8Array(got); let off=0;
+    for(const c of chunks){u8.set(c,off);off+=c.length;}
+    return u8;
+  }
+  function b64ToBuf(b64){
+    const bin=atob(b64); const n=bin.length; const u8=new Uint8Array(n);
+    for(let i=0;i<n;i++)u8[i]=bin.charCodeAt(i);
+    return u8.buffer;
+  }
+  let glbBuf=null, direct=false;
+  try{ const h=await fetch('model.glb',{method:'HEAD'}); direct=h.ok; }catch(e){}
+  const gltf=await new Promise(async (res,rej)=>{
+    try{
+      if(direct){
+        const u8=await fetchBuf('model.glb',setProg);
+        glbBuf=u8.buffer;
+      }else{
+        document.getElementById('loadmsg').textContent='загрузка частей модели…';
+        let b64=''; let base=0; const est=8.6e6;
+        for(let i=0;i<CHUNKS;i++){
+          const id=String(i).padStart(2,'0');
+          const t=new TextDecoder().decode(await fetchBuf(`assets/model.glb.b64.${id}`,
+            (g,t)=>setProg(base+g, est)));
+          b64+=t; base+=t.length;
+        }
+        document.getElementById('loadmsg').textContent='декодирование модели…';
+        glbBuf=b64ToBuf(b64); b64=null;
+      }
+      loader.parse(glbBuf,'',res,rej);
+    }catch(e){rej(e);}
+  });
+
+  document.getElementById('loadmsg').textContent='построение сцены…';
+  const parser=gltf.parser;
+  let totalTris=0;
+  const found=[];
+  gltf.scene.traverse(o=>{ if(o.isMesh) found.push(o); });
+  found.forEach(o=>{
+    try{
+    const assoc=parser.associations.get(o)||{};
+    const mdef=parser.json.meshes[assoc.meshes];
+    const ex=(mdef&&mdef.extras)||o.userData||{};
+    o.geometry.computeVertexNormals();
+    const col=new THREE.Color('#'+(ex.color||'BFBFBF'));
+    const tr=ex.opacity||0;
+    const mat=new THREE.MeshStandardMaterial({
+      color:col, roughness:0.82, metalness:0.08,
+      transparent:tr>0.03, opacity:tr>0.03?Math.max(0.3,1-tr*0.9):1,
+      side:(ex.doubleSided||tr>0.03)?THREE.DoubleSide:THREE.FrontSide
+    });
+    o.material=mat;
+    o.userData.ex=ex;
+    o.__parser=parser;
+    meshes.push(o);
+    totalTris+=ex.ntri||0;
+    }catch(errMesh){ console.error('[boot] mesh fail', o.name, errMesh); throw errMesh; }
+  });
+  scene.add(gltf.scene);
+  gltf.scene.rotation.x=-Math.PI/2;   // IFC Z-up -> three.js Y-up
+  gltf.scene.updateMatrixWorld(true);
+  window.__modelRoot=gltf.scene;
+  document.getElementById('stTr').textContent=fmt(totalTris);
+
+  // этажи и классы из фактических данных
+  const flCount={}, clCount={};
+  META.elements.forEach(e=>{ flCount[e.s]=(flCount[e.s]||0)+1; clCount[e.c]=(clCount[e.c]||0)+1; });
+  const floors=[...new Set(meshes.map(m=>m.userData.ex.storey))];
+  floors.sort((a,b)=>FLOOR_ORDER.indexOf(a)-FLOOR_ORDER.indexOf(b));
+  document.getElementById('stFl').textContent=floors.length;
+  buildFilters(floors,flCount,clCount);
+
+  document.getElementById('loading').style.display='none';
+}
+
+const activeFloors=new Set(), activeCls=new Set();
+function buildFilters(floors,flCount,clCount){
+  const fbox=document.getElementById('floors'), cbox=document.getElementById('classes');
+  floors.forEach(f=>{
+    activeFloors.add(f);
+    const el=document.createElement('label'); el.className='flt';
+    el.innerHTML=`<input type="checkbox" checked> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
+    el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
+    fbox.appendChild(el);
+  });
+  const classes=[...new Set(meshes.map(m=>m.userData.ex.cls))];
+  classes.sort((a,b)=>CLS_ORDER.indexOf(a)-CLS_ORDER.indexOf(b));
+  classes.forEach(c=>{
+    activeCls.add(c);
+    const el=document.createElement('label'); el.className='flt';
+    el.innerHTML=`<input type="checkbox" checked> <span>${CLS_RU[c]||c}</span> <span class="cnt">${fmt(clCount[c]||0)}</span>`;
+    el.querySelector('input').onchange=ev=>{ ev.target.checked?activeCls.add(c):activeCls.delete(c); applyFilters(); };
+    cbox.appendChild(el);
+  });
+}
+function applyFilters(){
+  meshes.forEach(m=>{
+    const ex=m.userData.ex;
+    m.visible=activeFloors.has(ex.storey)&&activeCls.has(ex.cls);
+  });
+}
+
+async function getEidx(mesh){
+  const ex=mesh.userData.ex;
+  if(!(ex.eidx in eidxCache)){
+    const attr=await mesh.__parser.getDependency('accessor',ex.eidx);
+    eidxCache[ex.eidx]=attr.array;
+  }
+  return eidxCache[ex.eidx];
+}
+
+const ray=new THREE.Raycaster(); const ptr=new THREE.Vector2();
+let downX=0,downY=0;
+renderer.domElement.addEventListener('pointerdown',e=>{downX=e.clientX;downY=e.clientY;});
+renderer.domElement.addEventListener('pointerup',async e=>{
+  if(Math.hypot(e.clientX-downX,e.clientY-downY)>5) return;
+  const r=renderer.domElement.getBoundingClientRect();
+  ptr.x=((e.clientX-r.left)/r.width)*2-1; ptr.y=-((e.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(ptr,camera);
+  const hits=ray.intersectObjects(meshes.filter(m=>m.visible),false);
+  if(!hits.length){ clearSel(); return; }
+  const h=hits[0];
+  const arr=await getEidx(h.object);
+  const eidx=arr[h.faceIndex];
+  select(eidx);
+});
+
+function clearSel(){
+  if(highlight){ highlight.removeFromParent(); highlight.geometry.dispose(); highlight=null; }
+  document.getElementById('info').style.display='none';
+}
+addEventListener('keydown',e=>{ if(e.key==='Escape') clearSel(); });
+document.getElementById('infoClose').onclick=clearSel;
+
+function select(eidx){
+  const e=META.elements[eidx];
+  if(!e) return;
+  clearSel();
+  // подсветка: собираем треугольники элемента
+  const spans=META.ranges[String(eidx)]||[];
+  const parts=[];
+  let bb=new THREE.Box3();
+  spans.forEach(([ni,s,c])=>{
+    const m=meshes[ni]; if(!m) return;
+    const src=m.geometry.attributes.position.array;
+    parts.push(src.slice(s*9,(s+c)*9));
+    for(let i=s*9;i<(s+c)*9;i+=3)
+      bb.expandByPoint(new THREE.Vector3(src[i],src[i+1],src[i+2]));
+  });
+  if(parts.length){
+    const total=parts.reduce((a,p)=>a+p.length,0);
+    const pos=new Float32Array(total);
+    let off=0; parts.forEach(p=>{pos.set(p,off); off+=p.length;});
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    highlight=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xf0a429,transparent:true,opacity:0.75,depthTest:true}));
+    (window.__modelRoot||scene).add(highlight);
+  }
+  document.getElementById('iName').textContent=e.n||'(без имени)';
+  document.getElementById('iCls').textContent=`${CLS_RU[e.c]||e.c} · ${e.s}`;
+  const rows=Object.entries(e.p||{}).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('iProps').innerHTML=rows||'<tr><td colspan="2" style="color:var(--mut)">свойства не выгружены</td></tr>';
+  document.getElementById('iGuid').textContent='IFC GUID: '+e.g;
+  document.getElementById('info').style.display='block';
+  // плавный перелёт к элементу при двойном клике по поиску — здесь только фокус по кнопке
+  select._bb=bb;
+}
+
+// поиск
+const sIn=document.getElementById('search'), sRes=document.getElementById('results');
+let sT=null;
+sIn.addEventListener('input',()=>{
+  clearTimeout(sT);
+  sT=setTimeout(()=>{
+    const q=sIn.value.trim().toLowerCase();
+    sRes.innerHTML='';
+    if(q.length<2) return;
+    let shown=0;
+    for(let i=0;i<META.elements.length&&shown<40;i++){
+      const e=META.elements[i];
+      if(e.n&&e.n.toLowerCase().includes(q)){
+        const d=document.createElement('div'); d.className='res';
+        d.innerHTML=`<span>${e.n}</span><span class="c">${CLS_RU[e.c]||e.c}</span>`;
+        d.onclick=()=>{ select(i); focusBB(select._bb); };
+        sRes.appendChild(d); shown++;
+      }
+    }
+    if(!shown) sRes.innerHTML='<div style="color:var(--mut);padding:6px 8px;font-size:12px">ничего не найдено</div>';
+  },200);
+});
+
+function focusBB(bb){
+  if(!bb||bb.isEmpty()) return;
+  if(window.__modelRoot) bb=bb.clone().applyMatrix4(window.__modelRoot.matrixWorld);
+  const c=bb.getCenter(new THREE.Vector3());
+  const sz=bb.getSize(new THREE.Vector3()).length();
+  const dir=camera.position.clone().sub(controls.target).normalize();
+  controls.target.copy(c);
+  camera.position.copy(c.clone().add(dir.multiplyScalar(Math.max(sz*1.6,30))));
+}
+
+// виды
+document.getElementById('vIso').onclick=()=>{ controls.target.set(0,20,0); camera.position.set(330,240,330); };
+document.getElementById('vTop').onclick=()=>{ controls.target.set(0,0,0); camera.position.set(0,620,0.01); };
+document.getElementById('vReset').onclick=()=>{ clearSel(); controls.target.set(0,20,0); camera.position.set(330,240,330);
+  activeFloors.clear(); activeCls.clear();
+  document.querySelectorAll('#floors input,#classes input').forEach(i=>{i.checked=true;});
+  document.querySelectorAll('#floors .flt').forEach(l=>activeFloors.add(l.querySelector('span').textContent));
+  meshes.forEach(m=>{activeCls.add(m.userData.ex.cls);});
+  applyFilters();
+};
+document.getElementById('vWire').onclick=function(){
+  wireOn=!wireOn; this.classList.toggle('on',wireOn);
+  meshes.forEach(m=>m.material.wireframe=wireOn);
+};
+
+boot().catch(err=>{
+  document.getElementById('loadmsg').textContent='Ошибка загрузки: '+err.message;
+  console.error(err);
+});
+
+renderer.setAnimationLoop(()=>{ controls.update(); renderer.render(scene,camera); });
+</script>
+</body>
+</html>
