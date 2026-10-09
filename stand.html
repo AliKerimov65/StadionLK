@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Автодемо · Стадион им. Ленинского комсомола · Форум «Россия — спортивная держава»</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#0d1424;color:#e8e6df;font-family:'Inter',system-ui,sans-serif}
+#scene{position:fixed;inset:0}
+#scene canvas{display:block}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:3;
+  background:radial-gradient(ellipse at center,transparent 52%,rgba(5,8,16,.55) 100%)}
+
+/* наложение-рендер (кросс-фейд 3D -> образ будущего) */
+.ovl{position:fixed;inset:0;z-index:4;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity 1.1s ease;pointer-events:none}
+.ovl.show{opacity:.97}
+
+/* титры фазы */
+#capWrap{position:fixed;left:5%;bottom:12%;z-index:6;max-width:62%;transition:opacity .28s ease}
+#capWrap.fade{opacity:0}
+#capKick{font:600 12px 'Inter',sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#c9a227;margin-bottom:10px}
+#capTitle{font:900 clamp(24px,3.4vw,54px)/1.1 'Playfair Display',Georgia,serif;color:#f4efdd;text-shadow:0 3px 22px rgba(0,0,0,.65)}
+#capSub{margin-top:10px;font:400 clamp(13px,1.15vw,18px)/1.5 'Inter',sans-serif;color:#cfd5e2;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+
+/* карточки открытия/закрытия */
+#cardBG{position:fixed;inset:0;z-index:7;background:rgba(8,12,22,.55);backdrop-filter:blur(0px);
+  opacity:0;transition:opacity .8s ease;pointer-events:none}
+#card{position:fixed;z-index:8;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(880px,86vw);padding:52px 60px;text-align:center;background:rgba(13,20,36,.9);
+  border:1px solid rgba(201,162,39,.5);border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.6);
+  opacity:0;transition:opacity .8s ease,transform .8s ease;pointer-events:none}
+#cardBG.show{opacity:1;backdrop-filter:blur(6px)}
+#card.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#cKick{font:600 clamp(11px,1vw,14px) 'Inter',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#c9a227}
+#cTitle{margin:16px 0 14px;font:900 clamp(26px,3.6vw,52px)/1.12 'Playfair Display',Georgia,serif;color:#f4efdd}
+#cSub{font:400 clamp(13px,1.2vw,17px)/1.55 'Inter',sans-serif;color:#c6ccdb}
+#cQR{display:none;margin:22px auto 0;width:118px;height:118px;background:#fff;border-radius:8px;padding:6px}
+#cQR.show{display:block}
+#cQRlbl{display:none;margin-top:8px;font:500 12px 'Inter',sans-serif;color:#8a93a8;letter-spacing:.06em}
+#cQRlbl.show{display:block}
+
+/* HUD цифр (фаза бюджета) */
+#hud{position:fixed;z-index:6;right:5%;top:16%;display:none;flex-direction:column;gap:14px}
+#hud.show{display:flex}
+.chip{padding:16px 26px;background:rgba(13,20,36,.82);border:1px solid rgba(201,162,39,.4);border-radius:8px;
+  backdrop-filter:blur(6px);transform:translateX(24px);opacity:0;transition:transform .5s ease,opacity .5s ease}
+#hud.show .chip{transform:none;opacity:1}
+.chip b{display:block;font:700 clamp(20px,2vw,32px) 'Playfair Display',serif;color:#e0bc45}
+.chip span{font:500 11.5px 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#a8b0c4}
+
+/* прогресс и подсказки */
+#progWrap{position:fixed;left:0;right:0;bottom:0;height:5px;z-index:9;background:rgba(255,255,255,.07)}
+#prog{height:100%;width:0;background:#c9a227}
+.progTick{position:absolute;top:-2px;width:1px;height:9px;background:rgba(201,162,39,.55)}
+#pauseHint{position:fixed;right:22px;bottom:20px;z-index:9;font:500 12px 'Inter',sans-serif;color:#8a93a8;
+  letter-spacing:.06em;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+#pauseHint.paused{color:#e0bc45}
+
+/* звук */
+#sndBtn{position:fixed;top:18px;right:18px;z-index:910;display:flex;align-items:center;gap:10px;
+  padding:12px 18px;background:rgba(13,20,36,.85);border:1px solid rgba(201,162,39,.45);border-radius:6px;
+  color:#f0ead6;font:600 12px 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+#sndBtn:hover{border-color:#c9a227}
+#sndBtn.off{opacity:.65}
+#sndBtn.na{opacity:.4;cursor:default}
+
+/* загрузка */
+#load{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;background:#0d1424;transition:opacity .6s ease}
+#load.done{opacity:0;pointer-events:none}
+#load .lg{font:900 clamp(20px,2.4vw,34px) 'Playfair Display',serif;color:#f0ead6;letter-spacing:.02em}
+#load .lg b{color:#c9a227}
+#load .bar{width:min(420px,70vw);height:3px;background:rgba(255,255,255,.1)}
+#load .bar i{display:block;height:100%;width:0;background:#c9a227;transition:width .2s}
+#load .st{font:400 12.5px 'Inter',sans-serif;color:#8a93a8;letter-spacing:.08em}
+@media(max-width:760px){#capWrap{max-width:88%;bottom:9%}#hud{top:auto;bottom:24%;right:5%}}
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="vignette"></div>
+
+<img class="ovl" id="ovlA" alt="">
+<img class="ovl" id="ovlB" alt="">
+
+<div id="capWrap">
+  <div id="capKick"></div>
+  <div id="capTitle"></div>
+  <div id="capSub"></div>
+</div>
+
+<div id="hud">
+  <div class="chip"><b>5,0 млрд ₽</b><span>бюджет с НДС 22%</span></div>
+  <div class="chip"><b>22 месяца</b><span>проектирование и строительство</span></div>
+  <div class="chip"><b>25 000</b><span>зрителей после модернизации</span></div>
+  <div class="chip"><b>8 опор</b><span>буронабивные сваи · автономно от наследия</span></div>
+</div>
+
+<div id="cardBG"></div>
+<div id="card">
+  <div id="cKick"></div>
+  <div id="cTitle"></div>
+  <div id="cSub"></div>
+  <img id="cQR" src="assets/img/qr_site.svg" alt="QR-код сайта проекта">
+  <div id="cQRlbl">сайт проекта · alikerimov65.github.io/StadionLK</div>
+</div>
+
+<div id="progWrap"><div id="prog"></div></div>
+<div id="pauseHint">Пробел — пауза · Касание — меню модулей</div>
+<button id="sndBtn" class="off" title="Голосовой комментарий">🔇 Голос выкл</button>
+
+<div id="load">
+  <div class="lg">СТАДИОН <b>ИМ. ЛЕНИНСКОГО КОМСОМОЛА</b></div>
+  <div class="bar"><i id="loadBar"></i></div>
+  <div class="st" id="loadSt">Загрузка 3D-модели…</div>
+</div>
+
+<script src="modules.js"></script>
+<script type="importmap">{"imports":{"three":"./three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from './addons/loaders/GLTFLoader.js';
+import {MeshoptDecoder} from './addons/libs/meshopt_decoder.module.js';
+
+/* ================= ПАРАМЕТРЫ ================= */
+const Q=new URLSearchParams(location.search);
+const RECORD=Q.get('record')==='1';        // детерминированная запись кадров
+const REC_FPS=Math.max(5,Math.min(60,parseFloat(Q.get('fps'))||30));
+if(RECORD){                                 // при записи прячем служебный UI
+  const st=document.createElement('style');
+  st.textContent='#sndBtn,#modNavBtn,#pauseHint,#idlePill,#progWrap,.progTick{display:none!important}';
+  document.head.appendChild(st);
+}
+const T=90;                                // длительность цикла, секунд
+
+/* ================= СЦЕНА ================= */
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0d1424);
+scene.fog=new THREE.Fog(0x0d1424,900,2600);
+const camera=new THREE.PerspectiveCamera(46,innerWidth/innerHeight,0.5,6000);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+document.getElementById('scene').appendChild(renderer.domElement);
+
+const hemi=new THREE.HemisphereLight(0xbdd0ee,0x1a2030,1.0);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff2d8,2.2);sun.position.set(300,420,180);scene.add(sun);
+const rim=new THREE.DirectionalLight(0x88aaff,0.7);rim.position.set(-350,260,-220);scene.add(rim);
+
+/* снег */
+const SNOW_N=900;
+const snowGeo=new THREE.BufferGeometry();
+{
+  const p=new Float32Array(SNOW_N*3);
+  for(let i=0;i<SNOW_N;i++){p[i*3]=-260+Math.random()*520;p[i*3+1]=Math.random()*160;p[i*3+2]=-260+Math.random()*520}
+  snowGeo.setAttribute('position',new THREE.BufferAttribute(p,3));
+}
+const snow=new THREE.Points(snowGeo,new THREE.PointsMaterial({color:0xdfe8ff,size:0.9,transparent:true,opacity:0.55,depthWrite:false}));
+scene.add(snow);
+const sVel=Array.from({length:SNOW_N},()=>4+Math.random()*7);
+
+/* ================= ЗАГРУЗКА МОДЕЛИ ================= */
+const loadBar=document.getElementById('loadBar'),loadSt=document.getElementById('loadSt');
+const world=new THREE.Group();scene.add(world);          // существующая модель
+const modelMats=[];                                       // материалы для «призрака»
+let RX=120,RZ=85,H=26;                                    // габариты по умолчанию (м)
+
+async function fetchGLB(){
+  try{const h=await fetch('model.glb',{method:'HEAD'});
+    if(h.ok)return (await fetch('model.glb')).arrayBuffer();
+  }catch(e){}
+  loadSt.textContent='Загрузка 3D-модели (резервный канал)…';
+  const parts=[];
+  for(let i=0;i<3;i++){
+    const t=await (await fetch('assets/model.glb.b64.0'+i)).text();
+    parts.push(t.replace(/\s+/g,''));
+    loadBar.style.width=(15+i*25)+'%';
+  }
+  const b64=parts.join(''),bin=atob(b64),buf=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  return buf.buffer;
+}
+
+function frameModel(root){
+  root.rotation.x=-Math.PI/2;                 // IFC Z-up -> Y-up
+  root.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(root);
+  const c=box.getCenter(new THREE.Vector3()),s=box.getSize(new THREE.Vector3());
+  root.position.sub(new THREE.Vector3(c.x,box.min.y,c.z));
+  RX=Math.max(40,s.x/2);RZ=Math.max(30,s.z/2);H=Math.max(14,s.y);
+  window.__dims={RX,RZ,H};
+  scene.fog.near=Math.max(RX,RZ)*4;scene.fog.far=Math.max(RX,RZ)*11;
+}
+
+async function loadModel(){
+  try{
+    const buf=await fetchGLB();
+    loadSt.textContent='Построение сцены…';
+    const loader=new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    const gltf=await new Promise((res,rej)=>loader.parse(buf,'',res,rej));
+    frameModel(gltf.scene);
+    gltf.scene.traverse(o=>{
+      if(o.isMesh&&o.material){
+        (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+          if(!m.userData.op0){m.userData.op0=(m.opacity!==undefined?m.opacity:1);modelMats.push(m)}
+        });
+      }
+    });
+    world.add(gltf.scene);
+  }catch(e){
+    console.warn('Модель недоступна, показаны только проектные элементы',e);
+    loadSt.textContent='Модель не найдена: показаны проектные элементы';
+  }
+  loadBar.style.width='92%';
+}
+
+/* ================= ПАРАМЕТРИЧЕСКОЕ БУДУЩЕЕ ================= */
+const future=new THREE.Group();scene.add(future);
+const futParts={legs:[],futMats:[]};
+function buildFuture(){
+  const ringH=H+8, legH=ringH;
+  const steel=new THREE.MeshStandardMaterial({color:0xaeb9cc,metalness:.28,roughness:.45,transparent:true,emissive:0x141c2e,emissiveIntensity:.5});
+  const gold =new THREE.MeshStandardMaterial({color:0xc9a227,metalness:.5,roughness:.35,transparent:true,emissive:0x3a2e08,emissiveIntensity:.6});
+  const membr=new THREE.MeshStandardMaterial({color:0xeef3fb,metalness:0,roughness:.7,transparent:true,opacity:.20,side:THREE.DoubleSide,depthWrite:false,emissive:0x2a3550,emissiveIntensity:.5,fog:false});
+  const cush =new THREE.MeshStandardMaterial({color:0xfff3d6,metalness:0,roughness:.55,transparent:true,opacity:.45,depthWrite:false,emissive:0x4a4028,emissiveIntensity:.5,fog:false});
+  futParts.futMats=[steel,gold,membr,cush];
+  const legRX=RX*1.12,legRZ=RZ*1.12;
+  for(let k=0;k<8;k++){
+    const a=(k/8)*Math.PI*2+Math.PI/8;
+    const x=Math.cos(a)*legRX,z=Math.sin(a)*legRZ;
+    const leg=new THREE.Mesh(new THREE.CylinderGeometry(1.9,3.9,legH,4,1),steel);
+    leg.position.set(x,legH/2,z);leg.rotation.y=-a;
+    leg.scale.y=0.0001;future.add(leg);futParts.legs.push(leg);
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(6.2,7.4,2.4,12),steel.clone());
+    base.position.set(x,1.2,z);base.material.opacity=0;future.add(base);futParts.futMats.push(base.material);
+  }
+  const ell=new THREE.EllipseCurve(0,0,legRX,legRZ,0,Math.PI*2);
+  const epts=ell.getPoints(180).map(p=>new THREE.Vector3(p.x,0,p.y));
+  const ring=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(epts,true),220,1.7,10,true),gold);
+  ring.position.y=ringH;
+  future.add(ring);futParts.ring=ring;
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(1,64,24,0,Math.PI*2,0,Math.PI*0.42),membr);
+  dome.scale.set(legRX*0.97,(H+16),legRZ*0.97);dome.position.y=ringH-1.5;
+  future.add(dome);futParts.dome=dome;
+  const cu=new THREE.Mesh(new THREE.SphereGeometry(1,48,16,0,Math.PI*2,0,Math.PI*0.5),cush);
+  cu.scale.set(RX*0.52,5,RZ*0.40);cu.position.y=ringH+2;
+  future.add(cu);futParts.cush=cu;
+  future.visible=false;
+}
+function applyFuture(f){          // f: 0..1 «выращивание»
+  future.visible=f>0.001;
+  futParts.legs.forEach((l,i)=>{
+    const lf=Math.max(0.0001,Math.min(1,f*1.6-i*0.06));
+    l.scale.y=lf;l.material.opacity=Math.min(1,f*1.4);
+  });
+  if(futParts.ring){futParts.ring.material.opacity=f;const rs=0.94+0.06*f;futParts.ring.scale.set(rs,1,rs)}
+  if(futParts.dome){futParts.dome.material.opacity=0.30*f}
+  if(futParts.cush){futParts.cush.material.opacity=0.5*f}
+}
+
+/* ================= КАМЕРНЫЕ КРИВЫЕ ================= */
+let camCurve,tgtCurve;
+function buildCameras(){
+  const R=Math.max(RX,RZ);
+  camCurve=new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0,H*1.30,R*2.25),         // 0.00 геройный фронтальный
+    new THREE.Vector3(R*1.95,H*1.5,R*0.75),     // внешний облёт
+    new THREE.Vector3(R*0.5,R*2.6,-R*0.4),      // вертикальный подъём (топ-вид)
+    new THREE.Vector3(0,H*0.42,RZ*0.30),        // внутри чаши
+    new THREE.Vector3(-R*1.75,H*1.8,R*1.25),    // отъезд: рост опор
+    new THREE.Vector3(-R*1.2,H*0.75,-R*1.2),    // близко к опорам
+    new THREE.Vector3(R*1.6,H*1.7,-R*1.5),      // широкий замах
+  ],true,'catmullrom',0.12);
+  tgtCurve=new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0,H*0.45,0),
+    new THREE.Vector3(0,H*0.35,0),
+    new THREE.Vector3(0,0,0),
+    new THREE.Vector3(0,H*0.30,-RZ*0.35),
+    new THREE.Vector3(0,H*0.6,0),
+    new THREE.Vector3(-RX*0.9,H*0.5,-RZ*0.9),
+    new THREE.Vector3(0,H*0.5,0),
+  ],true,'catmullrom',0.12);
+}
+
+/* ================= СЦЕНАРИЙ ================= */
+const PH=[
+ {t0:0.000,t1:0.089,card:'open',
+  cap:['','Модернизация Центрального стадиона КУОР','Красноярск · остров Отдыха · концептуальные предложения · 2026']},
+ {t0:0.089,t1:0.233,voice:1,
+  cap:['Наследие','Стадион 1967 года — объект культурного наследия','Реставрация и приспособление 2016–2017 гг. (П-01-16-1-АР) · наследие сохраняем, а не сносим']},
+ {t0:0.233,t1:0.356,img:'plan_rotation',voice:2,
+  cap:['Ключевое решение','Поворот поля на 90°','Разворот внутри исторического овала: вместимость растёт до 25 000, силуэт памятника не меняется']},
+ {t0:0.356,t1:0.467,img:'future_interior',voice:3,
+  cap:['Трибуны','Чаша на 25 000 зрителей','Новые трибуны по стандартам FIFA и UEFA · 15 000 новых мест · исторические трибуны становятся торцевыми']},
+ {t0:0.467,t1:0.589,fut:1,voice:4,
+  cap:['Крыша','Раздвижная крыша с мембраной','Лёгкая металлическая мембрана по облегчённым балкам · над полем — секция из пневмоподушек · круглогодичная арена']},
+ {t0:0.589,t1:0.700,fut:1,ghost:0.38,glow:1,voice:5,
+  cap:['Конструктив','Восемь опорных ног','Вся масса крыши с внешними воздействиями — на 8 новых опор на буронабивных сваях · исторические трибуны не нагружаются']},
+ {t0:0.700,t1:0.822,fut:1,hud:1,voice:6,
+  cap:['Экономика','5,0 млрд ₽ с НДС · 22 месяца','СМР 3 560 млн · проектные 260 млн · поле с подогревом, спортивные технологии и мониторы включены']},
+ {t0:0.822,t1:1.001,fut:1,card:'close',
+  cap:['','Форум «Россия — спортивная держава»','Красноярск · проект готов к реализации · демонстрация повторяется автоматически']}
+];
+const CARDS={
+ open:{kick:'Форум «Россия — спортивная держава» · Красноярск',
+   title:'СТАДИОН ИМ. ЛЕНИНСКОГО КОМСОМОЛА',
+   sub:'Концепция модернизации Центрального стадиона КУОР · АНО «АНИИГБ» им. М. В. Кима · директор / ГИП Керимов А. Г.',qr:false},
+ close:{kick:'Проект готов к реализации',
+   title:'ФОРУМ «РОССИЯ — СПОРТИВНАЯ ДЕРЖАВА»',
+   sub:'Красноярск · модернизация Центрального стадиона КУОР · демонстрация повторяется автоматически',qr:true}
+};
+
+/* ================= DOM ================= */
+const capWrap=document.getElementById('capWrap'),capKick=document.getElementById('capKick'),
+      capTitle=document.getElementById('capTitle'),capSub=document.getElementById('capSub');
+const cardEl=document.getElementById('card'),cardBG=document.getElementById('cardBG');
+const cKick=document.getElementById('cKick'),cTitle=document.getElementById('cTitle'),cSub=document.getElementById('cSub');
+const cQR=document.getElementById('cQR'),cQRlbl=document.getElementById('cQRlbl');
+const prog=document.getElementById('prog'),progWrap=document.getElementById('progWrap');
+const pauseHint=document.getElementById('pauseHint'),hud=document.getElementById('hud');
+const ovlA=document.getElementById('ovlA'),ovlB=document.getElementById('ovlB');
+PH.slice(1,-1).forEach(p=>{
+  const tk=document.createElement('div');tk.className='progTick';tk.style.left=(p.t0*100)+'%';progWrap.appendChild(tk);
+});
+hud.querySelectorAll('.chip').forEach((c,i)=>c.style.transitionDelay=(i*0.12)+'s');
+
+/* наложения-рендеры: двухрежимная загрузка */
+async function setImg(el,name){
+  const direct='assets/img/'+name+'.jpg';
+  try{const h=await fetch(direct,{method:'HEAD'});if(h.ok){el.src=direct;return}}catch(e){}
+  try{const t=await(await fetch(direct+'.b64')).text();
+    el.src='data:image/jpeg;base64,'+t.replace(/\s+/g,'')}catch(e){}
+}
+let ovlCur='',ovlFlip=false;
+function showOverlay(name){
+  if(name===ovlCur)return;
+  const showEl=ovlFlip?ovlA:ovlB,hideEl=ovlFlip?ovlB:ovlA;ovlFlip=!ovlFlip;
+  ovlCur=name||'';
+  if(name){setImg(showEl,name);showEl.classList.add('show')}
+  hideEl.classList.remove('show');
+}
+
+/* ================= ЗВУК (выключен по умолчанию) ================= */
+const sndBtn=document.getElementById('sndBtn');
+let sndOn=false,sndOK=false,curAudio=null;
+const voiceCache={};
+async function probeVoice(){
+  try{const h=await fetch('assets/audio/voice_1.mp3',{method:'HEAD'});sndOK=h.ok}catch(e){sndOK=false}
+  if(!sndOK){sndBtn.classList.add('na');sndBtn.textContent='🔇 Голос: нет файлов';sndBtn.title='Аудиофайлы загружаются на стенд отдельно'}
+}
+function playVoice(n){
+  if(curAudio){curAudio.pause();curAudio=null}
+  if(!sndOn||!sndOK||!n)return;
+  let a=voiceCache[n];
+  if(!a){a=new Audio('assets/audio/voice_'+n+'.mp3');voiceCache[n]=a}
+  a.currentTime=0;a.play().catch(()=>{});curAudio=a;
+}
+sndBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!sndOK)return;
+  sndOn=!sndOn;
+  sndBtn.classList.toggle('off',!sndOn);
+  sndBtn.textContent=sndOn?'🔊 Голос вкл':'🔇 Голос выкл';
+  if(!sndOn&&curAudio){curAudio.pause();curAudio=null}
+  if(sndOn&&PH[curPhase])playVoice(PH[curPhase].voice);
+});
+
+/* ================= ФАЗЫ ================= */
+let curPhase=-1,capTimer=null;
+function phaseAt(t){for(let i=0;i<PH.length;i++){if(t>=PH[i].t0&&t<PH[i].t1)return i}return PH.length-1}
+function setPhase(i){
+  curPhase=i;const p=PH[i];
+  capWrap.classList.add('fade');clearTimeout(capTimer);
+  capTimer=setTimeout(()=>{
+    capKick.textContent=p.cap[0];capTitle.textContent=p.cap[1];capSub.textContent=p.cap[2];
+    capWrap.classList.remove('fade');
+  },280);
+  if(p.card){
+    const c=CARDS[p.card];
+    cKick.textContent=c.kick;cTitle.textContent=c.title;cSub.textContent=c.sub;
+    cQR.classList.toggle('show',c.qr);cQRlbl.classList.toggle('show',c.qr);
+    cardEl.classList.add('show');cardBG.classList.add('show');
+  }else{cardEl.classList.remove('show');cardBG.classList.remove('show')}
+  showOverlay(p.img||'');
+  hud.classList.toggle('show',!!p.hud);
+  playVoice(p.voice);
+}
+
+/* ================= УПРАВЛЕНИЕ ================= */
+let paused=false,menuOpen=false;
+addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();setPaused(!paused)}
+});
+function setPaused(v){
+  paused=v;
+  pauseHint.classList.toggle('paused',paused||menuOpen);
+  pauseHint.textContent=(paused||menuOpen)?'Пауза · Пробел — продолжить':'Пробел — пауза · Касание — меню модулей';
+  if(paused&&curAudio)curAudio.pause();else if(!paused&&curAudio)sndOn&&curAudio.play().catch(()=>{});
+}
+document.addEventListener('stand:menu-open',()=>{menuOpen=true;setPaused(true)});
+document.addEventListener('stand:menu-close',()=>{menuOpen=false;if(!RECORD)setPaused(false)});
+if(!RECORD)renderer.domElement.addEventListener('pointerdown',()=>{
+  const b=document.getElementById('modNavBtn');if(b)b.click();
+});
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ================= ЦИКЛ ================= */
+const startFrac=Math.min(0.999,Math.max(0,parseFloat(Q.get('t'))||0));
+let acc=startFrac*T;
+const cur={fut:0,ghost:1,glow:0};
+let last=performance.now();
+const cp=new THREE.Vector3(),ct=new THREE.Vector3();
+let glowMatsReady=false;
+
+function animate(now){
+  requestAnimationFrame(animate);
+  if(RECORD){
+    if(window.__recStep){window.__recStep=false;}   // ровно один шаг по команде
+    else return;                                    // иначе кадр удерживается
+  }
+  const dt=RECORD?(1/REC_FPS):Math.min(0.05,(now-last)/1000);last=now;
+  if(!paused&&!menuOpen)acc+=dt;
+  const t=(acc/T)%1;
+
+  if(camCurve){
+    camCurve.getPoint(t,cp);tgtCurve.getPoint(t,ct);
+    camera.position.copy(cp);camera.lookAt(ct);
+  }
+  const pi=phaseAt(t);
+  if(pi!==curPhase)setPhase(pi);
+  const p=PH[pi];
+  const k=Math.min(1,dt*2.2);
+  cur.fut+=((p.fut||0)-cur.fut)*k;
+  cur.ghost+=((p.ghost||1)-cur.ghost)*k;
+  cur.glow+=((p.glow||0)-cur.glow)*k;
+  applyFuture(cur.fut);
+  if(modelMats.length){
+    if(cur.ghost<0.999){
+      modelMats.forEach(m=>{m.transparent=true;m.opacity=m.userData.op0*cur.ghost});
+    }else if(cur.ghost<1.001){
+      modelMats.forEach(m=>{m.opacity=m.userData.op0;if(m.userData.op0>=1)m.transparent=false});
+    }
+  }
+  if(futParts.legs.length){
+    const e=cur.glow*(0.5+0.5*Math.sin(now/300));
+    const sm=futParts.legs[0].material;
+    if(cur.glow>0.02){sm.emissive.setHex(0xc9a227);sm.emissiveIntensity=0.15+e*0.6}
+    else{sm.emissive.setHex(0x141c2e);sm.emissiveIntensity=0.5}
+  }
+
+  /* снег */
+  const pos=snowGeo.attributes.position.array;
+  for(let i=0;i<SNOW_N;i++){
+    pos[i*3+1]-=sVel[i]*dt;
+    pos[i*3]+=Math.sin(now/900+i)*dt*0.5;
+    if(pos[i*3+1]<0){pos[i*3+1]=140+Math.random()*20;pos[i*3]=-240+Math.random()*480;pos[i*3+2]=-240+Math.random()*480}
+  }
+  snowGeo.attributes.position.needsUpdate=true;
+
+  prog.style.width=(t*100).toFixed(2)+'%';
+  renderer.render(scene,camera);
+  if(RECORD)window.__gframe=Math.round(acc*REC_FPS);   // метка кадра для покадровой записи
+}
+
+/* ================= СТАРТ ================= */
+(async()=>{
+  loadBar.style.width='8%';
+  await loadModel();
+  buildFuture();applyFuture(0);
+  buildCameras();
+  probeVoice();
+  loadBar.style.width='100%';
+  document.getElementById('load').classList.add('done');
+  capKick.textContent=PH[0].cap[0];capTitle.textContent=PH[0].cap[1];capSub.textContent=PH[0].cap[2];
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
