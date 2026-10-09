@@ -5,6 +5,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Стадион им. Ленинского комсомола, Красноярск — 3D-модель реконструкции</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
 <style>
   :root{
     --bg:#0e1116; --panel:#161b23; --panel2:#1c232e; --line:#2a3442;
@@ -12,9 +14,9 @@
   }
   *{box-sizing:border-box; margin:0; padding:0}
   html,body{height:100%; overflow:hidden; background:var(--bg); color:var(--txt);
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif; font-size:14px}
+    font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif; font-size:14px}
   #app{display:flex; flex-direction:column; height:100%}
-  header{display:flex; align-items:center; gap:18px; padding:10px 16px; background:var(--panel);
+  header{display:flex; align-items:center; gap:18px; padding:10px 16px 10px 236px; background:var(--panel);
     border-bottom:1px solid var(--line); flex:0 0 auto}
   header h1{font-size:15px; font-weight:600; letter-spacing:.2px; white-space:nowrap}
   header .sub{color:var(--mut); font-size:12px}
@@ -113,12 +115,12 @@
   </div>
 </div>
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"}}</script>
+<script type="importmap">{"imports":{"three":"./three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/loaders/GLTFLoader.js';
-import {MeshoptDecoder} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/libs/meshopt_decoder.module.js';
-import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/controls/OrbitControls.js';
+import {GLTFLoader} from './addons/loaders/GLTFLoader.js';
+import {MeshoptDecoder} from './addons/libs/meshopt_decoder.module.js';
+import {OrbitControls} from './addons/controls/OrbitControls.js';
 
 const CLS_RU={
   IFCSLAB:'Плиты (трибуны, перекрытия)', IFCBEAM:'Балки и ригели',
@@ -409,5 +411,6 @@ boot().catch(err=>{
 
 renderer.setAnimationLoop(()=>{ controls.update(); renderer.render(scene,camera); });
 </script>
+<script src="modules.js"></script>
 </body>
 </html>
