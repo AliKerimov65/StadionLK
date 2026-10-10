@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сейчас / Будет — Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+  :root{ --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45; --paper:#f4f1ea; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; overflow:hidden; background:var(--navy2); color:var(--paper);
+    font-family:Inter,"Segoe UI",system-ui,sans-serif}
+  /* ---------- сцена сравнения ---------- */
+  #stage{position:fixed; inset:0; user-select:none; -webkit-user-select:none; touch-action:none}
+  .layer{position:absolute; inset:0; opacity:0; transition:opacity .7s ease}
+  .layer.on{opacity:1}
+  .layer img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .layer .aft{clip-path:inset(0 0 0 var(--cut,50%))}
+  .veil{position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(13,20,36,.55),transparent 22%,transparent 72%,rgba(13,20,36,.72))}
+  /* разделитель */
+  #divider{position:absolute; top:0; bottom:0; left:50%; width:0; z-index:5; cursor:ew-resize}
+  #divider::before{content:''; position:absolute; top:0; bottom:0; left:-2px; width:4px;
+    background:linear-gradient(180deg,var(--gold),var(--gold2) 50%,var(--gold)); box-shadow:0 0 22px rgba(201,162,39,.75)}
+  #handle{position:absolute; top:50%; left:0; transform:translate(-50%,-50%); width:74px; height:74px;
+    border-radius:50%; background:rgba(19,27,48,.92); border:2px solid var(--gold);
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    box-shadow:0 8px 30px rgba(0,0,0,.55), 0 0 26px rgba(201,162,39,.35)}
+  #handle svg{width:13px; height:22px; fill:var(--gold2)}
+  /* ярлыки СЕЙЧАС / БУДЕТ */
+  .tag{position:absolute; top:7.5%; z-index:4; padding:10px 22px 12px; background:rgba(19,27,48,.78);
+    border:1px solid rgba(201,162,39,.55); backdrop-filter:blur(6px); pointer-events:none}
+  .tag small{display:block; font-size:clamp(10px,1.1vw,13px); letter-spacing:3.5px; color:var(--gold2); font-weight:600}
+  .tag b{font-family:"Playfair Display",serif; font-weight:900; font-size:clamp(19px,2.4vw,34px); color:var(--paper)}
+  #tagNow{left:4%; border-radius:4px 14px 14px 4px}
+  #tagFut{right:4%; text-align:right; border-radius:14px 4px 4px 14px}
+  /* заголовок снизу */
+  #cap{position:absolute; left:50%; bottom:5.5%; transform:translateX(-50%); z-index:4; text-align:center;
+    pointer-events:none; width:min(86%,1300px)}
+  #capKick{font-size:clamp(10px,1vw,13px); letter-spacing:4px; color:var(--gold2); font-weight:600; text-transform:uppercase}
+  #capTitle{font-family:"Playfair Display",serif; font-weight:900; font-size:clamp(22px,3vw,44px);
+    text-shadow:0 3px 18px rgba(0,0,0,.7); margin:4px 0 2px}
+  #capSub{font-size:clamp(12px,1.3vw,17px); color:#cfd8ea; text-shadow:0 2px 10px rgba(0,0,0,.8)}
+  /* переключатель пар */
+  #pairs{position:absolute; left:50%; bottom:1.8%; transform:translateX(-50%); z-index:6; display:flex; gap:10px}
+  .pdot{width:44px; height:6px; border-radius:3px; background:rgba(244,241,234,.25); border:none; cursor:pointer;
+    transition:background .3s, transform .3s}
+  .pdot.on{background:var(--gold); transform:scaleY(1.5)}
+  #hint{position:absolute; right:4%; bottom:1.9%; z-index:4; font-size:11.5px; color:#93a0ba; letter-spacing:.4px}
+  @media (max-width:760px){
+    #hint{display:none}
+    .tag{top:9%;padding:8px 14px 10px}
+    #tagNow{left:3%} #tagFut{right:3%}
+    #cap{bottom:14%;width:92%}
+    #pairs{bottom:7%}
+    .pdot{width:34px;height:8px;padding:7px 0;background-clip:content-box}
+    #handle{width:60px;height:60px}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer on" id="layA"><img class="bef" alt=""><img class="aft" alt=""></div>
+  <div class="layer"    id="layB"><img class="bef" alt=""><img class="aft" alt=""></div>
+  <div class="veil"></div>
+  <div class="tag" id="tagNow"><small>ЕСТЬ СЕЙЧАС</small><b>Объект 1967 года</b></div>
+  <div class="tag" id="tagFut"><small>БУДЕТ ТАКИМ</small><b>После модернизации</b></div>
+  <div id="cap"><div id="capKick"></div><div id="capTitle"></div><div id="capSub"></div></div>
+  <div id="divider"><div id="handle">
+    <svg viewBox="0 0 10 18"><path d="M8 1 2 9l6 8"/></svg>
+    <svg viewBox="0 0 10 18"><path d="M2 1l6 8-6 8"/></svg>
+  </div></div>
+  <div id="pairs"></div>
+  <div id="hint">Тяните разделитель · Стрелки ← → · Клавиши 1–3 — смена пары · Esc — меню · Свайп ↓ — обновить</div>
+</div>
+
+<script>
+/* Пары «Сейчас / Будет» — изображения из assets/img (jpg, фолбэк .b64) */
+const PAIRS=[
+  {bef:'now_aerial',  aft:'future_aerial_roof', kick:'Аэрофото · вид сверху',
+   title:'Кольцо стадиона', sub:'Открытая чаша 1967 года и подвешенная крыша на восьми опорах'},
+  {bef:'now_today',   aft:'future_interior',    kick:'Внутри чаши',
+   title:'25 000 зрителей под крышей', sub:'Трибуны по нормам FIFA/UEFA вместо лёгкой атлетики вокруг поля'},
+  {bef:'now_bridge',  aft:'future_aerial2',     kick:'Вид со стороны Енисея',
+   title:'Новый силуэт набережной', sub:'Мембрана и пневмоподушки · подсветка опор в вечернем городе'}
+];
+let cur=0, cut=0.5, drag=false;
+const stage=document.getElementById('stage');
+const layA=document.getElementById('layA'), layB=document.getElementById('layB');
+const divider=document.getElementById('divider');
+const pairsBox=document.getElementById('pairs');
+let front=layA, back=layB;
+
+async function setImg(img,name){
+  const direct='assets/img/'+name+'.jpg';
+  try{ const h=await fetch(direct,{method:'HEAD'}); if(h.ok){img.src=direct;return true;} }catch(e){}
+  try{ const t=await (await fetch(direct+'.b64')).text();
+    img.src='data:image/jpeg;base64,'+t.replace(/\s+/g,''); return true; }catch(e){}
+  return false;
+}
+function applyCut(){
+  front.style.setProperty('--cut',(cut*100).toFixed(2)+'%');
+  back.style.setProperty('--cut',(cut*100).toFixed(2)+'%');
+  divider.style.left=(cut*100).toFixed(2)+'%';
+}
+async function fillLayer(ly,p){
+  await Promise.all([setImg(ly.querySelector('.bef'),p.bef), setImg(ly.querySelector('.aft'),p.aft)]);
+}
+function showPair(i){
+  cur=(i+PAIRS.length)%PAIRS.length;
+  const p=PAIRS[cur];
+  document.getElementById('capKick').textContent=p.kick;
+  document.getElementById('capTitle').textContent=p.title;
+  document.getElementById('capSub').textContent=p.sub;
+  pairsBox.querySelectorAll('.pdot').forEach((d,k)=>d.classList.toggle('on',k===cur));
+  fillLayer(back,p).then(()=>{
+    back.classList.add('on'); front.classList.remove('on');
+    const t=front; front=back; back=t;
+  });
+}
+PAIRS.forEach((p,k)=>{
+  const d=document.createElement('button'); d.className='pdot'+(k===0?' on':'');
+  d.title=p.title; d.addEventListener('click',ev=>{ev.stopPropagation(); showPair(k);});
+  pairsBox.appendChild(d);
+});
+fillLayer(front,PAIRS[0]); showPair(0);
+
+/* ---------- перетаскивание разделителя ---------- */
+function setCutFromX(x){ const r=stage.getBoundingClientRect(); cut=Math.min(.96,Math.max(.04,(x-r.left)/r.width)); applyCut(); }
+divider.addEventListener('pointerdown',e=>{drag=true; divider.setPointerCapture(e.pointerId); e.stopPropagation();});
+addEventListener('pointermove',e=>{ if(drag) setCutFromX(e.clientX); });
+addEventListener('pointerup',()=>drag=false);
+stage.addEventListener('pointerdown',e=>{ if(e.target.closest('#pairs')||e.target.closest('#modNavBtn')||e.target.closest('#modMenu')) return; setCutFromX(e.clientX); });
+
+/* ---------- клавиатура ---------- */
+addEventListener('keydown',e=>{
+  if(document.getElementById('modMenu')?.classList.contains('open')) return;
+  if(e.key==='ArrowLeft'){ cut=Math.max(.04,cut-.04); applyCut(); }
+  else if(e.key==='ArrowRight'){ cut=Math.min(.96,cut+.04); applyCut(); }
+  else if(e.key>='1'&&e.key<='3'){ showPair(+e.key-1); }
+});
+applyCut();
+</script>
+<script src="modules.js"></script>
+</body>
+</html>

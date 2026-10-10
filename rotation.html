@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Разворот поля на 90° · Стадион им. Ленинского комсомола</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+  :root{
+    --navy:#131b30; --ink:#1c2438; --panel:#182238; --line:#2a3854;
+    --gold:#c9a227; --gold-soft:#af915f; --cream:#fce1b6; --paper:#f4f1ea;
+    --grey:#8a93a8; --red:#c23b2a; --green:#4c8a58; --green2:#417a4d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--navy); color:var(--paper);
+    font-family:'Inter',system-ui,sans-serif;
+    display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden;
+  }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .topbar .brand{
+    font-family:'Playfair Display',serif; font-size:15px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--gold-soft);
+  }
+  .topbar a.back{
+    color:var(--grey); text-decoration:none; font-size:13px; letter-spacing:.06em;
+    border:1px solid var(--line); padding:8px 16px; border-radius:2px; transition:.25s;
+  }
+  .topbar a.back:hover{color:var(--cream); border-color:var(--gold-soft)}
+  main{flex:1; display:flex; min-height:0}
+  .stage{
+    flex:1.45; position:relative; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(1200px 800px at 50% 42%, #1a2440 0%, var(--navy) 70%);
+    padding:12px 8px 4px;
+  }
+  .stage svg{height:100%; max-height:calc(100vh - 210px); width:auto; max-width:100%}
+  .panel{
+    flex:1; border-left:1px solid var(--line); padding:44px 44px 28px;
+    display:flex; flex-direction:column; gap:0; min-width:380px; max-width:560px;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Playfair Display',serif; font-weight:600; font-size:clamp(28px,3.2vw,44px);
+    line-height:1.12; margin-bottom:26px;
+  }
+  h1 em{font-style:normal; color:var(--gold-soft)}
+  .stageline{display:flex; gap:8px; margin-bottom:22px}
+  .stageline .dot{
+    flex:1; height:3px; background:var(--line); position:relative; cursor:pointer;
+  }
+  .stageline .dot i{
+    position:absolute; inset:0; background:var(--gold); transform-origin:left;
+    transform:scaleX(0); display:block;
+  }
+  .stageline .dot.done i{transform:scaleX(1)}
+  .stageline .dot span{
+    position:absolute; top:9px; left:0; font-size:10px; letter-spacing:.12em;
+    color:var(--grey); text-transform:uppercase; white-space:nowrap;
+  }
+  .stageline .dot.on span{color:var(--cream)}
+  .phase{
+    margin-top:38px; min-height:170px; position:relative;
+  }
+  .phase .card{position:absolute; inset:0; opacity:0; transform:translateY(10px); transition:opacity .5s, transform .5s; pointer-events:none}
+  .phase .card.on{opacity:1; transform:none; pointer-events:auto}
+  .phase h2{
+    font-family:'Playfair Display',serif; font-size:22px; font-weight:600;
+    color:var(--cream); margin-bottom:4px;
+  }
+  .phase .sub{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:14px}
+  .phase p{font-size:14.5px; line-height:1.65; color:#c9d2e4; max-width:46ch}
+  .phase p b{color:var(--cream); font-weight:600}
+  .facts{
+    margin-top:auto; padding-top:26px; border-top:1px solid var(--line);
+    display:grid; grid-template-columns:1fr 1fr; gap:14px 22px;
+  }
+  .facts div b{display:block; font-family:'Playfair Display',serif; font-size:19px; color:var(--gold-soft); font-weight:600}
+  .facts div span{font-size:11.5px; color:var(--grey); letter-spacing:.04em}
+  .controls{
+    display:flex; align-items:center; gap:16px; padding:14px 32px;
+    border-top:1px solid var(--line); flex:0 0 auto; background:rgba(19,27,48,.9);
+  }
+  .controls.hidden{display:none}
+  #playBtn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--gold-soft);
+    background:transparent; color:var(--gold); cursor:pointer; font-size:15px;
+    display:flex; align-items:center; justify-content:center; transition:.25s; flex:0 0 auto;
+  }
+  #playBtn:hover{background:var(--gold); color:var(--navy)}
+  .seek{flex:1; height:26px; position:relative; cursor:pointer}
+  .seek .rail{position:absolute; left:0; right:0; top:12px; height:2px; background:var(--line)}
+  .seek .fill{position:absolute; left:0; top:12px; height:2px; background:var(--gold); width:0}
+  .seek .knob{
+    position:absolute; top:8px; width:10px; height:10px; border-radius:50%;
+    background:var(--cream); margin-left:-5px; left:0; box-shadow:0 0 0 4px rgba(201,162,39,.18);
+  }
+  .tlabel{font-size:12px; color:var(--grey); font-variant-numeric:tabular-nums; min-width:86px; text-align:right}
+  @media (max-width:980px){
+    main{flex-direction:column}
+    .panel{border-left:none; border-top:1px solid var(--line); min-width:0; max-width:none; padding:28px 24px}
+    .stage svg{max-height:60vh}
+    .topbar,.controls{padding-left:18px; padding-right:18px}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Стадион им. Ленинского комсомола · Красноярск</div>
+  <a class="back" href="index.html#rotation">← К презентации</a>
+</header>
+<main>
+  <div class="stage" id="stageBox">
+    <svg id="plan" viewBox="-88 -128 176 256" role="img" aria-label="Схема разворота поля">
+      <defs>
+        <pattern id="hatch" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="3.4" height="3.4" fill="rgba(194,59,42,.16)"></rect>
+          <line x1="0" y1="0" x2="0" y2="3.4" stroke="#c23b2a" stroke-width="1.1" opacity=".8"></line>
+        </pattern>
+        <clipPath id="fieldClip"><rect x="-34" y="-52.5" width="68" height="105"/></clipPath>
+      </defs>
+      <g id="grid"></g>
+      <g id="bowl"></g>
+      <g id="trackG"></g>
+      <g id="trackGhost" opacity="0"></g>
+      <g id="redzones" opacity="0"></g>
+      <g id="rotG"></g>
+      <g id="ghosts" opacity="0"></g>
+      <g id="markup"></g>
+      <g id="labels"></g>
+    </svg>
+  </div>
+  <aside class="panel">
+    <div class="kicker">Ключевое изменение концепции</div>
+    <h1>Разворот поля <em>на 90°</em></h1>
+    <div class="stageline" id="dots"></div>
+    <div class="phase" id="phaseBox">
+      <div class="card" data-s="0">
+        <h2>Как есть</h2>
+        <div class="sub">1967 → 2026 · атлетический стадион</div>
+        <p>Футбольное поле <b>105×68 м</b> вписано вдоль продольной оси овала. Вокруг — легкоатлетическая дорожка <b>400 м · 8 дорожек</b> (радиус 36,5 м). Между торцами поля и трибунами — полукруглые зоны дорожки по <b>26 м</b>.</p>
+      </div>
+      <div class="card" data-s="1">
+        <h2>Шаг 1 · Демонтаж дорожки</h2>
+        <div class="sub">Освобождение чаши</div>
+        <p>Легкоатлетическая дорожка демонтируется — стадион становится футбольным. Историческая чаша: <b>96 осей · 30 рядов</b>, фасадные рёбра и козырёк западной трибуны <b>сохраняются без изменений</b>.</p>
+      </div>
+      <div class="card" data-s="2">
+        <h2>Шаг 2 · Разворот</h2>
+        <div class="sub">Поворот вокруг центральной точки</div>
+        <p>Поле разворачивается на <b>90°</b>: новая продольная ось — поперёк овала. Зрители длинных боковых трибун оказываются вдоль боковых линий — <b>максимальная близость к игре</b>.</p>
+      </div>
+      <div class="card" data-s="3">
+        <h2>Концепция · 2026</h2>
+        <div class="sub">Футбольный стадион в историческом овале</div>
+        <p>Поле 105×68 м поперёк овала. Его торцы выходят за габарит бывшей дорожки — <b>нижние ряды восточной и западной трибун переустраиваются</b> (красные зоны). Силуэт овала 1967 года не меняется.</p>
+      </div>
+    </div>
+    <div class="facts">
+      <div><b>105 × 68 м</b><span>футбольное поле</span></div>
+      <div><b>400 м · 8</b><span>дорожка IAAF, демонтируется</span></div>
+      <div><b>96 осей · 30 рядов</b><span>чаша трибун 1967 г.</span></div>
+      <div><b>0 м</b><span>изменений исторического овала</span></div>
+    </div>
+  </aside>
+</main>
+<div class="controls" id="controls">
+  <button id="playBtn" title="Пауза / Пуск (пробел)">❚❚</button>
+  <div class="seek" id="seek"><div class="rail"></div><div class="fill" id="fill"></div><div class="knob" id="knob"></div></div>
+  <div class="tlabel" id="tlabel">0,0 / 22,5 с</div>
+</div>
+<script>
+(function(){
+  'use strict';
+  /* ============ ГЕОМЕТРИЯ (метры, params.json / П-01-16-1 АР) ============ */
+  const FIELD_L=105, FIELD_W=68;              // поле: длина вдоль Y (как есть)
+  const STRAIGHT=84.39, A=STRAIGHT/2;         // прямая дорожки, полудлина
+  const R_IN=36.5, LANES=8, LANE_W=1.22;      // дорожка IAAF
+  const R_OUT=R_IN+LANES*LANE_W;              // 46.26
+  const MARGIN=2.7;                            // зазор до чаши
+  const R_BI=R_OUT+MARGIN;                     // внутр. грань чаши 48.96
+  const ROWS=30, TREAD=0.80, WALK=3.8;
+  const R_BO=R_BI+ROWS*TREAD+WALK;             // наруж. грань чаши 76.76
+  const NS='http://www.w3.org/2000/svg';
+  const $=id=>document.getElementById(id);
+  function el(n,at,parent){const e=document.createElementNS(NS,n);for(const k in at)e.setAttribute(k,at[k]);if(parent)parent.appendChild(e);return e}
+  /* капсула (стадионная форма): прямые вдоль Y, полудлина a, радиус r */
+  function capsule(r,a){
+    return `M ${-r} ${-a} L ${-r} ${a} A ${r} ${r} 0 0 0 ${r} ${a} L ${r} ${-a} A ${r} ${r} 0 0 0 ${-r} ${-a} Z`;
+  }
+  /* точка на периметре капсулы, t∈[0,1), начало — верх левой прямой, по часовой */
+  function capsulePoint(r,a,t){
+    const sl=2*a, arc=Math.PI*r, P=2*sl+2*arc;
+    let d=((t%1)+1)%1*P;
+    if(d<sl) return {x:-r, y:-a+d, nx:-1, ny:0};
+    d-=sl;
+    if(d<arc){const th=Math.PI-d/arc*Math.PI; return {x:r*Math.cos(th)*-1*-1===0?0:-(-r*Math.cos(th)), y:0, nx:0, ny:0}} // placeholder
+    return {x:0,y:0,nx:0,ny:0};
+  }
+  /* точнее: параметризация по четырём сегментам */
+  function capsulePt(r,a,t){
+    const sl=2*a, arc=Math.PI*r, P=2*(sl+arc);
+    let d=(((t%1)+1)%1)*P;
+    if(d<sl) return {x:-r, y:-a+d};                       // левая прямая, сверху вниз
+    d-=sl;
+    if(d<arc){const ph=Math.PI - d/r; return {x:r*Math.cos(ph), y:a+r*Math.sin(ph)}} // нижняя дуга
+    d-=arc;
+    if(d<sl) return {x:r, y:a-d};                         // правая прямая, снизу вверх
+    d-=sl;
+    const ph=-d/r; return {x:r*Math.cos(ph), y:-a-r*Math.sin(ph)}; // верхняя дуга
+  }
+
+  const GOLD='#c9a227', GOLDS='#af915f', CREAM='#fce1b6', RED='#c23b2a', GREY='#8a93a8';
+
+  /* ---------- миллиметровка ---------- */
+  (function grid(){
+    const g=$('grid');
+    for(let x=-80;x<=80;x+=10) el('line',{x1:x,y1:-125,x2:x,y2:125,stroke:'#223052','stroke-width':x%50?0.12:0.3,opacity:.5},g);
+    for(let y=-120;y<=120;y+=10) el('line',{x1:-85,y1:y,x2:85,y2:y,stroke:'#223052','stroke-width':y%50?0.12:0.3,opacity:.5},g);
+  })();
+
+  /* ---------- чаша ---------- */
+  (function bowl(){
+    const g=$('bowl');
+    el('path',{d:capsule(R_BO,A),fill:'#1a2540',stroke:GOLDS,'stroke-width':.5,'stroke-opacity':.9},g);
+    el('path',{d:capsule(R_BI,A),fill:'#141d36',stroke:CREAM,'stroke-width':.28,'stroke-opacity':.55},g);
+    /* 96 осей — радиальные штрихи */
+    const ribs=el('g',{stroke:GOLD,'stroke-width':.16,'stroke-opacity':.22},g);
+    for(let i=0;i<96;i++){
+      const t=i/96, p1=capsulePt(R_BI,A,t), p2=capsulePt(R_BO,A,t);
+      el('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y},ribs);
+    }
+    /* зонирование зрительских рядов: 3 ярусных контура */
+    [R_BI+8,R_BI+16].forEach(r=>el('path',{d:capsule(r,A),fill:'none',stroke:CREAM,'stroke-width':.14,'stroke-opacity':.18,'stroke-dasharray':'1.4 1.2'},g));
+    /* козырёк западной трибуны (существующий, +20.72, оси 18–31) */
+    const cz=el('g',{},g);
+    el('rect',{x:-R_BO+2,y:-30,width:R_BO-R_BI+12,height:60,fill:'rgba(201,162,39,.10)',stroke:GOLD,'stroke-width':.3,'stroke-dasharray':'2 1.4','stroke-opacity':.8},cz);
+    const t=el('text',{x:-84.6,y:0,fill:GOLDS,'font-size':3.0,'letter-spacing':.5,'text-anchor':'middle',transform:'rotate(-90 -84.6 0)'},cz);
+    t.textContent='козырёк зап. трибуны +20,72 (сущ.)';
+    /* 4 мачты освещения h=45 */
+    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sy])=>{
+      const mx=sx*(R_BO+7)*0.78, my=sy*(A+R_BO+7)*0.82;
+      const m=el('g',{},g);
+      el('rect',{x:mx-1.5,y:my-1.5,width:3,height:3,fill:'none',stroke:GOLD,'stroke-width':.4},m);
+      el('circle',{cx:mx,cy:my,r:.55,fill:GOLD},m);
+      el('line',{x1:mx-2.6,y1:my,x2:mx+2.6,y2:my,stroke:GOLD,'stroke-width':.22,'stroke-opacity':.6},m);
+      el('line',{x1:mx,y1:my-2.6,x2:mx,y2:my+2.6,stroke:GOLD,'stroke-width':.22,'stroke-opacity':.6},m);
+    });
+    /* 2 табло за воротами */
+    [[0,-(A+R_IN+8)],[0,A+R_IN+8]].forEach(([sx,sy])=>{
+      el('rect',{x:sx-5,y:sy-2.8,width:10,height:5.6,fill:'rgba(201,162,39,.14)',stroke:GOLD,'stroke-width':.35},g);
+    });
+  })();
+
+  /* ---------- дорожка 400 м / 8 ---------- */
+  (function track(){
+    const g=$('trackG');
+    el('path',{d:capsule(R_OUT,A),fill:'#26324e',stroke:'none'},g);
+    el('path',{d:capsule(R_IN,A),fill:'#141d36',stroke:'none'},g); // вырез внутр. поля
+    const lanes=el('g',{stroke:CREAM,'stroke-width':.16,'stroke-opacity':.5,fill:'none'},g);
+    for(let i=0;i<=LANES;i++) el('path',{d:capsule(R_IN+i*LANE_W,A)},lanes);
+    /* разметка: старт/финиш 100 м */
+    el('line',{x1:R_IN,y1:-A,x2:R_OUT,y2:-A,stroke:'#fff','stroke-width':.4,'stroke-opacity':.85},g);
+    const lbl=el('text',{x:0,y:-(A+R_IN+16),fill:GREY,'font-size':3.4,'text-anchor':'middle','letter-spacing':.6,id:'trackLbl'},g);
+    lbl.textContent='легкоатлетическая дорожка 400 м · 8 дорожек · R 36,5 м';
+  })();
+  (function ghost(){
+    const g=$('trackGhost');
+    el('path',{d:capsule(R_OUT,A),fill:'none',stroke:GREY,'stroke-width':.3,'stroke-dasharray':'2.4 1.8','stroke-opacity':.7},g);
+    el('path',{d:capsule(R_IN,A),fill:'none',stroke:GREY,'stroke-width':.3,'stroke-dasharray':'2.4 1.8','stroke-opacity':.7},g);
+  })();
+
+  /* ---------- красные зоны преобразований ---------- */
+  (function red(){
+    const g=$('redzones');
+    /* секторы боковых трибун между габаритом дорожки и чашей, y в пределах ±40 */
+    [1,-1].forEach(s=>{
+      const x0=s>0?36.5:-(R_BO-2), x1=s>0?(R_BO-2):-36.5;
+      el('rect',{x:Math.min(x0,x1),y:-40,width:Math.abs(x1-x0),height:80,
+        fill:'url(#hatch)',stroke:RED,'stroke-width':.45,'stroke-dasharray':'2.6 1.6'},g);
+    });
+    const t1=el('text',{x:0,y:-50.8,fill:'#e08073','font-size':3.1,'text-anchor':'middle','letter-spacing':.5},g);
+    t1.textContent='красным — зоны переустройства нижних рядов трибун';
+  })();
+
+  /* ---------- поле (вращаемая группа) ---------- */
+  const fieldG=(function field(){
+    const rot=$('rotG');
+    const g=el('g',{id:'fieldG'},rot);
+    /* газон с полосами кошения */
+    el('rect',{x:-FIELD_W/2,y:-FIELD_L/2,width:FIELD_W,height:FIELD_L,fill:'#417a4d'},g);
+    const stripes=el('g',{clipPath:'url(#fieldClip)'},g);
+    for(let i=0;i<10;i+=2) el('rect',{x:-FIELD_W/2,y:-FIELD_L/2+i*(FIELD_L/10),width:FIELD_W,height:FIELD_L/10,fill:'#4c8a58'},stripes);
+    /* разметка */
+    const mk=el('g',{stroke:'#f4f1ea','stroke-width':.45,fill:'none','stroke-opacity':.95},g);
+    el('rect',{x:-FIELD_W/2,y:-FIELD_L/2,width:FIELD_W,height:FIELD_L},mk);
+    el('line',{x1:-FIELD_W/2,y1:0,x2:FIELD_W/2,y2:0},mk);
+    el('circle',{cx:0,cy:0,r:9.15},mk);
+    el('circle',{cx:0,cy:0,r:.5,fill:'#f4f1ea',stroke:'none'},mk);
+    /* штрафные, вратарские, дуги и ворота — через отражённые группы */
+    [1,-1].forEach(s=>{
+      const e=el('g',{transform:`translate(0 ${s*FIELD_L/2}) scale(1 ${s})`},mk);
+      el('rect',{x:-20.16,y:-16.5,width:40.32,height:16.5},e);
+      el('rect',{x:-9.16,y:-5.5,width:18.32,height:5.5},e);
+      el('circle',{cx:0,cy:-11,r:.45,fill:'#f4f1ea',stroke:'none'},e);
+      el('path',{d:`M ${-9.15*Math.cos(0.93)} ${-11-9.15*Math.sin(0.93)} A 9.15 9.15 0 0 0 ${9.15*Math.cos(0.93)} ${-11-9.15*Math.sin(0.93)}`,fill:'none'},e);
+      el('rect',{x:-3.66,y:0,width:7.32,height:1.6,fill:'none'},e);
+    });
+    return g;
+  })();
+
+  /* ---------- призрачные положения при повороте ---------- */
+  (function ghosts(){
+    const g=$('ghosts');
+    [30,60].forEach(a=>{
+      el('rect',{x:-FIELD_W/2,y:-FIELD_L/2,width:FIELD_W,height:FIELD_L,
+        fill:'none',stroke:CREAM,'stroke-width':.3,'stroke-opacity':.5,
+        'stroke-dasharray':'1.8 1.4',transform:`rotate(${a})`},g);
+    });
+    /* дуга поворота */
+    el('path',{d:'M 0 -62 A 62 62 0 0 1 62 0',fill:'none',stroke:GOLD,'stroke-width':.5,'stroke-dasharray':'3 2','marker-end':'url(#arr)'},g);
+    const defs=document.querySelector('#plan defs');
+    const marker=el('marker',{id:'arr',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'},defs);
+    el('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:GOLD},marker);
+  })();
+
+  /* ---------- размерные линии: север + привязанные к полю размеры ---------- */
+  (function dims(){
+    const g=$('labels');
+    const n=el('g',{},g);
+    el('line',{x1:-80,y1:-108,x2:-80,y2:-122,stroke:CREAM,'stroke-width':.4},n);
+    el('path',{d:'M -80 -122 L -81.6 -115 L -78.4 -115 Z',fill:CREAM},n);
+    const nt=el('text',{x:-80,y:-110,fill:CREAM,'font-size':4,'text-anchor':'middle','font-family':'Playfair Display,serif'},n);
+    nt.textContent='С';
+  })();
+  (function fieldDims(){
+    /* внутри вращаемой группы: размеры следуют за полем, всегда 105 × 68 */
+    const dg=el('g',{id:'dimG'},$('rotG'));
+    const g1=el('g',{stroke:GOLDS,'stroke-width':.25},dg);
+    const dy=FIELD_L/2+7;
+    el('line',{x1:-FIELD_W/2,y1:dy,x2:FIELD_W/2,y2:dy},g1);
+    el('line',{x1:-FIELD_W/2,y1:dy-1.4,x2:-FIELD_W/2,y2:dy+1.4},g1);
+    el('line',{x1:FIELD_W/2,y1:dy-1.4,x2:FIELD_W/2,y2:dy+1.4},g1);
+    const t1=el('text',{x:0,y:dy+4.6,fill:CREAM,'font-size':3.4,'text-anchor':'middle','letter-spacing':.5},dg);
+    t1.textContent='ширина 68 м';
+    const g2=el('g',{stroke:GOLDS,'stroke-width':.25},dg);
+    const dx=FIELD_W/2+7;
+    el('line',{x1:dx,y1:-FIELD_L/2,x2:dx,y2:FIELD_L/2},g2);
+    el('line',{x1:dx-1.4,y1:-FIELD_L/2,x2:dx+1.4,y2:-FIELD_L/2},g2);
+    el('line',{x1:dx-1.4,y1:FIELD_L/2,x2:dx+1.4,y2:FIELD_L/2},g2);
+    const t2=el('text',{x:dx+2.6,y:0,fill:CREAM,'font-size':3.4,'text-anchor':'middle','letter-spacing':.5,transform:`rotate(-90 ${dx+2.6} 0)`},dg);
+    t2.textContent='длина 105 м';
+  })();
+  /* угол поворота */
+  const angTxt=(function(){
+    const t=el('text',{x:0,y:-73.5,fill:GOLD,'font-size':7.5,'text-anchor':'middle','font-family':'Playfair Display,serif',opacity:0,id:'angT'},$('markup'));
+    t.textContent='0°';
+    return t;
+  })();
+  /* масштабная линейка */
+  (function scale(){
+    const g=el('g',{},$('markup'));
+    const y=118;
+    el('line',{x1:-80,y1:y,x2:-20,y2:y,stroke:GREY,'stroke-width':.3},g);
+    for(let i=0;i<=6;i++){
+      el('line',{x1:-80+i*10,y1:y-(i%2?0.8:1.6),x2:-80+i*10,y2:y+(i%2?0.8:1.6),stroke:GREY,'stroke-width':.3},g);
+    }
+    const t=el('text',{x:-50,y:y+4.6,fill:GREY,'font-size':2.9,'text-anchor':'middle','letter-spacing':.5},g);
+    t.textContent='0        20        40        60 м · схема в натуральных пропорциях';
+  })();
+
+  /* ============ АНИМАЦИЯ ============ */
+  const DUR=22.5;
+  const STAGES=[{t0:0,t1:4.0},{t0:4.0,t1:8.0},{t0:8.0,t1:13.0},{t0:13.0,t1:17.0},{t0:17.0,t1:20.5},{t0:20.5,t1:DUR}];
+  const DOTNAMES=['Как есть','Демонтаж','Разворот','Концепция'];
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const seg=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+
+  const dotsBox=$('dots');
+  DOTNAMES.forEach((n,i)=>{
+    const d=document.createElement('div');d.className='dot';d.dataset.i=i;
+    d.innerHTML=`<i></i><span>${i+1} · ${n}</span>`;
+    d.addEventListener('click',()=>{T=STAGES[i].t0+0.01;render(T)});
+    dotsBox.appendChild(d);
+  });
+  const dots=[...dotsBox.children];
+  const cards=[...document.querySelectorAll('.phase .card')];
+
+  const params=new URLSearchParams(location.search);
+  const freezePhase=params.has('phase')?parseInt(params.get('phase'),10):null;
+  const showUI=params.get('ui')!=='0';
+  if(!showUI){$('controls').classList.add('hidden')}
+  if(params.get('clean')==='1'){
+    document.querySelector('.panel').style.display='none';
+    document.querySelector('.topbar').style.display='none';
+    $('controls').classList.add('hidden');
+    document.querySelector('.stage svg').style.maxHeight='100vh';
+  }
+
+  let T=0, playing=true, last=performance.now();
+  function render(t){
+    /* трек: виден в стадии 1, растворяется в 2 */
+    const trackO=1-seg(t,4.2,7.4);
+    $('trackG').setAttribute('opacity',trackO.toFixed(3));
+    $('trackGhost').setAttribute('opacity',seg(t,5.4,8.0).toFixed(3));
+    /* поворот поля: стадия 3 */
+    const rot=ease(seg(t,8.2,12.6))*90;
+    $('rotG').setAttribute('transform',`rotate(${rot})`);
+    /* призраки и угол во время поворота */
+    const inRot=t>7.6&&t<13.2;
+    $('ghosts').setAttribute('opacity',inRot?0.9:0);
+    angTxt.setAttribute('opacity',inRot?1:0);
+    angTxt.textContent=Math.round(rot)+'°';
+    /* красные зоны: стадия 4 */
+    $('redzones').setAttribute('opacity',seg(t,13.2,15.2).toFixed(3));
+    /* размеры следуют за поворотом */
+    fieldDim(rot);
+    /* карточки и точки */
+    let s=0;
+    if(t>=STAGES[1].t0)s=1; if(t>=STAGES[2].t0)s=2; if(t>=STAGES[3].t0)s=3;
+    if(t>=STAGES[5].t0)s=0;
+    cards.forEach((c,i)=>c.classList.toggle('on',i===s));
+    dots.forEach((d,i)=>{
+      d.classList.toggle('on',i===s);
+      const st=STAGES[i];
+      const p=i<s?1:(i===s?seg(t,st.t0,st.t1):0);
+      d.querySelector('i').style.transform=`scaleX(${p})`;
+    });
+    /* прогресс */
+    const p=t/DUR;
+    $('fill').style.width=(p*100)+'%';
+    $('knob').style.left=(p*100)+'%';
+    $('tlabel').textContent=t.toFixed(1).replace('.',',')+' / 22,5 с';
+  }
+  function frame(now){
+    if(playing){
+      T+=(now-last)/1000;
+      if(T>=DUR)T-=DUR;
+      render(T);
+    }
+    last=now;
+    requestAnimationFrame(frame);
+  }
+  function setPlay(v){
+    playing=v;
+    $('playBtn').textContent=v?'❚❚':'▶';
+  }
+  $('playBtn').addEventListener('click',()=>setPlay(!playing));
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space'){e.preventDefault();setPlay(!playing)}
+  });
+  const seek=$('seek');
+  function seekTo(ev){
+    const r=seek.getBoundingClientRect();
+    T=clamp((ev.clientX-r.left)/r.width,0,1)*DUR;
+    render(T);
+  }
+  let seeking=false;
+  seek.addEventListener('pointerdown',e=>{seeking=true;seek.setPointerCapture(e.pointerId);seekTo(e)});
+  seek.addEventListener('pointermove',e=>{if(seeking)seekTo(e)});
+  seek.addEventListener('pointerup',()=>seeking=false);
+
+  if(freezePhase!==null){
+    /* статичный кадр стадии для рендера */
+    const ft=[2.0,6.0,10.4,16.0][clamp(freezePhase-1,0,3)];
+    setPlay(false); T=ft; render(T);
+    requestAnimationFrame(()=>render(T));
+  }else{
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){setPlay(false);T=16.0;render(T)}
+    requestAnimationFrame(frame);
+  }
+  render(T);
+})();
+</script>
+</body>
+</html>

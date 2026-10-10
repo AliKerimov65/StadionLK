@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Команда проекта — Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+  :root{ --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45; --paper:#f4f1ea; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{background:var(--navy2); scroll-behavior:smooth}
+  body{background:var(--navy2); color:var(--paper);
+    font-family:Inter,"Segoe UI",system-ui,sans-serif; min-height:100%}
+
+  /* ---------- шапка ---------- */
+  header{padding:calc(clamp(18px,3vw,34px) + 60px) clamp(16px,4vw,54px) 8px}
+  .kick{font-size:clamp(10px,1vw,13px); letter-spacing:4px; color:var(--gold2);
+    font-weight:600; text-transform:uppercase}
+  h1{font-family:"Playfair Display",serif; font-weight:900;
+    font-size:clamp(24px,3.4vw,46px); margin:6px 0 4px}
+  .sub{color:#b9c4da; font-size:clamp(12px,1.25vw,16px); max-width:1100px; line-height:1.55}
+  .sub b{color:var(--gold2); font-weight:600}
+
+  /* ---------- секции ---------- */
+  main{padding:10px clamp(16px,4vw,54px) 60px}
+  .grp{margin-top:30px}
+  .grp h2{font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(18px,2vw,26px); color:var(--paper);
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+  .grp h2 small{font-family:Inter,sans-serif; font-size:12px; color:#8fa0c0; letter-spacing:1px}
+  .grp h2::after{content:''; flex:1; height:1px; min-width:60px;
+    background:linear-gradient(90deg,rgba(201,162,39,.55),transparent)}
+  .lead{color:#b9c4da; font-size:clamp(12.5px,1.2vw,15px); line-height:1.6;
+    max-width:1150px; margin-top:10px}
+  .lead b{color:var(--gold2); font-weight:600}
+
+  /* ---------- карточки участников ---------- */
+  .team{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:14px; margin-top:20px; counter-reset:tm}
+  .tm{position:relative; border:1px solid rgba(201,162,39,.3); border-radius:12px;
+    background:linear-gradient(180deg,rgba(19,27,48,.8),rgba(13,20,36,.8));
+    padding:20px 20px 18px; counter-increment:tm; overflow:hidden;
+    transition:border-color .25s, transform .25s}
+  .tm:hover{border-color:rgba(224,188,69,.65); transform:translateY(-2px)}
+  .tm::before{content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--gold),transparent)}
+  .tm .num{position:absolute; top:14px; right:16px; font-family:"Playfair Display",serif;
+    font-size:30px; font-weight:700; color:rgba(201,162,39,.22)}
+  .tm .top{display:flex; align-items:center; gap:14px; margin-bottom:12px; padding-right:44px}
+  .mono{width:56px; height:56px; flex:0 0 56px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 32% 28%, var(--gold2), var(--gold) 62%, #8a6d13);
+    color:#0d1424; font-family:"Playfair Display",serif; font-weight:900; font-size:19px;
+    box-shadow:0 0 0 3px rgba(201,162,39,.18), 0 6px 18px rgba(0,0,0,.35)}
+  .tm h3{font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(16px,1.5vw,20px); line-height:1.25; color:var(--paper)}
+  .chip{display:inline-block; margin-top:6px; font-size:10px; letter-spacing:.8px;
+    text-transform:uppercase; padding:3px 10px; border-radius:20px;
+    border:1px solid rgba(201,162,39,.55); color:var(--gold2); white-space:nowrap}
+  .chip.pend{border-style:dashed; border-color:rgba(230,201,106,.75); color:#e6c96a}
+  .tm .role{font-size:13px; color:var(--gold2); font-weight:600; margin-bottom:8px}
+  .tm p{font-size:12.5px; color:#c7d2e6; line-height:1.55}
+  .tm ul{list-style:none; margin-top:10px; border-top:1px solid rgba(255,255,255,.07);
+    padding-top:10px}
+  .tm li{font-size:12.5px; color:#c7d2e6; line-height:1.5; padding:3px 0 3px 16px;
+    position:relative}
+  .tm li::before{content:''; position:absolute; left:2px; top:10px; width:7px; height:7px;
+    border-radius:2px; background:var(--gold); opacity:.85}
+  .tm.pend{background:linear-gradient(180deg,rgba(19,27,48,.55),rgba(13,20,36,.55))}
+  .tm.pend .mono{background:none; border:2px dashed rgba(230,201,106,.7);
+    color:#e6c96a; box-shadow:none}
+
+  /* ---------- объект проекта ---------- */
+  .facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+    gap:12px; margin-top:18px}
+  .f{border:1px solid rgba(201,162,39,.25); border-radius:10px;
+    background:rgba(19,27,48,.5); padding:14px 14px 12px}
+  .f b{display:block; font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(16px,1.7vw,22px); color:var(--gold2); line-height:1.15}
+  .f span{display:block; margin-top:5px; font-size:11.5px; color:#9fb0cf; line-height:1.4}
+
+  .note{margin-top:22px; border-left:3px solid var(--gold); border-radius:0 10px 10px 0;
+    background:rgba(19,27,48,.55); padding:16px 18px;
+    font-size:12.5px; color:#c7d2e6; line-height:1.6; max-width:1150px}
+  .note b{color:var(--gold2); font-weight:600}
+
+  .foot{margin:0 clamp(16px,4vw,54px) 40px; padding:16px 0 26px;
+    border-top:1px solid rgba(201,162,39,.25);
+    font-size:11.5px; color:#8fa0c0; line-height:1.6}
+  .foot a{color:var(--gold2); text-decoration:none; border-bottom:1px dotted rgba(224,188,69,.5)}
+
+  @media (max-width:760px){
+    .team{grid-template-columns:1fr}
+    .tm .num{font-size:24px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kick">Стадион им. Ленинского комсомола · Красноярск · Форум «Россия — спортивная держава»</div>
+  <h1>Команда проекта</h1>
+  <p class="sub">Рабочая группа модернизации Центрального стадиона КУОР: институты власти,
+    автор концепции, собственник объекта и основной пользователь. Состав раздела
+    <b>формируется и будет дополняться</b> по мере официальных согласований.</p>
+</header>
+
+<main>
+<!-- ================= УЧАСТНИКИ ================= -->
+<section class="grp" id="team">
+  <h2>Участники проекта <small>5 сторон · статус на октябрь 2026</small></h2>
+  <p class="lead">Модернизация стадиона 1967 года постройки, являющегося объектом культурного
+    наследия, требует согласованной работы пяти сторон: от политического сопровождения
+    до будущей эксплуатации.</p>
+
+  <div class="team">
+
+    <article class="tm pend">
+      <span class="num">01</span>
+      <div class="top">
+        <div class="mono">АГ</div>
+        <div>
+          <h3>Администрация Губернатора Красноярского края</h3>
+          <span class="chip pend">после согласования</span>
+        </div>
+      </div>
+      <div class="role">Стратегическое сопровождение</div>
+      <p>Политическая поддержка проекта на уровне края, включение модернизации стадиона
+        в краевые программы развития спорта и межведомственная координация.</p>
+      <ul>
+        <li>придание проекту статуса краевого значения</li>
+        <li>координация работы профильных ведомств</li>
+        <li>представление проекта на форуме «Россия — спортивная держава»</li>
+      </ul>
+    </article>
+
+    <article class="tm">
+      <span class="num">02</span>
+      <div class="top">
+        <div class="mono">МС</div>
+        <div>
+          <h3>Министерство спорта Красноярского края</h3>
+          <span class="chip">отраслевой куратор</span>
+        </div>
+      </div>
+      <div class="role">Отраслевая политика и ресурсы</div>
+      <p>Профильное ведомство края. Кластер колледжа олимпийского резерва, в состав которого
+        входит стадион, развивается при поддержке министерства; ведомство обеспечивает
+        учёт требований охраны памятника при работах на объекте.</p>
+      <ul>
+        <li>краевые программы и финансирование спортивной инфраструктуры</li>
+        <li>методическое сопровождение спортивной комплектации</li>
+        <li>взаимодействие с органами охраны объектов культурного наследия</li>
+      </ul>
+    </article>
+
+    <article class="tm">
+      <span class="num">03</span>
+      <div class="top">
+        <div class="mono">АН</div>
+        <div>
+          <h3>АНО «АНИИГБ» им. М. В. Кима</h3>
+          <span class="chip">автор концепции</span>
+        </div>
+      </div>
+      <div class="role">Архитектура и инженерия проекта</div>
+      <p>Автор концепции модернизации 2026 года: «остров футбола» с раздвижной крышей,
+        поворот поля, восемь опорных ног и подвешенная мембрана над историческим
+        стадионом с минимальным демонтажом.</p>
+      <ul>
+        <li>концепция, BIM-методология и цифровой двойник объекта</li>
+        <li>смета 5,0 млрд ₽ и график реализации 22 месяца</li>
+        <li>маршрут прохождения процедур по ГрК РФ (ред. 2026)</li>
+      </ul>
+    </article>
+
+    <article class="tm">
+      <span class="num">04</span>
+      <div class="top">
+        <div class="mono">КК</div>
+        <div>
+          <h3>Собственник: Красноярский край</h3>
+          <span class="chip">краевая собственность</span>
+        </div>
+      </div>
+      <div class="role">КГАОУ ДПО «Красноярский колледж олимпийского резерва»</div>
+      <p>Стадион находится в собственности Красноярского края. Оперативное управление
+        объектом осуществляет колледж олимпийского резерва: стадион входит в его
+        спортивный кластер на острове Отдыха.</p>
+      <ul>
+        <li>согласование реконструкции и земельно-имущественные отношения</li>
+        <li>сохранность ОКН на период работ и после ввода</li>
+        <li>приём объекта в эксплуатацию по завершении реконструкции</li>
+      </ul>
+    </article>
+
+    <article class="tm">
+      <span class="num">05</span>
+      <div class="top">
+        <div class="mono">Е</div>
+        <div>
+          <h3>ФК «Енисей»</h3>
+          <span class="chip">основной пользователь</span>
+        </div>
+      </div>
+      <div class="role">Домашняя команда стадиона</div>
+      <p>Клуб проводит на Центральном домашние матчи и формирует спортивные требования
+        к модернизированной арене. Руководство и тренерский штаб «Енисея» публично
+        поддержали концепцию с раздвижной крышей.</p>
+      <ul>
+        <li>требования лиги: газон, освещение 2000 лк, VAR и Goal-Line</li>
+        <li>эксплуатационный режим и календарь на период работ</li>
+        <li>коммерческое наполнение: VIP-ложи, гостеприимство, матчдэй</li>
+      </ul>
+    </article>
+
+  </div>
+</section>
+
+<!-- ================= ОБЪЕКТ ПРОЕКТА ================= -->
+<section class="grp" id="object">
+  <h2>Объект проекта <small>Центральный стадион Красноярского училища олимпийского резерва</small></h2>
+  <div class="facts">
+    <div class="f"><b>1967</b><span>открыт 29 октября · архитектор Виталий Орехов</span></div>
+    <div class="f"><b>15 000</b><span>зрителей · домашняя арена ФК «Енисей» и сборной России по регби</span></div>
+    <div class="f"><b>105 × 68 м</b><span>футбольное поле · 7 700 м² · 8 беговых дорожек 400 м</span></div>
+    <div class="f"><b>о. Отдыха, 15А</b><span>Красноярск · кластер колледжа олимпийского резерва</span></div>
+    <div class="f"><b>ОКН</b><span>объект культурного наследия регионального значения · ЕГРОКН № 271410034940005</span></div>
+    <div class="f"><b>2005 · 2018 · 2023</b><span>проведённые реконструкции и обновление поля</span></div>
+  </div>
+
+  <div class="note"><b>Как читать этот раздел.</b> Состав рабочей группы указан по состоянию
+    на октябрь 2026 года и отражает текущую стадию проработки: концепция АНО «АНИИГБ»
+    им. М. В. Кима готова и представлена на этом сайте, поддержка клуба и министерства
+    подтверждена публично, участие Администрации Губернатора включается после
+    согласования. Роли, контакты и персональный состав будут уточняться по мере
+    официальных договорённостей.</div>
+</section>
+</main>
+
+<div class="foot">
+  Сведения о статусе объекта: статья «Центральный (стадион, Красноярск)» в Википедии
+  (правка от 29.07.2026: владелец — Красноярский край; ЕГРОКН № 271410034940005) и
+  официальный сайт КГАОУ ДПО «Красноярский колледж олимпийского резерва» kkor24.ru.
+  Публичные заявления участников: Sovsport.ru (25.05.2026), радио «Европа Плюс Красноярск»
+  1028.fm (02.07.2026). Раздел носит информационный характер.
+  См. также: <a href="budget.html">«Бюджет и сроки»</a> ·
+  <a href="architecture.html">«Архитектура · 3D виды»</a> ·
+  <a href="model.html">«Существующий стадион · BIM»</a>.
+</div>
+
+<script src="modules.js"></script>
+</body>
+</html>

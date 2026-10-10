@@ -1,0 +1,198 @@
+{
+ "title": "Стадион им. Ленинского комсомола (Центральный стадион КУОР), Красноярск, о. Отдыха 15А",
+ "stage": "AS-IS / как есть (2026), базовый слой под блоки концепции 2026",
+ "generated": "asis_v1",
+ "units": "meters",
+ "storeys": [
+  {
+   "id": "site",
+   "title": "Площадка и поле"
+  },
+  {
+   "id": "f1",
+   "title": "Этаж 1 · подтрибунные (0.000)"
+  },
+  {
+   "id": "f2",
+   "title": "Этаж 2 (+3.500)"
+  },
+  {
+   "id": "f3",
+   "title": "Этаж 3 (+7.000)"
+  },
+  {
+   "id": "bowl",
+   "title": "Чаша трибун · гребёнка и сиденья"
+  },
+  {
+   "id": "press",
+   "title": "Комментаторская (+18.550)"
+  },
+  {
+   "id": "canopy",
+   "title": "Козырёк западной трибуны"
+  },
+  {
+   "id": "masts",
+   "title": "Мачты освещения (4 шт)"
+  }
+ ],
+ "layers": [
+  {
+   "id": "site",
+   "meshes": [
+    "site"
+   ],
+   "storey": "site",
+   "built": true,
+   "title": "Территория и отмостка",
+   "source": "фото + л.14"
+  },
+  {
+   "id": "field",
+   "meshes": [
+    "field",
+    "field_lines"
+   ],
+   "storey": "site",
+   "built": true,
+   "title": "Футбольное поле 105×68",
+   "source": "лист плана поля"
+  },
+  {
+   "id": "track",
+   "meshes": [
+    "track",
+    "track_lines"
+   ],
+   "storey": "site",
+   "built": true,
+   "title": "Беговая дорожка 400 м, 8 дорожек",
+   "source": "Общие данные"
+  },
+  {
+   "id": "bowl",
+   "meshes": [
+    "bowl_front",
+    "bowl_rake"
+   ],
+   "storey": "bowl",
+   "built": true,
+   "title": "Чаша: гребёнка, 30 рядов, +2.355…+15.0",
+   "source": "разрез 2-2, л.35; гребёнка л.5/13"
+  },
+  {
+   "id": "seats",
+   "meshes": [
+    "seats_red",
+    "seats_blue",
+    "seats_yellow",
+    "seats_white"
+   ],
+   "storey": "bowl",
+   "built": true,
+   "title": "Зонирование кресел (красный/синий/жёлтый/ЕНИСЕЙ)",
+   "source": "фото 2021-2026"
+  },
+  {
+   "id": "understand_f0",
+   "meshes": [
+    "understand_f0"
+   ],
+   "storey": "f1",
+   "built": true,
+   "title": "Перекрытие эт.1 (0.000)",
+   "source": "разрез 2-2"
+  },
+  {
+   "id": "understand_f1",
+   "meshes": [
+    "understand_f1"
+   ],
+   "storey": "f2",
+   "built": true,
+   "title": "Перекрытие эт.2 (+3.500)",
+   "source": "разрез 2-2"
+  },
+  {
+   "id": "understand_f2",
+   "meshes": [
+    "understand_f2"
+   ],
+   "storey": "f3",
+   "built": true,
+   "title": "Перекрытие эт.3 (+7.000)",
+   "source": "разрез 2-2"
+  },
+  {
+   "id": "facade",
+   "meshes": [
+    "facade_wall",
+    "facade_glass",
+    "facade_bands",
+    "facade_ribs"
+   ],
+   "storey": "bowl",
+   "built": true,
+   "title": "Фасад: стена +21.650, витражи, пояса, 96 рёбер",
+   "source": "фасад 96-49 л.19; фото"
+  },
+  {
+   "id": "canopy_west",
+   "meshes": [
+    "canopy_west"
+   ],
+   "storey": "canopy",
+   "built": true,
+   "title": "Козырёк западной трибуны (сущ., оси 18-31)",
+   "source": "фото; разрез 2-2 (+20.720)"
+  },
+  {
+   "id": "press_box",
+   "meshes": [
+    "press_box"
+   ],
+   "storey": "press",
+   "built": true,
+   "title": "Комментаторская/пресса (+18.550)",
+   "source": "л.81-81.6, разрез 2-2"
+  },
+  {
+   "id": "masts",
+   "meshes": [
+    "masts"
+   ],
+   "storey": "masts",
+   "built": true,
+   "title": "Прожекторные мачты, 4 шт, h=45 м",
+   "source": "фото"
+  },
+  {
+   "id": "screens",
+   "meshes": [
+    "screens"
+   ],
+   "storey": "bowl",
+   "built": true,
+   "title": "Видеотабло, 2 шт за воротами",
+   "source": "фото"
+  },
+  {
+   "id": "ramps",
+   "meshes": [
+    "ramps"
+   ],
+   "storey": "site",
+   "built": true,
+   "title": "Входные эстакады (западный фасад), 2 шт",
+   "source": "фото"
+  }
+ ],
+ "not_built_excluded": [
+  "Кольцевой навес над трибунами (проект л.35 «Конструкции металлического козырька») - по фото отсутствует"
+ ],
+ "stats": {
+  "faces": 43334,
+  "meshes": 23
+ }
+}

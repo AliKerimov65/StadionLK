@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Архитектура · 3D виды — Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+  :root{ --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45; --paper:#f4f1ea; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{background:var(--navy2)}
+  body{background:var(--navy2); color:var(--paper);
+    font-family:Inter,"Segoe UI",system-ui,sans-serif; min-height:100%}
+  header{padding:calc(clamp(18px,3vw,34px) + 60px) clamp(16px,4vw,54px) 8px}
+  .kick{font-size:clamp(10px,1vw,13px); letter-spacing:4px; color:var(--gold2);
+    font-weight:600; text-transform:uppercase}
+  h1{font-family:"Playfair Display",serif; font-weight:900;
+    font-size:clamp(24px,3.4vw,46px); margin:6px 0 4px}
+  .sub{color:#b9c4da; font-size:clamp(12px,1.25vw,16px); max-width:1100px}
+  main{padding:10px clamp(16px,4vw,54px) 90px}
+  .grp{margin-top:30px}
+  .grp h2{font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(18px,2vw,26px); display:flex; align-items:baseline; gap:12px}
+  .grp h2 small{font-family:Inter,sans-serif; font-size:12px; color:#8fa0c0; letter-spacing:1px}
+  .grp h2::after{content:''; flex:1; height:1px;
+    background:linear-gradient(90deg,rgba(201,162,39,.55),transparent)}
+  .grp .lead{color:#b9c4da; font-size:13.5px; margin-top:8px; max-width:1050px; line-height:1.55}
+  .grp .lead i{font-style:normal; color:var(--gold2); font-weight:600}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:14px; margin-top:14px}
+  .card{position:relative; text-align:left; cursor:pointer; overflow:hidden;
+    border:1px solid rgba(201,162,39,.28); border-radius:8px;
+    background:var(--navy); padding:0; color:var(--paper); display:block;
+    text-decoration:none;
+    transition:border-color .25s, transform .25s, box-shadow .25s}
+  .card:hover,.card:focus-visible{border-color:var(--gold); transform:translateY(-3px);
+    box-shadow:0 10px 28px rgba(0,0,0,.45), 0 0 18px rgba(201,162,39,.22); outline:none}
+  .card .th{display:block; width:100%; aspect-ratio:16/9; overflow:hidden; background:#101828}
+  .card .th img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s}
+  .card:hover .th img{transform:scale(1.045)}
+  .card .bd{display:block; padding:10px 12px 12px}
+  .card .bd b{display:block; font-size:14.5px; line-height:1.3}
+  .card .bd span{display:block; font-size:12px; color:#9fb0cf; margin-top:3px; line-height:1.35}
+  .card .tag2{position:absolute; top:8px; left:8px; padding:3px 9px; border-radius:4px;
+    background:rgba(19,27,48,.88); border:1px solid rgba(201,162,39,.6);
+    color:var(--gold2); font-size:11.5px; font-weight:600; letter-spacing:.6px}
+  .card .go{position:absolute; top:8px; right:8px; padding:3px 9px; border-radius:4px;
+    background:rgba(19,27,48,.88); border:1px solid rgba(160,175,205,.45);
+    color:#c6d0e6; font-size:11px}
+  /* ---------- до/после ---------- */
+  .baGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; margin-top:14px}
+  .ba{position:relative; aspect-ratio:16/9; overflow:hidden; border-radius:8px;
+    border:1px solid rgba(201,162,39,.28); touch-action:pan-y; cursor:ew-resize; user-select:none}
+  .ba img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none}
+  .ba .aft{position:absolute; inset:0; clip-path:inset(0 0 0 var(--cut,50%)); pointer-events:none}
+  .ba .cut{position:absolute; top:0; bottom:0; left:var(--cut,50%); width:3px; margin-left:-1.5px;
+    background:linear-gradient(180deg,var(--gold),var(--gold2),var(--gold));
+    box-shadow:0 0 14px rgba(201,162,39,.7); pointer-events:none}
+  .ba .cap{position:absolute; bottom:0; left:0; right:0; padding:8px 12px;
+    background:linear-gradient(0deg,rgba(13,20,36,.85),transparent);
+    font-size:12px; color:#dbe2f0; pointer-events:none}
+  .ba .cap b{color:var(--gold2)}
+  .ba .side{position:absolute; top:8px; padding:2px 9px; border-radius:4px; font-size:10.5px;
+    font-weight:700; letter-spacing:1.5px; background:rgba(19,27,48,.8); pointer-events:none}
+  .ba .side.l{left:8px; color:#c6d0e6; border:1px solid rgba(160,175,205,.4)}
+  .ba .side.r{right:8px; color:var(--gold2); border:1px solid rgba(201,162,39,.55)}
+  /* ---------- чипы зонирования ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+  .chip{padding:8px 14px; border-radius:20px; border:1px solid rgba(201,162,39,.4);
+    background:rgba(19,27,48,.66); font-size:12.5px; color:#dbe2f0}
+  .chip b{color:var(--gold2); font-family:"Playfair Display",serif; font-size:16px; margin-right:6px}
+  /* ---------- просмотрщик ---------- */
+  #avView{position:fixed; inset:0; z-index:1200; display:none; flex-direction:column;
+    background:rgba(10,15,28,.985)}
+  #avView.open{display:flex}
+  #avBar{display:flex; align-items:center; gap:10px; padding:10px 14px;
+    background:rgba(19,27,48,.92); border-bottom:1px solid rgba(201,162,39,.35); z-index:3}
+  #avBar .ls{padding:4px 10px; border-radius:4px; border:1px solid rgba(201,162,39,.6);
+    color:var(--gold2); font-size:12px; font-weight:600; white-space:nowrap}
+  #avBar .tt{min-width:0; flex:1}
+  #avBar .tt b{display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #avBar .tt span{display:block; font-size:11.5px; color:#9fb0cf;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #avBar .cnt{font-size:12.5px; color:#9fb0cf; white-space:nowrap}
+  .vbtn{width:38px; height:38px; flex:none; border-radius:6px; cursor:pointer;
+    border:1px solid rgba(201,162,39,.45); background:rgba(201,162,39,.08);
+    color:var(--gold2); font-size:17px; line-height:1; display:flex; align-items:center; justify-content:center}
+  .vbtn:hover{background:rgba(201,162,39,.22)}
+  #avStage{position:relative; flex:1; overflow:hidden; touch-action:none; cursor:grab;
+    user-select:none; -webkit-user-select:none}
+  #avStage.drag{cursor:grabbing}
+  #avImg{position:absolute; left:0; top:0; transform-origin:0 0; max-width:none;
+    background:#101828; box-shadow:0 0 60px rgba(0,0,0,.6)}
+  #avSpin{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    color:var(--gold2); font-size:14px; letter-spacing:1px; display:none}
+  #avSpin.on{display:block}
+  .sideBtn{position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:46px; height:72px; border-radius:8px; font-size:26px}
+  #avPrev{left:10px} #avNext{right:10px}
+  #avHint{position:absolute; left:50%; bottom:10px; transform:translateX(-50%);
+    padding:6px 14px; border-radius:20px; background:rgba(19,27,48,.85);
+    border:1px solid rgba(201,162,39,.35); color:#c6d0e6; font-size:11.5px;
+    white-space:nowrap; pointer-events:none; z-index:2}
+  .foot{padding:0 clamp(16px,4vw,54px) 40px; color:#7f8dab; font-size:12px; line-height:1.6}
+  .foot a{color:var(--gold2); text-decoration:none; border-bottom:1px dotted rgba(224,188,69,.5)}
+  @media (max-width:760px){
+    .grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:10px}
+    .baGrid{grid-template-columns:1fr}
+    .card .bd b{font-size:13px}
+    .card .bd span{font-size:11px}
+    .sideBtn{display:none}
+    #avBar{gap:6px; padding:8px 10px}
+    #avBar .cnt{display:none}
+    .vbtn{width:34px; height:34px; font-size:15px}
+    #avHint{font-size:10.5px; bottom:8px; max-width:94vw; overflow:hidden; text-overflow:ellipsis}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kick">Стадион им. Ленинского комсомола · Красноярск</div>
+  <h1>Архитектура · 3D виды</h1>
+  <div class="sub">Визуальный атлас проекта: общие виды проверенной BIM-модели существующего стадиона,
+    модельные и проектные фасады, пары «до / после», поэтажные планы с функциональным зонированием
+    и визуализации концепции модернизации.</div>
+</header>
+
+<main id="gxMain">
+
+  <section class="grp">
+    <h2>Общие виды модели <small>рендеры с BIM-модели · сверена с П-01-16-1-АР</small></h2>
+    <div class="lead">Аксонометрии и виды сняты непосредственно с цифрового двойника существующего стадиона
+      (<i>13 716 элементов, 8 слоёв</i>). Модель проверена по файлу DWG: габарит по осям <i>224,5 м + 2×250 мм = 225,0 м</i>,
+      подтверждены <i>89 из 96</i> высотных отметок. Рабочая 3D-модель — в разделе
+      «Существующий стадион · BIM».</div>
+    <div class="grid" id="gModel"></div>
+  </section>
+
+  <section class="grp">
+    <h2>Фасады <small>модельные виды + листы АР</small></h2>
+    <div class="lead">Слева ортографические виды с BIM-модели, справа соответствующие фасады из проекта
+      П-01-16-1-АР (карточки «Лист …» открывают чертёж в полном разрешении в разделе
+      «Планы · фасады · разрезы»).</div>
+    <div class="grid" id="gFacade"></div>
+  </section>
+
+  <section class="grp">
+    <h2>До / После <small>перетащите разделитель</small></h2>
+    <div class="lead">Сопоставление существующего состояния (аэрофото) с проектными визуализациями
+      концепции модернизации: прозрачная мембранная крыша на восьми опорных ногах, переформатированные
+      трибуны на <i>25 000</i> зрителей.</div>
+    <div class="baGrid" id="gBA"></div>
+  </section>
+
+  <section class="grp">
+    <h2>Поэтажные планы и зонирование <small>проект П-01-16-1-АР + концепция 2026</small></h2>
+    <div class="lead">Ключевое решение концепции — <i>разворот футбольного поля на 90°</i>. На плане зонирования:
+      зелёным показано поле после разворота, красным — зоны новых трибунных секций, синим — сохраняемый
+      исторический контур. Ниже поэтажные планы существующих подтрибунных помещений: открываются
+      в полном разрешении с послойной навигацией.</div>
+    <div class="chips">
+      <span class="chip"><b>90°</b> разворот поля</span>
+      <span class="chip"><b>25 000</b> вместимость после модернизации</span>
+      <span class="chip"><b>0.000</b> отметка уровня площадки</span>
+      <span class="chip"><b>+18.550</b> радиокомментаторская</span>
+    </div>
+    <div class="grid" id="gPlans"></div>
+  </section>
+
+  <section class="grp">
+    <h2>Концепция модернизации <small>визуализации из проектной презентации 2026</small></h2>
+    <div class="grid" id="gConcept"></div>
+  </section>
+
+</main>
+
+<div class="foot">
+  Модельные виды сняты с BIM-модели, построенной по IFC проекта П-01-16-1-АР и проверенной по DWG.
+  Проектные визуализации — из презентации «Модернизация Центрального стадиона КУОР · Концептуальные
+  предложения 2026» (КГАОУ ДПО «Красноярский колледж олимпийского резерва» / КУОР).
+  Полные чертежи — в разделе <a href="drawings.html">«Планы · фасады · разрезы»</a>,
+  интерактивная 3D-модель — в разделе <a href="model.html">«Существующий стадион · BIM»</a>.
+</div>
+
+<!-- ================= просмотрщик ================= -->
+<div id="avView" aria-hidden="true">
+  <div id="avBar">
+    <span class="ls" id="avLs">Вид</span>
+    <div class="tt"><b id="avT">—</b><span id="avS">—</span></div>
+    <span class="cnt" id="avCnt">1 / 14</span>
+    <button class="vbtn" id="zbOut" title="Уменьшить (−)">−</button>
+    <button class="vbtn" id="zbFit" title="Вписать (0)">⤢</button>
+    <button class="vbtn" id="zbIn"  title="Увеличить (+)">+</button>
+    <button class="vbtn" id="zbPrev" title="Предыдущий (←)">‹</button>
+    <button class="vbtn" id="zbNext" title="Следующий (›)">›</button>
+    <button class="vbtn" id="zbClose" title="Закрыть (Esc)">✕</button>
+  </div>
+  <div id="avStage">
+    <img id="avImg" alt="Вид стадиона" draggable="false">
+    <div id="avSpin">Загрузка…</div>
+    <button class="vbtn sideBtn" id="avPrev" title="Предыдущий">‹</button>
+    <button class="vbtn sideBtn" id="avNext" title="Следующий">›</button>
+    <div id="avHint">колесо мыши / щипок — масштаб · перетаскивание — сдвиг · двойной тап — приблизить</div>
+  </div>
+</div>
+
+<script src="modules.js"></script>
+<script>
+(function(){
+  'use strict';
+  const A='assets/arch/';
+  /* ============ локальные изображения (открываются в просмотрщике) ============ */
+  const MODEL=[
+    {f:'bim_aerial_1', tag:'BIM', t:'Аксонометрия · общий вид', s:'Вид с юго-запада · мачты освещения, козырьки трибун'},
+    {f:'bim_aerial_2', tag:'BIM', t:'Аксонометрия · общий вид', s:'Вид с северо-востока · чаша и подтрибунный контур'},
+    {f:'bim_bowl',     tag:'BIM', t:'Чаша трибун сверху',       s:'Гребёнки рядов, поле, козырьки · 11 384 элемента чаши'},
+    {f:'bim_field',    tag:'BIM', t:'Вид с уровня поля',        s:'Сквозь конструкцию козырька западной трибуны'}
+  ];
+  const ELEV=[
+    {f:'bim_elev_w', tag:'Модель', t:'Фасад западный · модель',  s:'Ортографический вид · соответствует листу 20 (оси 48-1)'},
+    {f:'bim_elev_e', tag:'Модель', t:'Фасад восточный · модель', s:'Ортографический вид · соответствует листу 19 (оси 96-49)'},
+    {f:'bim_elev_s', tag:'Модель', t:'Фасад южный · модель',     s:'Ортографический вид · соответствует листу 21 (оси 24-73)'},
+    {f:'bim_elev_n', tag:'Модель', t:'Фасад северный · модель',  s:'Ортографический вид · соответствует листу 22 (оси 72-25)'}
+  ];
+  const AR_F=[
+    {h:'drawings.html#facade-west', img:'assets/sheets/th_facade-west.webp', tag:'Лист 20', t:'Фасад 48-1 · западный',  s:'Главный фасад · проект П-01-16-1-АР'},
+    {h:'drawings.html#facade-east', img:'assets/sheets/th_facade-east.webp', tag:'Лист 19', t:'Фасад 96-49 · восточный', s:'Проект П-01-16-1-АР'},
+    {h:'drawings.html#facade-south',img:'assets/sheets/th_facade-south.webp',tag:'Лист 21', t:'Фасад 24-73 · южный',    s:'Проект П-01-16-1-АР'},
+    {h:'drawings.html#facade-north',img:'assets/sheets/th_facade-north.webp',tag:'Лист 22', t:'Фасад 72-25 · северный', s:'Проект П-01-16-1-АР'}
+  ];
+  const ZONE=[
+    {f:'zoning_slide', tag:'2026', t:'Ключевое изменение: поворот поля', s:'Слайд концепции · обоснование разворота на 90°'},
+    {f:'zoning_field', tag:'Зонирование', t:'План зонирования уровня поля', s:'Зелёным — поле после разворота · красным — новые секции трибун · синим — сохраняемый контур'}
+  ];
+  const AR_P=[
+    ['plan1-west','Лист 2','План 1 этажа · западная трибуна','Подтрибунные помещения · отм. 0.000'],
+    ['plan2-west','Лист 4','План 2 этажа · западная трибуна','Подтрибунные помещения · отм. +3.500'],
+    ['plan3-west','Лист 6','План 3 этажа · западная трибуна','Подтрибунные помещения · отм. +7.000'],
+    ['plan1-east','Лист 8','План 1 этажа · восточная трибуна','Подтрибунные помещения · отм. 0.000'],
+    ['plan2-east','Лист 10','План 2 этажа · восточная трибуна','Подтрибунные помещения · отм. +3.500'],
+    ['plan3-east','Лист 12','План 3 этажа · восточная трибуна','Подтрибунные помещения · отм. +7.000'],
+    ['plan1-south','Лист 14','План 1 этажа · южная трибуна','Подтрибунные помещения · отм. 0.000'],
+    ['plan1-north','Лист 15','План 1 этажа · северная трибуна','Подтрибунные помещения · отм. 0.000'],
+    ['radio-plan','Лист 27','Радиокомментаторская · план','Западная трибуна · отм. +18.550']
+  ];
+  const CONCEPT=[
+    {f:'concept_aerial_roof', tag:'Концепт 2026', t:'Аэровид · крыша над чашей',       s:'Титульная визуализация концепции модернизации'},
+    {f:'concept_aerial_glass',tag:'Концепт 2026', t:'Аэровид · прозрачная крыша',      s:'Мембранное покрытие на восьми опорных ногах'},
+    {f:'concept_river',       tag:'Концепт 2026', t:'Вид со стороны Енисея',           s:'Пешеходные эстакады и парковый контур'},
+    {f:'concept_bowl',        tag:'Концепт 2026', t:'Интерьер чаши с крышей',          s:'Раздвижная крыша · естественное освещение поля'}
+  ];
+  /* плоский список для просмотрщика: только локальные файлы */
+  const FLAT=[...MODEL, ...ELEV.map(e=>({...e})), ...ZONE, ...CONCEPT];
+
+  function cardLocal(it){
+    const b=document.createElement('button');
+    b.className='card'; b.dataset.i=FLAT.indexOf(FLAT.find(x=>x.f===it.f));
+    b.innerHTML='<span class="th"><img loading="lazy" src="'+A+'th_'+it.f+'.webp" alt=""></span>'+
+      '<span class="tag2">'+it.tag+'</span>'+
+      '<span class="bd"><b>'+it.t+'</b><span>'+it.s+'</span></span>';
+    b.addEventListener('click',()=>openView(+b.dataset.i));
+    return b;
+  }
+  function cardLink(h,img,tag,t,s){
+    const a=document.createElement('a');
+    a.className='card'; a.href=h;
+    a.innerHTML='<span class="th"><img loading="lazy" src="'+img+'" alt=""></span>'+
+      '<span class="tag2">'+tag+'</span><span class="go">Открыть ›</span>'+
+      '<span class="bd"><b>'+t+'</b><span>'+s+'</span></span>';
+    return a;
+  }
+
+  const gM=document.getElementById('gModel');
+  MODEL.forEach(it=>gM.appendChild(cardLocal(it)));
+  const gF=document.getElementById('gFacade');
+  ELEV.forEach(it=>gF.appendChild(cardLocal(it)));
+  AR_F.forEach(it=>gF.appendChild(cardLink(it.h,it.img,it.tag,it.t,it.s)));
+  const gP=document.getElementById('gPlans');
+  ZONE.forEach(it=>gP.appendChild(cardLocal(it)));
+  AR_P.forEach(([f,ls,t,s])=>gP.appendChild(cardLink('drawings.html#'+f,'assets/sheets/th_'+f+'.webp',ls,t,s)));
+  const gC=document.getElementById('gConcept');
+  CONCEPT.forEach(it=>gC.appendChild(cardLocal(it)));
+
+  /* ============ до / после ============ */
+  const BA=[
+    {bef:'now_aerial',  aft:'future_aerial_roof', kick:'Аэрофото · вид сверху'},
+    {bef:'now_today',   aft:'future_interior',    kick:'Внутри чаши'},
+    {bef:'now_bridge',  aft:'future_aerial2',     kick:'Вид со стороны Енисея'}
+  ];
+  const gBA=document.getElementById('gBA');
+  BA.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='ba';
+    d.innerHTML='<img src="assets/img/'+p.bef+'.jpg" alt="Сейчас">'+
+      '<div class="aft"><img src="assets/img/'+p.aft+'.jpg" alt="После"></div>'+
+      '<div class="cut"></div>'+
+      '<span class="side l">СЕЙЧАС</span><span class="side r">БУДЕТ</span>'+
+      '<div class="cap"><b>До / После</b> · '+p.kick+'</div>';
+    const set=x=>{ const r=d.getBoundingClientRect();
+      const v=Math.max(2,Math.min(98,(x-r.left)/r.width*100)); d.style.setProperty('--cut',v+'%'); };
+    let drag=false;
+    d.addEventListener('pointerdown',e=>{ drag=true; try{d.setPointerCapture(e.pointerId)}catch(_){} set(e.clientX); });
+    d.addEventListener('pointermove',e=>{ if(drag) set(e.clientX); });
+    d.addEventListener('pointerup',()=>drag=false);
+    d.addEventListener('pointercancel',()=>drag=false);
+    gBA.appendChild(d);
+  });
+
+  /* ============ просмотрщик ============ */
+  const view=document.getElementById('avView'), stage=document.getElementById('avStage'),
+        img=document.getElementById('avImg'), spin=document.getElementById('avSpin');
+  const elT=document.getElementById('avT'), elS=document.getElementById('avS'),
+        elLs=document.getElementById('avLs'), elCnt=document.getElementById('avCnt');
+  let cur=-1, s=1, tx=0, ty=0, fitS=1, open=false;
+
+  function clampT(){
+    const r=stage.getBoundingClientRect(), w=img.naturalWidth*s, h=img.naturalHeight*s;
+    const mx=Math.max(80,w*0.4), my=Math.max(80,h*0.4);
+    tx=Math.min(r.width-mx, Math.max(mx-w, tx));
+    ty=Math.min(r.height-my, Math.max(my-h, ty));
+  }
+  function apply(){ clampT(); img.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'; }
+  function fit(){
+    const r=stage.getBoundingClientRect();
+    fitS=Math.min(r.width/img.naturalWidth, r.height/img.naturalHeight)*0.985;
+    s=fitS; tx=(r.width-img.naturalWidth*s)/2; ty=(r.height-img.naturalHeight*s)/2; apply();
+  }
+  function zoomAt(cx,cy,f){
+    const ns=Math.min(2.5, Math.max(fitS*0.5, s*f));
+    const r=stage.getBoundingClientRect(), x=cx-r.left, y=cy-r.top;
+    tx=x-(x-tx)*(ns/s); ty=y-(y-ty)*(ns/s); s=ns; apply();
+  }
+  function load(i){
+    cur=i; const it=FLAT[i];
+    spin.classList.add('on'); img.style.opacity='0';
+    elT.textContent=it.t; elS.textContent=it.s;
+    elLs.textContent=it.tag; elCnt.textContent=(i+1)+' / '+FLAT.length;
+    img.onload=()=>{ spin.classList.remove('on'); img.style.opacity='1'; fit(); preload(i); };
+    img.onerror=()=>{ spin.textContent='Не удалось загрузить изображение'; };
+    spin.textContent='Загрузка…';
+    img.src=A+it.f+'.webp';
+    document.title=it.t+' — Архитектура · 3D виды';
+  }
+  function preload(i){
+    [i-1,i+1].forEach(j=>{ if(j>=0&&j<FLAT.length){ const im=new Image(); im.src=A+FLAT[j].f+'.webp'; } });
+  }
+  function openView(i){
+    open=true; view.classList.add('open'); view.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; load(i);
+  }
+  function closeView(){
+    if(!open)return; open=false; view.classList.remove('open');
+    view.setAttribute('aria-hidden','true'); document.body.style.overflow='';
+    document.title='Архитектура · 3D виды — Стадион им. Ленинского комсомола, Красноярск';
+  }
+  function step(d){ load((cur+d+FLAT.length)%FLAT.length); }
+
+  document.getElementById('zbClose').addEventListener('click',closeView);
+  document.getElementById('zbIn').addEventListener('click',()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35)});
+  document.getElementById('zbOut').addEventListener('click',()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1/1.35)});
+  document.getElementById('zbFit').addEventListener('click',fit);
+  document.getElementById('zbPrev').addEventListener('click',()=>step(-1));
+  document.getElementById('zbNext').addEventListener('click',()=>step(+1));
+  document.getElementById('avPrev').addEventListener('click',()=>step(-1));
+  document.getElementById('avNext').addEventListener('click',()=>step(+1));
+
+  stage.addEventListener('wheel',e=>{
+    e.preventDefault();
+    zoomAt(e.clientX,e.clientY, Math.exp(-e.deltaY*0.0016));
+  },{passive:false});
+
+  const pts=new Map(); let lastPinch=0, moved=0, downX=0, downY=0, downT=0;
+  stage.addEventListener('pointerdown',e=>{
+    try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){ moved=0; downX=e.clientX; downY=e.clientY; downT=performance.now();
+      stage.classList.add('drag'); }
+    if(pts.size===2){ const a=[...pts.values()]; lastPinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y); }
+  });
+  stage.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId))return;
+    const prev=pts.get(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){
+      tx+=e.clientX-prev.x; ty+=e.clientY-prev.y;
+      moved+=Math.abs(e.clientX-prev.x)+Math.abs(e.clientY-prev.y); apply();
+    }else if(pts.size===2){
+      const a=[...pts.values()];
+      const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+      if(lastPinch>0) zoomAt((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2, d/lastPinch);
+      lastPinch=d; moved+=3;
+    }
+  });
+  function pointerUp(e){
+    if(!pts.has(e.pointerId))return;
+    pts.delete(e.pointerId); stage.classList.remove('drag');
+    if(pts.size<2)lastPinch=0;
+    if(pts.size===0&&e.type==='pointerup'){
+      const dx=e.clientX-downX, dy=e.clientY-downY, dt=performance.now()-downT;
+      if(s<=fitS*1.06 && dt<700 && Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4 && moved>10){
+        step(dx<0?+1:-1);
+      }
+      else if(moved<8 && dt<280){
+        if(stage._tap && performance.now()-stage._tap<340){
+          if(s>fitS*1.5) fit(); else zoomAt(e.clientX,e.clientY,2.6);
+          stage._tap=0;
+        }else stage._tap=performance.now();
+      }
+    }
+  }
+  stage.addEventListener('pointerup',pointerUp);
+  stage.addEventListener('pointercancel',pointerUp);
+  stage.addEventListener('contextmenu',e=>e.preventDefault());
+  stage.addEventListener('dblclick',e=>{
+    if(s>fitS*1.5) fit(); else zoomAt(e.clientX,e.clientY,2.6);
+  });
+  window.addEventListener('resize',()=>{ if(open&&img.naturalWidth) fit(); });
+
+  document.addEventListener('keydown',e=>{
+    if(!open)return;
+    e.stopPropagation();
+    if(e.key==='Escape')closeView();
+    else if(e.key==='ArrowLeft')step(-1);
+    else if(e.key==='ArrowRight')step(+1);
+    else if(e.key==='+'||e.key==='='){const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35)}
+    else if(e.key==='-'||e.key==='_'){const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1/1.35)}
+    else if(e.key==='0')fit();
+  },true);
+
+  /* глубокая ссылка: architecture.html#bim_aerial_1 */
+  const h=location.hash.slice(1);
+  if(h){ const i=FLAT.findIndex(x=>x.f===h); if(i>=0) openView(i); }
+  window.addEventListener('hashchange',()=>{
+    const f=location.hash.slice(1);
+    const i=FLAT.findIndex(x=>x.f===f);
+    if(i>=0) openView(i);
+  });
+})();
+</script>
+</body>
+</html>

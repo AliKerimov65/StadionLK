@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Планы · фасады · разрезы — Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+  :root{ --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45; --paper:#f4f1ea; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{background:var(--navy2)}
+  body{background:var(--navy2); color:var(--paper);
+    font-family:Inter,"Segoe UI",system-ui,sans-serif; min-height:100%}
+  /* ---------- шапка ---------- */
+  header{padding:calc(clamp(18px,3vw,34px) + 60px) clamp(16px,4vw,54px) 8px}
+  .kick{font-size:clamp(10px,1vw,13px); letter-spacing:4px; color:var(--gold2);
+    font-weight:600; text-transform:uppercase}
+  h1{font-family:"Playfair Display",serif; font-weight:900;
+    font-size:clamp(24px,3.4vw,46px); margin:6px 0 4px}
+  .sub{color:#b9c4da; font-size:clamp(12px,1.25vw,16px); max-width:1100px}
+  /* ---------- полоса сверки ---------- */
+  #verify{margin:16px clamp(16px,4vw,54px) 4px; padding:14px 18px;
+    border:1px solid rgba(201,162,39,.55); border-left:4px solid var(--gold);
+    border-radius:6px; background:rgba(19,27,48,.66);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  #verify .v b{display:block; color:var(--gold2); font-size:12px; letter-spacing:1.6px;
+    text-transform:uppercase; margin-bottom:4px}
+  #verify .v span{font-size:13px; line-height:1.45; color:#dbe2f0}
+  #verify .v i{font-style:normal; color:var(--gold2); font-weight:600}
+  /* ---------- группы ---------- */
+  main{padding:10px clamp(16px,4vw,54px) 90px}
+  .grp{margin-top:26px}
+  .grp h2{font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(18px,2vw,26px); color:var(--paper);
+    display:flex; align-items:baseline; gap:12px}
+  .grp h2 small{font-family:Inter,sans-serif; font-size:12px; color:#8fa0c0; letter-spacing:1px}
+  .grp h2::after{content:''; flex:1; height:1px;
+    background:linear-gradient(90deg,rgba(201,162,39,.55),transparent)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:14px; margin-top:12px}
+  .shCard{position:relative; text-align:left; cursor:pointer; overflow:hidden;
+    border:1px solid rgba(201,162,39,.28); border-radius:8px;
+    background:var(--navy); padding:0; color:var(--paper);
+    transition:border-color .25s, transform .25s, box-shadow .25s}
+  .shCard:hover,.shCard:focus-visible{border-color:var(--gold); transform:translateY(-3px);
+    box-shadow:0 10px 28px rgba(0,0,0,.45), 0 0 18px rgba(201,162,39,.22); outline:none}
+  .shCard .th{display:block; width:100%; aspect-ratio:16/10; overflow:hidden; background:#e9e6de}
+  .shCard .th img{width:100%; height:100%; object-fit:cover; display:block;
+    filter:contrast(1.04); transition:transform .35s}
+  .shCard:hover .th img{transform:scale(1.045)}
+  .shCard .bd{display:block; padding:10px 12px 12px}
+  .shCard .bd b{display:block; font-size:14.5px; line-height:1.3}
+  .shCard .bd span{display:block; font-size:12px; color:#9fb0cf; margin-top:3px; line-height:1.35}
+  .shCard .ls{position:absolute; top:8px; left:8px; padding:3px 9px; border-radius:4px;
+    background:rgba(19,27,48,.88); border:1px solid rgba(201,162,39,.6);
+    color:var(--gold2); font-size:11.5px; font-weight:600; letter-spacing:.6px}
+  /* ---------- просмотрщик ---------- */
+  #dwgView{position:fixed; inset:0; z-index:1200; display:none; flex-direction:column;
+    background:rgba(10,15,28,.985)}
+  #dwgView.open{display:flex}
+  #dwgBar{display:flex; align-items:center; gap:10px; padding:10px 14px;
+    background:rgba(19,27,48,.92); border-bottom:1px solid rgba(201,162,39,.35); z-index:3}
+  #dwgBar .ls{padding:4px 10px; border-radius:4px; border:1px solid rgba(201,162,39,.6);
+    color:var(--gold2); font-size:12px; font-weight:600; white-space:nowrap}
+  #dwgBar .tt{min-width:0; flex:1}
+  #dwgBar .tt b{display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #dwgBar .tt span{display:block; font-size:11.5px; color:#9fb0cf;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #dwgBar .cnt{font-size:12.5px; color:#9fb0cf; white-space:nowrap}
+  .vbtn{width:38px; height:38px; flex:none; border-radius:6px; cursor:pointer;
+    border:1px solid rgba(201,162,39,.45); background:rgba(201,162,39,.08);
+    color:var(--gold2); font-size:17px; line-height:1; display:flex; align-items:center; justify-content:center}
+  .vbtn:hover{background:rgba(201,162,39,.22)}
+  #dwgStage{position:relative; flex:1; overflow:hidden; touch-action:none; cursor:grab;
+    user-select:none; -webkit-user-select:none}
+  #dwgStage.drag{cursor:grabbing}
+  #dwgImg{position:absolute; left:0; top:0; transform-origin:0 0; max-width:none;
+    background:#f2efe8; box-shadow:0 0 60px rgba(0,0,0,.6); draggable:false}
+  #dwgSpin{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    color:var(--gold2); font-size:14px; letter-spacing:1px; display:none}
+  #dwgSpin.on{display:block}
+  .sideBtn{position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:46px; height:72px; border-radius:8px; font-size:26px}
+  #pvPrev{left:10px} #pvNext{right:10px}
+  #dwgHint{position:absolute; left:50%; bottom:10px; transform:translateX(-50%);
+    padding:6px 14px; border-radius:20px; background:rgba(19,27,48,.85);
+    border:1px solid rgba(201,162,39,.35); color:#c6d0e6; font-size:11.5px;
+    white-space:nowrap; pointer-events:none; z-index:2}
+  /* ---------- подвал ---------- */
+  .foot{padding:0 clamp(16px,4vw,54px) 40px; color:#7f8dab; font-size:12px; line-height:1.6}
+  .foot a{color:var(--gold2); text-decoration:none; border-bottom:1px dotted rgba(224,188,69,.5)}
+  /* ---------- мобильная адаптация ---------- */
+  @media (max-width:760px){
+    #verify{grid-template-columns:1fr; gap:10px; padding:12px 14px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px}
+    .shCard .bd b{font-size:13px}
+    .shCard .bd span{font-size:11px}
+    .sideBtn{display:none}
+    #dwgBar{gap:6px; padding:8px 10px}
+    #dwgBar .cnt{display:none}
+    .vbtn{width:34px; height:34px; font-size:15px}
+    #dwgHint{font-size:10.5px; bottom:8px; max-width:94vw; overflow:hidden; text-overflow:ellipsis}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kick">Стадион им. Ленинского комсомола · Красноярск · существующий объект</div>
+  <h1>Планы · фасады · разрезы</h1>
+  <div class="sub">Архитектурные решения проекта П-01-16-1-АР (реставрация и реконструкция, 2016–2017).
+    22 листа: поэтажные планы трибун, основные разрезы, четыре фасада и схемы посадочных мест.
+    Отметка 0.000 = уровень площадки.</div>
+</header>
+
+<div id="verify">
+  <div class="v"><b>Сверка с BIM · габарит</b>
+    <span>Ось А–А по разрезу 1-1: <i>224,5 м</i> по осям + 2×250 мм до граней = <i>225,0 м</i> — совпадает с габаритом BIM-модели.</span></div>
+  <div class="v"><b>Сверка с BIM · отметки</b>
+    <span><i>89 из 96</i> высотных отметок DWG подтверждены геометрией модели; 7 отметок ниже 0.000 (полы восточной трибуны, фундаменты) в IFC отсутствуют — приняты по чертежам.</span></div>
+  <div class="v"><b>Приоритет источника</b>
+    <span>Исходная истина — файл <i>«П-01-16-1 АР.dwg»</i>; BIM-модель построена по IFC того же проекта и сверена с этими листами.</span></div>
+</div>
+
+<main id="gxGrid"></main>
+
+<div class="foot">
+  Листы приведены по составу проекта П-01-16-1-АР (растровые копии, 200 dpi).
+  Трёхмерная проверка — в модуле <a href="model.html">«Существующий стадион · BIM»</a>:
+  каждый лист соответствует слою модели (этаж 1 — отм. 0.000, этаж 2 — +3.500, этаж 3 — +7.000,
+  радиокомментаторская — +18.550).
+</div>
+
+<!-- ================= просмотрщик ================= -->
+<div id="dwgView" aria-hidden="true">
+  <div id="dwgBar">
+    <span class="ls" id="dwgLs">Лист 2</span>
+    <div class="tt"><b id="dwgT">—</b><span id="dwgS">—</span></div>
+    <span class="cnt" id="dwgCnt">1 / 22</span>
+    <button class="vbtn" id="zbOut" title="Уменьшить (−)">−</button>
+    <button class="vbtn" id="zbFit" title="Вписать (0)">⤢</button>
+    <button class="vbtn" id="zbIn"  title="Увеличить (+)">+</button>
+    <button class="vbtn" id="zbPrev" title="Предыдущий лист (←)">‹</button>
+    <button class="vbtn" id="zbNext" title="Следующий лист (›)">›</button>
+    <button class="vbtn" id="zbClose" title="Закрыть (Esc)">✕</button>
+  </div>
+  <div id="dwgStage">
+    <img id="dwgImg" alt="Лист чертежа" draggable="false">
+    <div id="dwgSpin">Загрузка листа…</div>
+    <button class="vbtn sideBtn" id="pvPrev" title="Предыдущий лист">‹</button>
+    <button class="vbtn sideBtn" id="pvNext" title="Следующий лист">›</button>
+    <div id="dwgHint">колесо мыши / щипок — масштаб · перетаскивание — сдвиг · двойной тап — приблизить</div>
+  </div>
+</div>
+
+<script src="modules.js"></script>
+<script>
+(function(){
+  'use strict';
+  /* ============ реестр листов (страница PDF = лист + 17, сверено по штампам) ============ */
+  const GROUPS=[
+    {name:'Поэтажные планы', note:'подтрибунные помещения', items:[
+      {f:'plan1-west', ls:'Лист 2',  t:'План 1 этажа · западная трибуна',  s:'Подтрибунные помещения · отм. 0.000'},
+      {f:'plan2-west', ls:'Лист 4',  t:'План 2 этажа · западная трибуна',  s:'Подтрибунные помещения · отм. +3.500'},
+      {f:'plan3-west', ls:'Лист 6',  t:'План 3 этажа · западная трибуна',  s:'Подтрибунные помещения · отм. +7.000'},
+      {f:'plan1-east', ls:'Лист 8',  t:'План 1 этажа · восточная трибуна', s:'Подтрибунные помещения · отм. 0.000 · полы до −0.700'},
+      {f:'plan2-east', ls:'Лист 10', t:'План 2 этажа · восточная трибуна', s:'Подтрибунные помещения · отм. +3.500'},
+      {f:'plan3-east', ls:'Лист 12', t:'План 3 этажа · восточная трибуна', s:'Подтрибунные помещения · отм. +7.000'},
+      {f:'plan1-south',ls:'Лист 14', t:'План 1 этажа · южная трибуна',     s:'Подтрибунные помещения · отм. 0.000'},
+      {f:'plan1-north',ls:'Лист 15', t:'План 1 этажа · северная трибуна',  s:'Подтрибунные помещения · отм. 0.000'},
+      {f:'radio-plan', ls:'Лист 27', t:'Радиокомментаторская · план',      s:'Западная трибуна · пол +18.550 · верх +20.720'}
+    ]},
+    {name:'Разрезы', note:'основные', items:[
+      {f:'sec-1-1', ls:'Лист 18',   t:'Разрез 1-1', s:'Продольный · северная/южная трибуны · оси А–Б–В · 224,5 м'},
+      {f:'sec-2-2', ls:'Лист 16',   t:'Разрез 2-2', s:'Поперечный · западная/восточная трибуны'},
+      {f:'sec-3-3', ls:'Лист 18.1', t:'Разрез 3-3', s:'Западная трибуна'},
+      {f:'sec-4-4', ls:'Лист 17',   t:'Разрез 4-4 (5-5)', s:'Северная/южная трибуны'}
+    ]},
+    {name:'Фасады', note:'по осям', items:[
+      {f:'facade-west', ls:'Лист 20', t:'Фасад 48-1 · западный',  s:'Главный · со стороны ул. Ленина'},
+      {f:'facade-east', ls:'Лист 19', t:'Фасад 96-49 · восточный',s:'Со стороны парка'},
+      {f:'facade-south',ls:'Лист 21', t:'Фасад 24-73 · южный',    s:'Торцевая трибуна'},
+      {f:'facade-north',ls:'Лист 22', t:'Фасад 72-25 · северный', s:'Торцевая трибуна'}
+    ]},
+    {name:'Трибуны · посадочные места', note:'схемы рядов', items:[
+      {f:'seats-west', ls:'Лист 23',   t:'Западная трибуна',  s:'Посадочные места · разбивка рядов'},
+      {f:'seats-east', ls:'Лист 23.1', t:'Восточная трибуна', s:'Посадочные места · разбивка рядов'},
+      {f:'seats-north',ls:'Лист 24',   t:'Северная трибуна',  s:'Посадочные места · 2 000 мест'},
+      {f:'seats-south',ls:'Лист 24.1', t:'Южная трибуна',     s:'Посадочные места · разбивка рядов'}
+    ]},
+    {name:'VIP-ложа', note:'западная трибуна', items:[
+      {f:'vip-facades', ls:'Лист 25', t:'VIP-ложа · план и фасады', s:'Встроена в чашу западной трибуны · отм. +5.300…+8.820'}
+    ]}
+  ];
+  const FLAT=[]; GROUPS.forEach((g,gi)=>g.items.forEach(it=>{it.gi=gi;FLAT.push(it)}));
+
+  /* ============ галерея ============ */
+  const main=document.getElementById('gxGrid');
+  let idx=0;
+  GROUPS.forEach(g=>{
+    const sec=document.createElement('section'); sec.className='grp';
+    sec.innerHTML='<h2>'+g.name+' <small>'+g.note+' · листов: '+g.items.length+'</small></h2>';
+    const grid=document.createElement('div'); grid.className='grid';
+    g.items.forEach(it=>{
+      const b=document.createElement('button');
+      b.className='shCard'; b.dataset.i=FLAT.indexOf(it);
+      b.innerHTML='<span class="th"><img loading="lazy" src="assets/sheets/th_'+it.f+'.webp" alt=""></span>'+
+        '<span class="ls">'+it.ls+'</span>'+
+        '<span class="bd"><b>'+it.t+'</b><span>'+it.s+'</span></span>';
+      b.addEventListener('click',()=>openView(+b.dataset.i));
+      grid.appendChild(b);
+    });
+    sec.appendChild(grid); main.appendChild(sec);
+  });
+
+  /* ============ просмотрщик ============ */
+  const view=document.getElementById('dwgView'), stage=document.getElementById('dwgStage'),
+        img=document.getElementById('dwgImg'), spin=document.getElementById('dwgSpin');
+  const elT=document.getElementById('dwgT'), elS=document.getElementById('dwgS'),
+        elLs=document.getElementById('dwgLs'), elCnt=document.getElementById('dwgCnt');
+  let cur=-1, s=1, tx=0, ty=0, fitS=1, open=false;
+
+  function clampT(){
+    const r=stage.getBoundingClientRect(), w=img.naturalWidth*s, h=img.naturalHeight*s;
+    const mx=Math.max(80,w*0.4), my=Math.max(80,h*0.4);
+    tx=Math.min(r.width-mx, Math.max(mx-w, tx));
+    ty=Math.min(r.height-my, Math.max(my-h, ty));
+  }
+  function apply(){ clampT(); img.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')'; }
+  function fit(){
+    const r=stage.getBoundingClientRect();
+    fitS=Math.min(r.width/img.naturalWidth, r.height/img.naturalHeight)*0.985;
+    s=fitS; tx=(r.width-img.naturalWidth*s)/2; ty=(r.height-img.naturalHeight*s)/2; apply();
+  }
+  function zoomAt(cx,cy,f){
+    const ns=Math.min(2.0, Math.max(fitS*0.5, s*f));
+    const r=stage.getBoundingClientRect(), x=cx-r.left, y=cy-r.top;
+    tx=x-(x-tx)*(ns/s); ty=y-(y-ty)*(ns/s); s=ns; apply();
+  }
+  function load(i){
+    cur=i; const it=FLAT[i];
+    spin.classList.add('on'); img.style.opacity='0';
+    elT.textContent=it.t; elS.textContent=it.s+' · проект П-01-16-1-АР';
+    elLs.textContent=it.ls; elCnt.textContent=(i+1)+' / '+FLAT.length;
+    img.onload=()=>{ spin.classList.remove('on'); img.style.opacity='1'; fit(); preload(i); };
+    img.onerror=()=>{ spin.textContent='Не удалось загрузить лист'; };
+    spin.textContent='Загрузка листа…';
+    img.src='assets/sheets/'+it.f+'.webp';
+    document.title=it.t+' — '+it.ls+' · П-01-16-1-АР';
+  }
+  function preload(i){
+    [i-1,i+1].forEach(j=>{ if(j>=0&&j<FLAT.length){ const im=new Image(); im.src='assets/sheets/'+FLAT[j].f+'.webp'; } });
+  }
+  function openView(i){
+    open=true; view.classList.add('open'); view.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; load(i);
+  }
+  function closeView(){
+    if(!open)return; open=false; view.classList.remove('open');
+    view.setAttribute('aria-hidden','true'); document.body.style.overflow='';
+    document.title='Планы · фасады · разрезы — Стадион им. Ленинского комсомола, Красноярск';
+  }
+  function step(d){ load((cur+d+FLAT.length)%FLAT.length); }
+
+  document.getElementById('zbClose').addEventListener('click',closeView);
+  document.getElementById('zbIn').addEventListener('click',()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35)});
+  document.getElementById('zbOut').addEventListener('click',()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1/1.35)});
+  document.getElementById('zbFit').addEventListener('click',fit);
+  document.getElementById('zbPrev').addEventListener('click',()=>step(-1));
+  document.getElementById('zbNext').addEventListener('click',()=>step(+1));
+  document.getElementById('pvPrev').addEventListener('click',()=>step(-1));
+  document.getElementById('pvNext').addEventListener('click',()=>step(+1));
+
+  /* колесо мыши — масштаб */
+  stage.addEventListener('wheel',e=>{
+    e.preventDefault();
+    zoomAt(e.clientX,e.clientY, Math.exp(-e.deltaY*0.0016));
+  },{passive:false});
+
+  /* перетаскивание / щипок (Pointer Events) */
+  const pts=new Map(); let lastPinch=0, moved=0, downX=0, downY=0, downT=0;
+  stage.addEventListener('pointerdown',e=>{
+    try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){ moved=0; downX=e.clientX; downY=e.clientY; downT=performance.now();
+      stage.classList.add('drag'); }
+    if(pts.size===2){ const a=[...pts.values()]; lastPinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y); }
+  });
+  stage.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId))return;
+    const prev=pts.get(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){
+      tx+=e.clientX-prev.x; ty+=e.clientY-prev.y;
+      moved+=Math.abs(e.clientX-prev.x)+Math.abs(e.clientY-prev.y); apply();
+    }else if(pts.size===2){
+      const a=[...pts.values()];
+      const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+      if(lastPinch>0) zoomAt((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2, d/lastPinch);
+      lastPinch=d; moved+=3;
+    }
+  });
+  function pointerUp(e){
+    if(!pts.has(e.pointerId))return;
+    pts.delete(e.pointerId); stage.classList.remove('drag');
+    if(pts.size<2)lastPinch=0;
+    if(pts.size===0&&e.type==='pointerup'){
+      const dx=e.clientX-downX, dy=e.clientY-downY, dt=performance.now()-downT;
+      /* свайп по листам: только когда масштаб близок к вписанному */
+      if(s<=fitS*1.06 && dt<700 && Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4 && moved>10){
+        step(dx<0?+1:-1);
+      }
+      /* двойной тап — приблизить/вписать */
+      else if(moved<8 && dt<280){
+        if(stage._tap && performance.now()-stage._tap<340){
+          const r=stage.getBoundingClientRect();
+          if(s>fitS*1.5) fit(); else zoomAt(e.clientX,e.clientY,2.6);
+          stage._tap=0;
+        }else stage._tap=performance.now();
+      }
+    }
+  }
+  stage.addEventListener('pointerup',pointerUp);
+  stage.addEventListener('pointercancel',pointerUp);
+  stage.addEventListener('contextmenu',e=>e.preventDefault());
+  stage.addEventListener('dblclick',e=>{
+    if(s>fitS*1.5) fit(); else zoomAt(e.clientX,e.clientY,2.6);
+  });
+  window.addEventListener('resize',()=>{ if(open&&img.naturalWidth) fit(); });
+
+  /* клавиатура — capture, чтобы Esc не открывал меню модулей при открытом листе */
+  document.addEventListener('keydown',e=>{
+    if(!open)return;
+    e.stopPropagation();
+    if(e.key==='Escape')closeView();
+    else if(e.key==='ArrowLeft')step(-1);
+    else if(e.key==='ArrowRight')step(+1);
+    else if(e.key==='+'||e.key==='='){const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35)}
+    else if(e.key==='-'||e.key==='_'){const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1/1.35)}
+    else if(e.key==='0')fit();
+  },true);
+
+  /* глубокая ссылка: drawings.html#plan1-west */
+  const h=location.hash.slice(1);
+  if(h){ const i=FLAT.findIndex(x=>x.f===h); if(i>=0) openView(i); }
+})();
+</script>
+</body>
+</html>

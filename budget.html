@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131b30'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' fill='none' stroke='%23c9a227' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бюджет и сроки · маршрут по ГрК РФ — Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+  :root{ --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45; --paper:#f4f1ea; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{background:var(--navy2); scroll-behavior:smooth}
+  body{background:var(--navy2); color:var(--paper);
+    font-family:Inter,"Segoe UI",system-ui,sans-serif; min-height:100%}
+
+  /* ---------- шапка ---------- */
+  header{padding:calc(clamp(18px,3vw,34px) + 60px) clamp(16px,4vw,54px) 8px}
+  .kick{font-size:clamp(10px,1vw,13px); letter-spacing:4px; color:var(--gold2);
+    font-weight:600; text-transform:uppercase}
+  h1{font-family:"Playfair Display",serif; font-weight:900;
+    font-size:clamp(24px,3.4vw,46px); margin:6px 0 4px}
+  .sub{color:#b9c4da; font-size:clamp(12px,1.25vw,16px); max-width:1100px; line-height:1.55}
+  .sub b{color:var(--gold2); font-weight:600}
+
+  /* ---------- KPI ---------- */
+  #kpi{margin:22px clamp(16px,4vw,54px) 4px;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:12px}
+  #kpi .k{border:1px solid rgba(201,162,39,.3); border-radius:10px;
+    background:linear-gradient(180deg,rgba(19,27,48,.85),rgba(13,20,36,.85));
+    padding:16px 16px 14px; position:relative; overflow:hidden}
+  #kpi .k::before{content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--gold),transparent)}
+  #kpi .k b{display:block; font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(20px,2.4vw,34px); color:var(--gold2); line-height:1.05}
+  #kpi .k span{display:block; margin-top:6px; font-size:12px; color:#9fb0cf; line-height:1.4}
+
+  /* ---------- секции ---------- */
+  main{padding:10px clamp(16px,4vw,54px) 80px}
+  .grp{margin-top:34px}
+  .grp h2{font-family:"Playfair Display",serif; font-weight:700;
+    font-size:clamp(18px,2vw,26px); color:var(--paper);
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+  .grp h2 small{font-family:Inter,sans-serif; font-size:12px; color:#8fa0c0; letter-spacing:1px}
+  .grp h2::after{content:''; flex:1; height:1px; min-width:60px;
+    background:linear-gradient(90deg,rgba(201,162,39,.55),transparent)}
+  .lead{color:#b9c4da; font-size:clamp(12.5px,1.2vw,15px); line-height:1.6;
+    max-width:1150px; margin-top:10px}
+  .lead b{color:var(--gold2); font-weight:600}
+
+  /* ---------- состав сметы ---------- */
+  #comp{margin-top:18px; border:1px solid rgba(201,162,39,.3); border-radius:12px;
+    background:rgba(19,27,48,.55); padding:18px}
+  #compBar{display:flex; height:54px; border-radius:8px; overflow:hidden;
+    border:1px solid rgba(201,162,39,.25)}
+  #compBar div{display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:600; color:#0d1424; min-width:0;
+    transition:flex-grow .8s cubic-bezier(.2,.7,.2,1); white-space:nowrap}
+  #compBar .c1{background:#c9a227} #compBar .c2{background:#e0bc45}
+  #compBar .c3{background:#8fa0c0} #compBar .c4{background:#f4f1ea}
+  #compLeg{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px}
+  #compLeg .l{font-size:12.5px; color:#c7d2e6; line-height:1.45}
+  #compLeg .l b{display:block; font-family:"Playfair Display",serif; font-size:19px;
+    color:var(--paper); font-weight:700}
+  #compLeg .l i{display:inline-block; width:10px; height:10px; border-radius:2px;
+    margin-right:7px; font-style:normal}
+  #compTot{margin-top:12px; padding-top:12px; border-top:1px dashed rgba(201,162,39,.4);
+    display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap}
+  #compTot b{font-family:"Playfair Display",serif; font-size:clamp(18px,2vw,26px); color:var(--gold2)}
+  #compTot span{font-size:12px; color:#8fa0c0}
+
+  /* ---------- структура СМР ---------- */
+  #smr{margin-top:22px}
+  .brow{display:grid; grid-template-columns:minmax(180px,340px) 1fr 92px; gap:14px;
+    align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.07)}
+  .brow:last-child{border-bottom:0}
+  .brow .nm{font-size:13px; color:#dbe2f0; line-height:1.35}
+  .brow .track{height:14px; background:rgba(255,255,255,.07); border-radius:3px; overflow:hidden}
+  .brow .fill{height:100%; width:0; border-radius:3px;
+    background:linear-gradient(90deg,#9a7a15,var(--gold) 60%,var(--gold2));
+    transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+  .brow .val{font-family:"Playfair Display",serif; font-weight:700; text-align:right;
+    color:var(--gold2); font-size:16px; white-space:nowrap}
+  .bnote{margin-top:10px; font-size:11.5px; color:#8fa0c0}
+
+  /* ---------- карточки ---------- */
+  .cards{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px}
+  .cardX{border:1px solid rgba(201,162,39,.28); border-radius:10px; padding:16px;
+    background:linear-gradient(180deg,rgba(19,27,48,.75),rgba(13,20,36,.75))}
+  .cardX h3{font-size:14px; letter-spacing:.04em; color:var(--gold2);
+    text-transform:uppercase; margin-bottom:8px}
+  .cardX p{font-size:12.5px; color:#c7d2e6; line-height:1.55}
+
+  /* ---------- принципы ---------- */
+  .prin{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px;
+    counter-reset:pr}
+  .prin .p{border-left:3px solid var(--gold); padding:12px 14px;
+    background:rgba(19,27,48,.5); border-radius:0 8px 8px 0; counter-increment:pr}
+  .prin .p::before{content:'0' counter(pr); font-family:"Playfair Display",serif;
+    color:var(--gold); font-size:22px; font-weight:700; display:block; margin-bottom:6px}
+  .prin .p b{display:block; font-size:13px; margin-bottom:5px; color:var(--paper)}
+  .prin .p span{font-size:12px; color:#9fb0cf; line-height:1.5; display:block}
+
+  /* ---------- гант ---------- */
+  .gantt{margin-top:18px; border:1px solid rgba(201,162,39,.3); border-radius:12px;
+    background:rgba(19,27,48,.55); padding:16px 18px 12px}
+  .gscale{display:grid; grid-template-columns:150px 1fr; gap:14px; margin-bottom:6px}
+  .gscale .sc{position:relative; height:16px}
+  .gscale .sc i{position:absolute; top:0; font-size:10px; color:#8fa0c0; font-style:normal;
+    transform:translateX(-50%)}
+  .gscale .sc i::after{content:''; position:absolute; top:14px; left:50%; width:1px; height:6px;
+    background:rgba(201,162,39,.5)}
+  .grow2{display:grid; grid-template-columns:150px 1fr; gap:14px; align-items:center;
+    padding:7px 0; border-bottom:1px solid rgba(255,255,255,.06)}
+  .grow2:last-of-type{border-bottom:0}
+  .grow2 .gn{font-size:12.5px; color:#dbe2f0; line-height:1.3}
+  .grow2 .gn b{color:var(--gold2); font-family:"Playfair Display",serif; font-size:14px}
+  .grow2 .gt{position:relative; height:22px; background:rgba(255,255,255,.05); border-radius:4px}
+  .grow2 .gb{position:absolute; top:0; height:100%; border-radius:4px;
+    background:linear-gradient(90deg,#9a7a15,var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:600; color:#0d1424; white-space:nowrap;
+    min-width:34px; transition:left 1s, width 1s}
+
+  /* ---------- маршрут ГрК ---------- */
+  #grkNote{margin-top:14px; padding:12px 16px; border-radius:8px; font-size:12.5px;
+    color:#dbe2f0; line-height:1.55; background:rgba(201,162,39,.1);
+    border:1px solid rgba(201,162,39,.4)}
+  #grkNote b{color:var(--gold2)}
+  .steps{margin-top:18px; position:relative; padding-left:30px}
+  .steps::before{content:''; position:absolute; left:11px; top:8px; bottom:8px; width:2px;
+    background:linear-gradient(180deg,var(--gold),rgba(201,162,39,.15))}
+  .step{position:relative; margin-bottom:10px}
+  .step::before{content:''; position:absolute; left:-26px; top:20px; width:12px; height:12px;
+    border-radius:50%; background:var(--navy2); border:2px solid var(--gold); z-index:1}
+  .step.done::before{background:var(--gold)}
+  .shead{width:100%; display:grid; grid-template-columns:46px 1fr auto; gap:12px;
+    align-items:center; text-align:left; padding:13px 16px; cursor:pointer;
+    border:1px solid rgba(201,162,39,.28); border-radius:10px;
+    background:linear-gradient(180deg,rgba(19,27,48,.8),rgba(13,20,36,.8));
+    color:var(--paper); font-family:inherit; transition:border-color .25s}
+  .shead:hover{border-color:var(--gold)}
+  .shead .no{font-family:"Playfair Display",serif; font-size:20px; font-weight:700;
+    color:var(--gold)}
+  .shead .tt b{display:block; font-size:14.5px}
+  .shead .tt>span{display:block; font-size:11.5px; color:#8fa0c0; margin-top:2px}
+  .shead .chev{font-size:18px; color:var(--gold2); transition:transform .3s}
+  .step.open .shead{border-color:var(--gold);
+    background:linear-gradient(180deg,rgba(34,44,74,.9),rgba(19,27,48,.9))}
+  .step.open .shead .chev{transform:rotate(90deg)}
+  .sbody{max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.2,.7,.2,1)}
+  .step.open .sbody{max-height:1400px}
+  .sinner{padding:14px 16px 16px; border:1px solid rgba(201,162,39,.28); border-top:0;
+    border-radius:0 0 10px 10px; background:rgba(13,20,36,.6); margin-top:-6px}
+  .sinner .what{font-size:13px; color:#c7d2e6; line-height:1.6}
+  .sinner .what b{color:var(--paper)}
+  .sgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px}
+  .sgrid h4{font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+    color:var(--gold2); margin-bottom:7px}
+  .sgrid ul{list-style:none}
+  .sgrid li{font-size:12.5px; color:#c7d2e6; line-height:1.5; padding:4px 0 4px 16px;
+    position:relative}
+  .sgrid li::before{content:'·'; position:absolute; left:4px; color:var(--gold);
+    font-weight:700}
+  .lawchips{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+  .lawchips span{font-size:11px; padding:4px 10px; border-radius:20px;
+    border:1px solid rgba(201,162,39,.5); color:var(--gold2); background:rgba(19,27,48,.7)}
+  .y26{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.8px;
+    padding:3px 9px; border-radius:4px; background:var(--gold); color:#0d1424;
+    text-transform:uppercase; margin-left:8px; vertical-align:2px}
+  .timel{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .timel span{font-size:11.5px; padding:5px 11px; border-radius:6px;
+    background:rgba(255,255,255,.06); color:#dbe2f0}
+  .timel span b{color:var(--gold2)}
+
+  /* ---------- футер ---------- */
+  .foot{margin:40px clamp(16px,4vw,54px) 30px; padding-top:16px;
+    border-top:1px solid rgba(201,162,39,.35); color:#8fa0c0;
+    font-size:12px; line-height:1.65}
+  .foot a{color:var(--gold2); text-decoration:none}
+  .foot a:hover{text-decoration:underline}
+
+  /* ---------- адаптив ---------- */
+  @media(max-width:1080px){
+    #kpi{grid-template-columns:repeat(3,1fr)}
+    #compLeg{grid-template-columns:repeat(2,1fr)}
+    .cards,.prin{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:700px){
+    #kpi{grid-template-columns:repeat(2,1fr)}
+    .cards,.prin,#compLeg{grid-template-columns:1fr}
+    .brow{grid-template-columns:1fr; gap:5px; padding:10px 0}
+    .brow .val{text-align:left}
+    .gscale,.grow2{grid-template-columns:1fr; gap:4px}
+    .gscale .sc{height:14px}
+    .grow2 .gt{height:20px}
+    .sgrid{grid-template-columns:1fr}
+    .shead{grid-template-columns:34px 1fr auto; padding:11px 12px}
+    .shead .no{font-size:16px}
+    .steps{padding-left:22px}
+    .steps::before{left:7px}
+    .step::before{left:-21px; width:10px; height:10px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="kick">Экономика проекта · нормативный маршрут</div>
+  <h1>Бюджет и сроки</h1>
+  <p class="sub">Полная финансовая модель реконструкции стадиона им. Ленинского комсомола и пошаговый
+    алгоритм её реализации: от задания на проектирование до ввода в эксплуатацию. Смета и график —
+    из проектных материалов и концепции КУОР 2026; процедуры — по Градостроительному кодексу РФ
+    <b>в редакции, действующей на октябрь 2026 года</b>.</p>
+</header>
+
+<div id="kpi">
+  <div class="k"><b>5,0 млрд ₽</b><span>бюджет реконструкции с НДС 22%</span></div>
+  <div class="k"><b>4 098 млн ₽</b><span>смета без НДС: СМР, проектные, резерв</span></div>
+  <div class="k"><b>22 мес</b><span>суммарный срок реализации</span></div>
+  <div class="k"><b>6–7 мес</b><span>проектирование: изыскания, обследование, ПД, экспертиза</span></div>
+  <div class="k"><b>12–18 мес</b><span>строительство: шесть этапов СМР</span></div>
+</div>
+
+<main>
+<!-- ================= ФИНАНСОВАЯ МОДЕЛЬ ================= -->
+<section class="grp" id="money">
+  <h2>Финансовая модель <small>укрупнённая смета · концепция 2026</small></h2>
+  <p class="lead">Сумма без НДС — <b>4 098 млн ₽</b>: строительно-монтажные работы, проектные работы
+    и резерв на непредвиденные (~7%). НДС 22% — <b>902 млн ₽</b>. В стоимость включены спортивные
+    технологии, поле из натуральной травы с подогревом, обустройство трибун и VIP-зон,
+    трансляционные мониторы.</p>
+
+  <div id="comp">
+    <div id="compBar">
+      <div class="c1" style="flex-grow:3560">СМР</div>
+      <div class="c2" style="flex-grow:260">ПИР</div>
+      <div class="c3" style="flex-grow:278">Резерв</div>
+      <div class="c4" style="flex-grow:902">НДС</div>
+    </div>
+    <div id="compLeg">
+      <div class="l"><i style="background:#c9a227"></i><b>3 560 млн ₽</b>Строительно-монтажные работы, без НДС</div>
+      <div class="l"><i style="background:#e0bc45"></i><b>260 млн ₽</b>Проектные и изыскательские работы</div>
+      <div class="l"><i style="background:#8fa0c0"></i><b>278 млн ₽</b>Непредвиденные затраты, ~7%</div>
+      <div class="l"><i style="background:#f4f1ea"></i><b>902 млн ₽</b>НДС 22% (ставка с 01.01.2026)</div>
+    </div>
+    <div id="compTot"><b>Итого: 5,0 млрд ₽ с НДС</b><span>укрупнённая смета концепции · уточняется по результатам проектирования и экспертизы сметы</span></div>
+  </div>
+
+  <div id="smr">
+    <h2 style="font-size:clamp(15px,1.6vw,20px)">Структура СМР <small>млн ₽ без НДС · доля от ведущей статьи</small></h2>
+    <div id="smrRows"></div>
+    <div class="bnote">Строки — укрупнённые статьи сметы концепции; итог СМР 3 560 млн ₽. Детализация до уровня сводного сметного расчёта выполняется на стадии проектной документации и подтверждается экспертизой.</div>
+  </div>
+
+  <div class="cards">
+    <div class="cardX"><h3>Поле</h3><p>Гибридный газон из натуральной травы: подпольный подогрев, автополив, дренаж, аэрация.</p></div>
+    <div class="cardX"><h3>Спортивные технологии</h3><p>VAR (8+4 камеры), Goal-Line Technology, электронное табло, хронометраж, акустика.</p></div>
+    <div class="cardX"><h3>Трансляционные мониторы</h3><p>Видеокуб 8×6 м Full HD, периметральные LED-экраны ~220 м, 24 информационных экрана.</p></div>
+    <div class="cardX"><h3>Трибуны и VIP</h3><p>12 000 стандартных сидений, 2 000 VIP-кресел, премиум- и бизнес-ложи, бары, зона СМИ.</p></div>
+  </div>
+
+  <div class="prin">
+    <div class="p"><b>Минимальный демонтаж</b><span>Сохранение существующих конструкций и их адаптация под новые функции вместо дорогостоящего сноса охраняемых элементов.</span></div>
+    <div class="p"><b>Сохранение конструктива</b><span>Основной несущий конструктив неизменен: исключаются сложные и дорогие фундаментальные работы.</span></div>
+    <div class="p"><b>Заводская готовность</b><span>Элементы высокой заводской готовности, укрупнённый монтаж, технологии быстрого строительства.</span></div>
+    <div class="p"><b>Облегчённые конструкции</b><span>Металлоконструкции заводского изготовления снижают нагрузку на фундамент, упрощают логистику и монтаж.</span></div>
+  </div>
+</section>
+
+<!-- ================= ГРАФИК ================= -->
+<section class="grp" id="plan">
+  <h2>График реализации <small>по концепции КУОР 2026</small></h2>
+  <p class="lead">Проектирование занимает <b>6–7 месяцев</b> (четыре этапа), строительство —
+    <b>12–18 месяцев</b> (шесть этапов, допускается частичное перекрытие). Суммарный укрупнённый
+    срок реализации проекта — <b>22 месяца</b>.</p>
+
+  <div class="gantt" id="gPir">
+    <div class="gscale"><div></div><div class="sc" data-max="8"></div></div>
+    <div id="pirRows"></div>
+  </div>
+
+  <div class="gantt" id="gSmr">
+    <div class="gscale"><div></div><div class="sc" data-max="18"></div></div>
+    <div id="smrGRows"></div>
+    <div class="bnote">Шкала — месяцы от начала этапа работ. Полосы построены последовательно по максимальным длительностям этапов (Σ = 14 мес); диапазон 12–18 мес учитывает перекрытие этапов и сезонность.</div>
+  </div>
+</section>
+<!-- ================= МАРШРУТ ГрК ================= -->
+<section class="grp" id="grk">
+  <h2>Алгоритм реализации по ГрК РФ <small>редакция на октябрь 2026 года</small></h2>
+  <p class="lead">Полный нормативный цикл реконструкции объекта капитального строительства:
+    десять шагов от задания на проектирование до эксплуатации. Для каждого шага указаны нормы,
+    документы-результат и сроки: <b>нормативные</b> (по ГрК РФ и актам Правительства РФ) и
+    <b>проектные</b> (по концепции КУОР 2026).</p>
+  <div id="grkNote"><b>Изменения 2026 года, учтённые в маршруте:</b> с 1 сентября 2026 года
+    разрешения на строительство и на ввод в эксплуатацию оформляются в реестровой модели
+    (запись в реестре разрешений, заявитель получает выписку; сведения в Росреестр направляет
+    орган выдачи); НДС 22% заложен в смету; обследования ведутся по ГОСТ 31937-2024;
+    обязательность ТИМ (BIM) для объектов с бюджетным финансированием действует с 2022 года.</div>
+  <div class="steps" id="steps"></div>
+</section>
+</main>
+
+<div class="foot">
+  Смета и график — по материалам проекта и презентации «Модернизация Центрального стадиона КУОР ·
+  Концептуальные предложения 2026». Процедуры — по Градостроительному кодексу РФ (ред. октября 2026 г.),
+  ПП РФ № 87, № 145, № 331, № 304-ФЗ от 31.07.2025, ГОСТ 31937-2024, 384-ФЗ.
+  Раздел носит информационный характер и не заменяет юридическое сопровождение проекта.
+  См. также: <a href="architecture.html">«Архитектура · 3D виды»</a> ·
+  <a href="model.html">«Существующий стадион · BIM»</a> ·
+  <a href="drawings.html">«Планы · фасады · разрезы»</a>.
+</div>
+
+<script src="modules.js"></script>
+<script>
+(function(){
+  'use strict';
+  /* ================= СМР, млн ₽ без НДС ================= */
+  const SMR=[
+    ['Несущие опоры и фундаменты',645],
+    ['Кровля из металлической мембраны',502],
+    ['Раздвижная крыша (пневмоподушки)',422],
+    ['Капитальный ремонт существующих помещений',420],
+    ['Инженерные системы',365],
+    ['Воздушное отопление и кондиционирование',352],
+    ['Офисно-административные блоки',342],
+    ['Система освещения (288 LED, 2000 лк, UHD/4K)',292],
+    ['Благоустройство и прочее',226]
+  ];
+  const smrBox=document.getElementById('smrRows');
+  SMR.forEach(([n,v])=>{
+    const d=document.createElement('div'); d.className='brow';
+    d.innerHTML='<span class="nm">'+n+'</span>'+
+      '<span class="track"><span class="fill" data-w="'+(v/645*100).toFixed(1)+'"></span></span>'+
+      '<span class="val">'+v+'</span>';
+    smrBox.appendChild(d);
+  });
+
+  /* ================= гант ================= */
+  function buildScale(el,max,marks){
+    const sc=el.querySelector('.sc');
+    marks.forEach(m=>{
+      const i=document.createElement('i');
+      i.style.left=(m/max*100)+'%'; i.textContent=m;
+      sc.appendChild(i);
+    });
+  }
+  function buildRows(box,max,rows){
+    rows.forEach(([n,sub,a,b,dur])=>{
+      const d=document.createElement('div'); d.className='grow2';
+      d.innerHTML='<div class="gn"><b>'+n+'</b><br>'+sub+'</div>'+
+        '<div class="gt"><div class="gb" style="left:'+(a/max*100).toFixed(2)+'%;width:'+((b-a)/max*100).toFixed(2)+'%">'+dur+'</div></div>';
+      box.appendChild(d);
+    });
+  }
+  buildScale(document.getElementById('gPir'),8,[0,2,4,6,8]);
+  buildRows(document.getElementById('pirRows'),8,[
+    ['Изыскания','геодезия · геология · экология',0,1.5,'1–1,5 мес'],
+    ['Обследование','техсостояние конструкций',1.5,3,'1–1,5 мес'],
+    ['ПД + РД','все разделы, смета',3,6,'2–3 мес'],
+    ['Экспертиза','госэкспертиза · РНС',6,7.5,'1–1,5 мес']
+  ]);
+  buildScale(document.getElementById('gSmr'),18,[0,3,6,9,12,15,18]);
+  buildRows(document.getElementById('smrGRows'),18,[
+    ['Подготовительные','стройплощадка · ограждения',0,1,'1 мес'],
+    ['Демонтажные','торцевые трибуны · старые системы',1,3,'1–2 мес'],
+    ['Возведение','трибуны · блоки · каркас крыши',3,7,'3–4 мес'],
+    ['Инженерия','отопление · вентиляция · электрика',7,10,'2–3 мес'],
+    ['Отделка','интерьеры · благоустройство',10,13,'2–3 мес'],
+    ['Пусконаладка','тестирование · ввод',13,14,'1 мес']
+  ]);
+
+  /* ================= маршрут ГрК ================= */
+  const STEPS=[
+    {no:'01',t:'Задание на проектирование и ГПЗУ',sub:'инициация проекта',
+     what:'Застройщик (КУОР / региональный оператор) формулирует <b>задание на проектирование</b>: цели, вместимость 25 000, состав работ по реконструкции, требования к разделам. Параллельно запрашивается <b>градостроительный план земельного участка</b> (ГПЗУ) — базовый градостроительный документ площадки. Так как объект эксплуатируется, оформляется согласие правообладателей на реконструкцию.',
+     res:['Задание на проектирование','ГПЗУ (срок выдачи — до 14 рабочих дней)','Согласие правообладателей объекта'],
+     time:[['Проект','1–2 мес'],['ГПЗУ','до 14 раб. дней']],
+     law:['ст. 48 ГрК РФ','ст. 57.3 ГрК РФ','ч. 4 ст. 51 ГрК РФ']},
+    {no:'02',t:'Инженерные изыскания',sub:'геодезия · геология · экология',
+     what:'Геодезические, геологические и экологические изыскания площадки: основа для расчёта новых опор крыши, буронабивных свай и нагрузок на существующие фундаменты. Выполняются до начала проектирования, отчёты входят в состав исходных данных ПД и проходят экспертизу вместе с ней.',
+     res:['Отчёты по инженерным изысканиям','Исходно-разрешительная база для ПД'],
+     time:[['Проект','1–1,5 мес']],
+     law:['ст. 47 ГрК РФ','СП 47.13330','СП 11-105-97']},
+    {no:'03',t:'Обследование конструкций',sub:'статус: цифровая база готова',done:true,
+     what:'Комплексное техническое обследование существующего стадиона: категория технического состояния, несущая способность чаши, ферм, колонн и фундаментов. <b>У проекта уже есть цифровой результат этого шага</b> — BIM-модель по IFC обследования: 13 716 элементов, сверенная с DWG проекта П-01-16-1-АР.',
+     res:['Техническое заключение с категорией состояния','BIM существующего состояния (у проекта — готова)'],
+     time:[['Проект','1–1,5 мес']],
+     law:['ГОСТ 31937-2024','СП 13-102-2003','ст. 36 384-ФЗ']},
+    {no:'04',t:'Концепция и ОТР',sub:'статус: выполнено (концепция 2026)',done:true,
+     what:'Объёмно-транспортное решение: разворот поля на 90°, вместимость 25 000, схемы эвакуации и транспортных потоков, функциональные блоки. <b>ОТР — отраслевая предпроектная стадия для спортивных сооружений, а не процедура ГрК.</b> По проекту выполнена: «Концептуальные предложения 2026» КУОР.',
+     res:['Концепция модернизации 2026 (готова)','ОТР: поле, трибуны, потоки, ТЭП'],
+     time:[['Проект','выполнено']],
+     law:['отраслевая практика','ТЭП концепции']},
+    {no:'05',t:'Проектная и рабочая документация',sub:'все разделы + смета',
+     what:'Разработка ПД по разделам ПП РФ № 87; при реконструкции состав разделов определяется заданием на проектирование. <b>Применение ТИМ (BIM) обязательно</b> при бюджетном финансировании: цифровая модель ведётся по правилам ПП РФ № 614. Формируется смета, которая затем проходит проверку достоверности на экспертизе.',
+     res:['Проектная документация (разделы по ПП № 87)','Рабочая документация','Смета · ЦИМ-модель'],
+     time:[['Проект','2–3 мес']],
+     law:['ст. 48 ГрК РФ','ПП РФ № 87','ПП РФ № 331 · № 614 (ТИМ)']},
+    {no:'06',t:'Экспертиза проектной документации',sub:'обязательна для этого объекта',
+     what:'Государственная экспертиза обязательна: объект массового пребывания с бюджетным финансированием. Проверяются ПД, результаты изысканий и смета. Нормативный срок — <b>до 42 рабочих дней</b>; по заявлению застройщика продлевается не более чем на 20 рабочих дней. Проектная оценка 1–1,5 мес укладывается в норматив.',
+     res:['Положительное заключение экспертизы','Достоверность сметы подтверждена'],
+     time:[['Норма','до 42 раб. дней (+20)'],['Проект','1–1,5 мес']],
+     law:['ст. 49 ГрК РФ','ПП РФ № 145','электронный формат'],y26:true},
+    {no:'07',t:'Разрешение на реконструкцию',sub:'реестровая модель с 01.09.2026',
+     what:'Отдельного «разрешения на реконструкцию» не существует: выдаётся <b>разрешение на строительство</b> с видом работ «реконструкция». Срок — 5 рабочих дней. С 1 сентября 2026 года действует реестровая модель: разрешение — запись в реестре разрешений, заявитель получает выписку; сведения о правах на участок орган запрашивает из ЕГРН сам. Срок действия разрешения равен сроку по ПОС. Не позднее чем за 7 рабочих дней до старта — извещение о начале работ.',
+     res:['Разрешение на строительство (реконструкцию)','Извещение о начале работ — за 7 раб. дней'],
+     time:[['Норма','5 раб. дней']],
+     law:['ст. 51 ГрК РФ','ст. 52 ГрК РФ','ФЗ № 304 от 31.07.2025'],y26:true},
+    {no:'08',t:'Реконструкция',sub:'12–18 мес · шесть этапов СМР',
+     what:'СМР по графику выше: подготовка, демонтаж, возведение, инженерия, отделка, пусконаладка. Весь период действуют <b>строительный контроль застройщика и подрядчика</b> и <b>государственный строительный надзор</b>; ведётся исполнительная документация. Этапы допускают частичное перекрытие; элементы высокой заводской готовности сокращают сроки.',
+     res:['Исполнительная документация','Акты освидетельствования скрытых работ','Заключение госстройнадзора по итогам (ЗОС)'],
+     time:[['Проект','12–18 мес']],
+     law:['ст. 52–54 ГрК РФ','ПОС · ППР']},
+    {no:'09',t:'Ввод в эксплуатацию',sub:'7 рабочих дней · реестр',
+     what:'Пакет по ст. 55: ГПЗУ, разрешение на строительство, акт приёмки, документы о соответствии техрегламентам, ЗОС, технический план, схема расположения. Орган выдачи проверяет документы и осматривает объект — <b>7 рабочих дней</b>. С 01.09.2026 разрешение на ввод также оформляется записью в реестре; орган сам направляет сведения в Росреестр для кадастрового учёта изменений и регистрации права.',
+     res:['Разрешение на ввод в эксплуатацию','Кадастровый учёт · регистрация права в ЕГРН'],
+     time:[['Норма','7 раб. дней']],
+     law:['ст. 55 ГрК РФ','ст. 19 218-ФЗ','ФЗ № 304 от 31.07.2025'],y26:true},
+    {no:'10',t:'Эксплуатация и мониторинг',sub:'после завершения реконструкции',
+     what:'Эксплуатация по правилам технического регламента: первое плановое обследование — не позднее чем через 2 года после ввода, далее — не реже одного раза в 10 лет, внеплановые — после аварий и стихий. Мониторинг технического состояния ведётся по ГОСТ 31937-2024.',
+     res:['Программа эксплуатации объекта','Плановые обследования и мониторинг'],
+     time:[['Норма','первое обследование ≤ 2 лет']],
+     law:['ст. 36 384-ФЗ','ГОСТ 31937-2024']}
+  ];
+  const box=document.getElementById('steps');
+  STEPS.forEach((s,idx)=>{
+    const d=document.createElement('div');
+    d.className='step'+(s.done?' done':''); d.id='s'+(idx+1);
+    const badge=s.y26?'<span class="y26">изм. 2026</span>':'';
+    d.innerHTML=
+      '<button class="shead" type="button">'+
+        '<span class="no">'+s.no+'</span>'+
+        '<span class="tt"><b>'+s.t+badge+'</b><span>'+s.sub+'</span></span>'+
+        '<span class="chev">›</span></button>'+
+      '<div class="sbody"><div class="sinner">'+
+        '<div class="what">'+s.what+'</div>'+
+        '<div class="sgrid"><div><h4>Документы и результат</h4><ul>'+
+          s.res.map(r=>'<li>'+r+'</li>').join('')+'</ul></div>'+
+        '<div><h4>Сроки</h4><div class="timel">'+
+          s.time.map(([a,b])=>'<span>'+a+': <b>'+b+'</b></span>').join('')+'</div></div></div>'+
+        '<div class="lawchips">'+s.law.map(l=>'<span>'+l+'</span>').join('')+'</div>'+
+      '</div></div>';
+    box.appendChild(d);
+  });
+  box.addEventListener('click',e=>{
+    const h=e.target.closest('.shead'); if(!h)return;
+    const st=h.parentElement, was=st.classList.contains('open');
+    box.querySelectorAll('.step.open').forEach(x=>x.classList.remove('open'));
+    if(!was)st.classList.add('open');
+  });
+  /* глубокая ссылка #s6 */
+  const h=location.hash.slice(1);
+  const tgt=h&&document.getElementById(h);
+  (tgt&&tgt.classList.contains('step')?tgt:box.children[0]).classList.add('open');
+  if(tgt&&tgt.classList.contains('step'))setTimeout(()=>tgt.scrollIntoView({block:'center'}),200);
+
+  /* ================= анимация баров ================= */
+  const io=new IntersectionObserver(es=>{
+    es.forEach(en=>{ if(en.isIntersecting){
+      en.target.style.width=en.target.dataset.w+'%'; io.unobserve(en.target); }});
+  },{threshold:.35});
+  document.querySelectorAll('.fill[data-w]').forEach(f=>io.observe(f));
+})();
+</script>
+</body>
+</html>

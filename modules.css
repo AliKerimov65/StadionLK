@@ -1,0 +1,106 @@
+/* ===== Модули проекта: единое меню стенда (StadionLK) ===== */
+:root{--mn-navy:#131b30;--mn-navy2:#0d1424;--mn-gold:#c9a227;--mn-gold2:#e0bc45}
+
+#modNavBtn{position:fixed;top:18px;left:18px;z-index:900;display:flex;align-items:center;gap:12px;
+  padding:12px 20px;background:rgba(13,20,36,.85);border:1px solid rgba(201,162,39,.45);border-radius:6px;
+  color:#f0ead6;font:600 13px 'Inter',system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;backdrop-filter:blur(8px);transition:background .2s,border-color .2s}
+#modNavBtn:hover{background:rgba(19,27,48,.95);border-color:var(--mn-gold)}
+#modNavBtn .burger{display:flex;flex-direction:column;gap:4px;width:20px}
+#modNavBtn .burger i{height:2px;background:var(--mn-gold);border-radius:1px}
+
+#modMenu{position:fixed;inset:0;z-index:950;display:none;flex-direction:column;
+  background:rgba(8,12,22,.96);backdrop-filter:blur(14px)}
+#modMenu.open{display:flex}
+#modMenu .mmHead{display:flex;align-items:center;gap:18px;padding:22px 34px;border-bottom:1px solid rgba(201,162,39,.25)}
+#modMenu .mmHead .mmTitle{font:700 clamp(18px,2vw,28px) 'Playfair Display',Georgia,serif;color:#f0ead6}
+#modMenu .mmHead .mmForum{margin-left:auto;font:500 12.5px 'Inter',sans-serif;color:#a8b0c4;letter-spacing:.1em;text-transform:uppercase;text-align:right}
+#modMenu .mmClose{width:52px;height:52px;border-radius:6px;border:1px solid rgba(201,162,39,.4);background:transparent;
+  color:#e8e6df;font-size:22px;cursor:pointer}
+#modMenu .mmClose:hover{border-color:var(--mn-gold);color:var(--mn-gold2)}
+#modMenu .mmGrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:18px;padding:28px 34px;align-content:start}
+.mmCard{position:relative;display:flex;flex-direction:column;border:1px solid rgba(201,162,39,.28);border-radius:8px;
+  overflow:hidden;background:var(--mn-navy);cursor:pointer;text-decoration:none;color:inherit;
+  transition:transform .18s,border-color .18s,box-shadow .18s}
+.mmCard:hover{transform:translateY(-3px);border-color:var(--mn-gold);box-shadow:0 10px 34px rgba(0,0,0,.5)}
+.mmCard .mmThumb{display:block;height:150px;overflow:hidden;background:#0a0f1c}
+.mmCard .mmThumb img{width:100%;height:100%;object-fit:cover;opacity:.85;transition:opacity .2s}
+.mmCard:hover .mmThumb img{opacity:1}
+.mmCard .mmBody{display:block;padding:16px 18px 18px}
+.mmCard .mmBody b{display:block;font:700 17px 'Playfair Display',Georgia,serif;color:#f0ead6;margin-bottom:4px}
+.mmCard .mmBody span{display:block;font:400 13px/1.45 'Inter',sans-serif;color:#a8b0c4}
+.mmCard .mmKey{position:absolute;top:12px;left:12px;z-index:3;min-width:34px;height:34px;padding:0 8px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;background:rgba(13,20,36,.88);border:1px solid rgba(201,162,39,.55);
+  color:var(--mn-gold2);font:700 15px 'Playfair Display',serif}
+.mmCard.cur{border-color:var(--mn-gold)}
+.mmCard.cur::after{content:"ВЫ ЗДЕСЬ";position:absolute;top:14px;right:12px;z-index:3;padding:4px 10px;border-radius:4px;
+  background:var(--mn-gold);color:var(--mn-navy2);font:600 10.5px 'Inter',sans-serif;letter-spacing:.1em}
+#modMenu .mmFoot{padding:16px 34px 22px;border-top:1px solid rgba(201,162,39,.2);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font:400 12.5px 'Inter',sans-serif;color:#8a93a8}
+#modMenu .mmFoot b{color:#c6ccdb;font-weight:600}
+
+/* idle: обратный отсчёт до автодемо + скрытие курсора */
+#idlePill{position:fixed;bottom:22px;right:22px;z-index:940;display:none;padding:10px 18px;border-radius:6px;
+  background:rgba(13,20,36,.88);border:1px solid rgba(201,162,39,.5);color:#e8e6df;
+  font:500 13px 'Inter',sans-serif;letter-spacing:.04em}
+#idlePill b{color:var(--mn-gold2)}
+body.kioskIdle, body.kioskIdle *{cursor:none!important}
+@media(max-width:720px){#modMenu .mmGrid{grid-template-columns:1fr}.mmCard .mmThumb{height:110px}}
+
+/* ===== ЖЕСТЫ: pull-to-refresh, пейджер модуля, переходы ===== */
+#gxPtr{position:fixed;top:0;left:50%;transform:translate(-50%,-70px);z-index:940;
+  display:flex;align-items:center;gap:10px;padding:11px 20px;
+  background:rgba(13,20,36,.92);border:1px solid rgba(201,162,39,.5);border-top:none;border-radius:0 0 12px 12px;
+  color:#e8e6df;font:500 12.5px 'Inter',system-ui,sans-serif;letter-spacing:.04em;
+  opacity:0;pointer-events:none;transition:opacity .18s ease;box-shadow:0 12px 34px rgba(0,0,0,.45)}
+#gxPtr.show{opacity:1}
+#gxPtr svg{width:18px;height:18px;fill:#c9a227}
+#gxPtr.rdy{border-color:#e0bc45;box-shadow:0 0 26px rgba(201,162,39,.45)}
+#gxPtr.rdy svg{fill:#e0bc45}
+
+#gxPager{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:890;
+  display:flex;align-items:baseline;gap:7px;padding:9px 16px;border-radius:999px;cursor:pointer;
+  background:rgba(13,20,36,.82);border:1px solid rgba(201,162,39,.4);backdrop-filter:blur(6px);
+  color:#e8e6df;font:600 12px 'Inter',system-ui,sans-serif;letter-spacing:.06em}
+#gxPager b{color:#e0bc45;font-size:14px}
+#gxPager i{font-style:normal;color:#8a93a8}
+#gxPager span{color:#b9c0d4;text-transform:uppercase;font-size:10.5px;letter-spacing:.1em}
+#gxPager:active{transform:translateX(-50%) scale(.95)}
+body[data-page="compare.html"] #gxPager{left:14px;transform:none}
+body[data-page="compare.html"] #gxPager:active{transform:scale(.95)}
+body[data-page="model.html"] #gxPager{left:auto;right:14px;transform:none}
+body[data-page="model.html"] #gxPager:active{transform:scale(.95)}
+body[data-page="model.html"] #idlePill{bottom:64px}
+@media(max-width:720px){#gxPager{bottom:10px;padding:8px 13px}}
+
+/* переходы между модулями */
+html.gx-out-l body,html.gx-out-r body{transition:transform .24s ease-in,opacity .24s ease-in}
+html.gx-out-l body{transform:translateX(-7%);opacity:0}
+html.gx-out-r body{transform:translateX(7%);opacity:0}
+@keyframes gxInL{from{transform:translateX(6%);opacity:0}to{transform:none;opacity:1}}
+@keyframes gxInR{from{transform:translateX(-6%);opacity:0}to{transform:none;opacity:1}}
+html.gx-in-l body{animation:gxInL .38s ease-out}
+html.gx-in-r body{animation:gxInR .38s ease-out}
+
+/* ===== мобильная адаптация меню ===== */
+@media(max-width:720px){
+  #modNavBtn{top:12px;left:12px;padding:13px 14px;gap:0}
+  #modNavBtn>span:last-child{display:none}
+  #modNavBtn .burger{width:22px}
+  #modMenu .mmHead{padding:16px 16px 14px;gap:12px}
+  #modMenu .mmHead .mmForum{display:none}
+  #modMenu .mmClose{width:48px;height:48px}
+  #modMenu .mmGrid{padding:14px 16px;gap:12px;grid-template-columns:1fr}
+  .mmCard{display:grid;grid-template-columns:104px 1fr;align-items:center;min-height:84px}
+  .mmCard .mmThumb{height:84px;width:104px}
+  .mmCard .mmBody{padding:10px 14px}
+  .mmCard .mmBody b{font-size:15.5px}
+  .mmCard .mmBody span{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mmCard:active{transform:scale(.985)}
+  .mmCard .mmKey{top:8px;left:8px;min-width:28px;height:28px;font-size:13px}
+  .mmCard.cur::after{top:auto;bottom:6px;right:auto;left:6px;padding:2px 7px;font-size:9px}
+  #modMenu .mmFoot{padding:12px 16px 16px;font-size:11.5px;gap:8px}
+  #idlePill{bottom:auto;top:64px;right:12px;left:12px;text-align:center}
+}
