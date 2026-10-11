@@ -181,8 +181,16 @@ const modelMats=[];                                       // материалы 
 let RX=120,RZ=85,H=26;                                    // габариты по умолчанию (м)
 
 async function fetchGLB(){
+  // модель двумя частями (<25 МБ каждая); монолит existing.glb — запасной вариант
+  try{const h=await fetch('existing_1.glb',{method:'HEAD'});
+    if(h.ok){
+      const bufs=[];
+      for(const u of ['existing_1.glb','existing_2.glb']) bufs.push(await (await fetch(u)).arrayBuffer());
+      return bufs;
+    }
+  }catch(e){}
   try{const h=await fetch('existing.glb',{method:'HEAD'});
-    if(h.ok)return (await fetch('existing.glb')).arrayBuffer();
+    if(h.ok)return [await (await fetch('existing.glb')).arrayBuffer()];
   }catch(e){}
   loadSt.textContent='Загрузка 3D-модели (резервный канал)…';
   const parts=[];
@@ -193,7 +201,7 @@ async function fetchGLB(){
   }
   const b64=parts.join(''),bin=atob(b64),buf=new Uint8Array(bin.length);
   for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
-  return buf.buffer;
+  return [buf.buffer];
 }
 
 function frameModel(root){
@@ -209,20 +217,22 @@ function frameModel(root){
 
 async function loadModel(){
   try{
-    const buf=await fetchGLB();
+    const bufs=await fetchGLB();
     loadSt.textContent='Построение сцены…';
     const loader=new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
-    const gltf=await new Promise((res,rej)=>loader.parse(buf,'',res,rej));
-    frameModel(gltf.scene);
-    gltf.scene.traverse(o=>{
-      if(o.isMesh&&o.material){
-        (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
-          if(!m.userData.op0){m.userData.op0=(m.opacity!==undefined?m.opacity:1);modelMats.push(m)}
-        });
-      }
-    });
-    world.add(gltf.scene);
+    for(const buf of bufs){
+      const gltf=await new Promise((res,rej)=>loader.parse(buf,'',res,rej));
+      frameModel(gltf.scene);
+      gltf.scene.traverse(o=>{
+        if(o.isMesh&&o.material){
+          (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+            if(!m.userData.op0){m.userData.op0=(m.opacity!==undefined?m.opacity:1);modelMats.push(m)}
+          });
+        }
+      });
+      world.add(gltf.scene);
+    }
   }catch(e){
     console.warn('Модель недоступна, показаны только проектные элементы',e);
     loadSt.textContent='Модель не найдена: показаны проектные элементы';

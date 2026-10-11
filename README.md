@@ -5,9 +5,7 @@
 
 - `index.html` — концепт-сайт модернизации
 - `model.html` — интерактивный 3D-вьюер BIM-модели (Three.js + GLB)
-- `existing.json` — свойства 13 716 элементов из IFC-обследования
-- `asis_v1.glb`, `asis_v1.json` — компактная BIM-модель для главной страницы
-- `assets/` — изображения концепции, чертежи, шрифты
+- `existing_1.glb`, `existing_2.glb` — геометрия IFC-обследования в двух частях (каждая < 25 МБ); `existing.json` — свойства элементов
+- `assets/` — изображения концепции и чертежи
 
-Хостинг: Cloudflare Workers, статические ассеты, автодеплой из ветки `main`.
-Адреса: https://stadionlk.vomirek.com · https://stadionlk.alikerimov65.workers.dev
+GitHub Pages: https://alikerimov65.github.io/StadionLK/
