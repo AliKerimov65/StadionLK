@@ -5,7 +5,7 @@
 
 - `index.html` — концепт-сайт модернизации
 - `model.html` — интерактивный 3D-вьюер BIM-модели (Three.js + GLB)
-- `existing_1.glb`, `existing_2.glb` — геометрия IFC-обследования в двух частях (каждая < 25 МБ); `existing.json` — свойства элементов
+- `existing_1.glb`, `existing_2.glb` — геометрия IFC-обследования в двух частях без сжатия (13,3 + 14,2 МБ, каждая < 25 МБ, точность 1:1 с исходным IFC); `existing.json` — свойства элементов
 - `assets/` — изображения концепции и чертежи
 
 GitHub Pages: https://alikerimov65.github.io/StadionLK/
