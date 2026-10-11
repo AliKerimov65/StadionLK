@@ -10,4 +10,4 @@
 - `assets/` — изображения концепции, чертежи, шрифты
 
 Хостинг: Cloudflare Workers, статические ассеты, автодеплой из ветки `main`.
-Адреса: https://stadion.vomirek.com · https://stadionlk.alikerimov65.workers.dev
+Адреса: https://stadionlk.vomirek.com · https://stadionlk.alikerimov65.workers.dev
