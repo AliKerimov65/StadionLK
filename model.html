@@ -194,9 +194,9 @@ const CLS_RU={
   IFCBUILDINGELEMENTPROXY:'Металлоконструкции (фермы, связи)',
   IFCCOLUMN:'Колонны', IFCWINDOW:'Окна и витражи', IFCDOOR:'Двери',
   IFCSITE:'Рельеф и площадка', IFCSTAIR:'Лестницы', IFCROOF:'Покрытие',
-  PNEUMO:'Пневмоподушки (концепция)'
+  PNEUMO:'Пневмоподушки (концепция)', MEDIA:'Медиакубы (концепция)'
 };
-const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PNEUMO'];
+const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PNEUMO','MEDIA'];
 const FLOOR_ORDER=['Площадка и поле','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +3.500)','Этаж 3 · подтрибунные (отм. +7.000)','Чаша трибун · гребёнки и сиденья','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
 
 const view=document.getElementById('view');
@@ -323,6 +323,7 @@ async function boot(){
   document.getElementById('stTr').textContent=fmt(totalTris);
 
   buildPneumo(gltf.scene);            // слой «Пневмопокрытие» (концепция), в координатах IFC
+  buildCubes(gltf.scene);             // слой «Медиакубы» (концепция), подвесы к граничным фермам
   { const _q=new URLSearchParams(location.search);
     const _p=parseFloat(_q.get('pnt'));
     if(!isNaN(_p)&&_p>0){ const v=Math.min(1,_p); pnT.value=Math.round(v*1000); pnUpdate(v); }
@@ -336,8 +337,10 @@ async function boot(){
   META.elements.forEach(e=>{ flCount[e.s]=(flCount[e.s]||0)+1; clCount[e.c]=(clCount[e.c]||0)+1; });
   flCount['Пневмопокрытие · концепция']=pnCushions.length+pnPacks.length+2+(PN.strips+1);
   clCount['PNEUMO']=flCount['Пневмопокрытие · концепция'];
+  flCount['Медиакубы · концепция']=cubeCount();
+  clCount['MEDIA']=flCount['Медиакубы · концепция'];
   // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
-  const ROOF_STOREYS=['Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
+  const ROOF_STOREYS=['Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция'];
   const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
   const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s));
   const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
@@ -519,6 +522,48 @@ function buildPneumo(root){
   }
   root.add(pnGroup);
   pnUpdate(0);
+}
+
+/* ================= МЕДИАКУБЫ (концепция) =================
+   Два демонстрационных куба подвешены к нижнему поясу граничных ферм
+   центрального проёма (ОБ-0003: южная Y≈−36, северная Y≈+36, пролёт
+   X −39.7..+65.3, нижний пояс +7.6, замер по GLB). Куб 5×5×5 м по оси
+   поля (X=12.5): низ +1.5 (~24 м над полем), экраны на 4 гранях.
+   Два куба, а не один центральный: не висят над центром поля (траектории
+   мяча), крепятся к существующим фермам без новых конструкций, каждой
+   трибуне достаётся фронтальный экран дальнего куба (~72 м) или боковой
+   ближнего; торцевые трибуны видят оба куба под углом (~55–60 м). */
+const CB={x:12.5, y:36.0, size:5.0, top:6.5, chord:7.6};
+let cubeGroup=null, cubeBuilt=false;
+function cubeCount(){ return 2*(1+4+4); }   // куб: корпус + 4 экрана + 4 подвеса
+function buildCubes(root){
+  if(cubeBuilt) return; cubeBuilt=true;
+  cubeGroup=new THREE.Group(); cubeGroup.name='Медиакубы';
+  const matF=new THREE.MeshStandardMaterial({color:0x20262e, roughness:0.5, metalness:0.35});
+  const matS=new THREE.MeshStandardMaterial({color:0x10161d, roughness:0.35, metalness:0.1,
+    emissive:0x33506b, emissiveIntensity:0.85});
+  const matH=new THREE.MeshStandardMaterial({color:0x465062, roughness:0.5, metalness:0.4});
+  const ex={storey:'Медиакубы · концепция', cls:'MEDIA'};
+  for(const sgn of [1,-1]){
+    const yc=sgn*CB.y, zc=CB.top-CB.size/2;
+    const frame=new THREE.Mesh(new THREE.BoxGeometry(CB.size,CB.size,CB.size),matF);
+    frame.position.set(CB.x,yc,zc); frame.userData={ex};
+    cubeGroup.add(frame); meshes.push(frame);
+    for(let k=0;k<4;k++){                   // LED-экраны на 4 гранях
+      const a=k*Math.PI/2;
+      const sc=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.12,4.4),matS);
+      sc.position.set(CB.x+Math.sin(a)*(CB.size/2+0.06), yc+Math.cos(a)*(CB.size/2+0.06), zc);
+      sc.rotation.y=a; sc.userData={ex};
+      cubeGroup.add(sc); meshes.push(sc);
+    }
+    for(const dx of [-2.2,2.2]) for(const dy of [-2.2,2.2]){   // 4 вертикальных подвеса к нижнему поясу
+      const L=CB.chord-CB.top;
+      const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,L,6),matH);
+      rod.position.set(CB.x+dx, yc+dy, CB.top+L/2); rod.userData={ex};
+      cubeGroup.add(rod); meshes.push(rod);
+    }
+  }
+  root.add(cubeGroup);
 }
 
 function pnUpdate(t){
