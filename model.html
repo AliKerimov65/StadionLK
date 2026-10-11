@@ -336,16 +336,20 @@ async function boot(){
   META.elements.forEach(e=>{ flCount[e.s]=(flCount[e.s]||0)+1; clCount[e.c]=(clCount[e.c]||0)+1; });
   flCount['Пневмопокрытие · концепция']=pnCushions.length+pnPacks.length+2+(PN.strips+1);
   clCount['PNEUMO']=flCount['Пневмопокрытие · концепция'];
-  const floors=[...new Set(meshes.map(m=>m.userData.ex.storey))];
+  // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
+  const ROOF_STOREYS=['Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
+  const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
+  const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s));
+  const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
   floors.sort((a,b)=>FLOOR_ORDER.indexOf(a)-FLOOR_ORDER.indexOf(b));
   document.getElementById('stFl').textContent=floors.length;
-  buildFilters(floors,flCount,clCount);
+  buildFilters(floors,roofSt,flCount,clCount);
 
   document.getElementById('loading').style.display='none';
 }
 
 const activeFloors=new Set(), activeCls=new Set();
-function buildFilters(floors,flCount,clCount){
+function buildFilters(floors,roofSt,flCount,clCount){
   const fbox=document.getElementById('floors'), cbox=document.getElementById('classes');
   floors.forEach(f=>{
     activeFloors.add(f);
@@ -353,6 +357,14 @@ function buildFilters(floors,flCount,clCount){
     el.innerHTML=`<input type="checkbox" checked> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
     el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
     fbox.appendChild(el);
+  });
+  // конструкции покрытия (бывшие «этажи») — в начало группы «Конструкции»
+  roofSt.forEach(f=>{
+    activeFloors.add(f);
+    const el=document.createElement('label'); el.className='flt';
+    el.innerHTML=`<input type="checkbox" checked> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
+    el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
+    cbox.appendChild(el);
   });
   const classes=[...new Set(meshes.map(m=>m.userData.ex.cls))];
   classes.sort((a,b)=>CLS_ORDER.indexOf(a)-CLS_ORDER.indexOf(b));
