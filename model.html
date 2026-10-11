@@ -194,10 +194,11 @@ const CLS_RU={
   IFCBUILDINGELEMENTPROXY:'Металлоконструкции (фермы, связи)',
   IFCCOLUMN:'Колонны', IFCWINDOW:'Окна и витражи', IFCDOOR:'Двери',
   IFCSITE:'Рельеф и площадка', IFCSTAIR:'Лестницы', IFCROOF:'Покрытие',
+  PITCH:'Футбольное поле (газон, разметка, ворота)',
   PNEUMO:'Пневмоподушки (концепция)', MEDIA:'Медиакубы (концепция)'
 };
-const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PNEUMO','MEDIA'];
-const FLOOR_ORDER=['Площадка и поле','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Чаша трибун · гребёнки и сиденья','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
+const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PITCH','PNEUMO','MEDIA'];
+const FLOOR_ORDER=['Площадка и поле','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Чаша трибун · гребёнки и сиденья','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
 
 const view=document.getElementById('view');
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -325,6 +326,7 @@ async function boot(){
   buildPneumo(gltf.scene);            // слой «Пневмопокрытие» (концепция), в координатах IFC
   buildCubes(gltf.scene);             // слой «Медиакубы» (концепция), подвесы к граничным фермам
   buildTierSlab(gltf.scene);         // слой «Площадка между ярусами»: ж/б плита 200 мм, отм. +7.890
+  buildPitch(gltf.scene);           // слой «Футбольное поле»: натуральный газон 105×68, разметка IFAB, ворота
   { const _q=new URLSearchParams(location.search);
     const _p=parseFloat(_q.get('pnt'));
     if(!isNaN(_p)&&_p>0){ const v=Math.min(1,_p); pnT.value=Math.round(v*1000); pnUpdate(v); }
@@ -342,6 +344,8 @@ async function boot(){
   clCount['MEDIA']=flCount['Медиакубы · концепция'];
   flCount['Площадка между ярусами · плита 200 мм']=tierSlabSegs;
   clCount['IFCSLAB']=(clCount['IFCSLAB']||0)+tierSlabSegs;
+  flCount['Футбольное поле · натуральный газон']=pitchCount;
+  clCount['PITCH']=pitchCount;
   // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
   const ROOF_STOREYS=['Площадка между ярусами · плита 200 мм','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция'];
   const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
@@ -385,7 +389,7 @@ function buildFilters(floors,roofSt,flCount,clCount){
 function applyFilters(){
   meshes.forEach(m=>{
     const ex=m.userData.ex;
-    m.visible=activeFloors.has(ex.storey)&&activeCls.has(ex.cls);
+    m.visible=!m.userData.superseded&&activeFloors.has(ex.storey)&&activeCls.has(ex.cls);
   });
 }
 
@@ -619,6 +623,113 @@ function buildTierSlab(root){
     tierSlabSegs+=sec.length-1;
   }
   root.add(tierSlabGroup);
+}
+
+/* ===== ФУТБОЛЬНОЕ ПОЛЕ · НАТУРАЛЬНЫЙ ГАЗОН =====
+   Основание — концепция модернизации (стр. 5): «полупрозрачная мембрана пропускает
+   дневной свет для натурального газона» — покрытие поля натуральный травяной газон,
+   профессиональное футбольное поле 105×68 м.
+   Границы поля: X −40.000..+65.000, Y −34.000..+34.000 (длина вдоль оси X,
+   центр поля (12.5; 0)). Разметка — по Правилам игры IFAB, ширина линий 120 мм:
+   средняя линия, центральный круг r 9,15 м, штрафные площади 16,5×40,32 м,
+   вратарские 5,5×18,32 м, отметки 11 м, угловые дуги r 1 м; ворота 7,32×2,44 м.
+   Газон — плоскость на отм. +1.030, поверх сплошной поверхности площадки +1.000.
+   Объект поля из IFC-обследования (ОБ-0002, эл. №1348: схематичный газон и разметка,
+   «висящие» на отм. +1.6..+4.25) замещается этим слоем: его 4 меша помечаются
+   superseded и не отображаются; данные в existing.json/existing.glb сохранены. */
+const PITCH={x0:-40,x1:65,y0:-34,y1:34,z:1.03-23.16};
+let pitchGroup=null,pitchBuilt=false,pitchCount=0;
+function pitchTexture(){
+  const PPM=20,W=105*PPM,H=68*PPM;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d');
+  const CX=x=>(x-PITCH.x0)*PPM, CY=y=>(PITCH.y1-y)*PPM;
+  // стриженый газон — 12 полос по 5,667 м поперёк ширины поля
+  for(let i=0;i<12;i++){
+    ctx.fillStyle=i%2?'#36702c':'#458537';
+    ctx.fillRect(0,Math.round(i*H/12),W,Math.ceil(H/12));
+  }
+  // зерно травы
+  const img=ctx.getImageData(0,0,W,H),d=img.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-0.5)*13; d[i]+=n; d[i+1]+=n; d[i+2]+=n;}
+  ctx.putImageData(img,0,0);
+  // разметка
+  const lw=0.12*PPM;
+  ctx.strokeStyle='#f5f8f3'; ctx.fillStyle='#f5f8f3'; ctx.lineWidth=lw; ctx.lineCap='round';
+  const L=(xa,ya,xb,yb)=>{ctx.beginPath();ctx.moveTo(CX(xa),CY(ya));ctx.lineTo(CX(xb),CY(yb));ctx.stroke();};
+  const CIRC=(x,y,r)=>{ctx.beginPath();ctx.arc(CX(x),CY(y),r*PPM,0,Math.PI*2);ctx.stroke();};
+  const DOT=(x,y)=>{ctx.beginPath();ctx.arc(CX(x),CY(y),0.11*PPM,0,Math.PI*2);ctx.fill();};
+  ctx.strokeRect(lw/2,lw/2,W-lw,H-lw);                 // границы поля (наружная кромка по границе)
+  const xc=(PITCH.x0+PITCH.x1)/2;
+  L(xc,PITCH.y0,xc,PITCH.y1);                          // средняя линия
+  CIRC(xc,0,9.15); DOT(xc,0);                          // центральный круг и отметка центра
+  for(const s of [1,-1]){
+    const gl=s>0?PITCH.x0:PITCH.x1;                    // линия ворот
+    // штрафная площадь 16,5 × 40,32
+    ctx.strokeRect(Math.min(CX(gl),CX(gl+s*16.5)),CY(20.16),16.5*PPM,40.32*PPM);
+    // вратарская площадь 5,5 × 18,32
+    ctx.strokeRect(Math.min(CX(gl),CX(gl+s*5.5)),CY(9.16),5.5*PPM,18.32*PPM);
+    DOT(gl+s*11,0);                                    // отметка 11 м
+    // дуга r 9,15 м от отметки — только за пределами штрафной
+    ctx.save(); ctx.beginPath();
+    const xa=CX(gl+s*16.5);
+    if(s>0) ctx.rect(xa,0,W-xa,H); else ctx.rect(0,0,xa,H);
+    ctx.clip(); CIRC(gl+s*11,0,9.15); ctx.restore();
+  }
+  // угловые дуги r 1 м
+  ctx.beginPath(); ctx.arc(CX(PITCH.x0),CY(PITCH.y1),PPM,0,Math.PI/2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX(PITCH.x1),CY(PITCH.y1),PPM,Math.PI/2,Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX(PITCH.x1),CY(PITCH.y0),PPM,Math.PI,Math.PI*1.5); ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX(PITCH.x0),CY(PITCH.y0),PPM,Math.PI*1.5,Math.PI*2); ctx.stroke();
+  const tx=new THREE.CanvasTexture(cv);
+  tx.colorSpace=THREE.SRGBColorSpace; tx.anisotropy=8;
+  return tx;
+}
+function buildGoal(gl,s){          // gl — X линии ворот, s — направление в поле (+1/−1)
+  const parts=[];
+  const white=new THREE.MeshStandardMaterial({color:0xf2f4f2,roughness:0.45,metalness:0.25});
+  const netMat=new THREE.MeshBasicMaterial({color:0xe8ece8,transparent:true,opacity:0.2,side:THREE.DoubleSide,depthWrite:false});
+  const z0=PITCH.z, HW=3.66, GH=2.44, D=1.6, gx=gl-s*D;
+  const bar=(len,r,axis)=>{const g=new THREE.CylinderGeometry(r,r,len,10);
+    if(axis==='z')g.rotateX(Math.PI/2); else if(axis==='x')g.rotateZ(Math.PI/2); return g;};
+  const add=(geo,x,y,z,mat)=>{const m=new THREE.Mesh(geo,mat||white); m.position.set(x,y,z); parts.push(m);};
+  // каркас: стойки, перекладина, задняя рама-коробка
+  add(bar(GH,0.06,'z'),gl,-HW,z0+GH/2);
+  add(bar(GH,0.06,'z'),gl, HW,z0+GH/2);
+  add(bar(2*HW+0.12,0.06,'y'),gl,0,z0+GH);
+  add(bar(GH,0.05,'z'),gx,-HW,z0+GH/2);
+  add(bar(GH,0.05,'z'),gx, HW,z0+GH/2);
+  add(bar(2*HW+0.12,0.05,'y'),gx,0,z0+GH);
+  add(bar(D,0.05,'x'),(gl+gx)/2,-HW,z0+GH);
+  add(bar(D,0.05,'x'),(gl+gx)/2, HW,z0+GH);
+  // сетка: задняя, верхняя, боковые
+  add(new THREE.PlaneGeometry(GH,2*HW).rotateY(Math.PI/2),gx,0,z0+GH/2,netMat);
+  add(new THREE.PlaneGeometry(D,2*HW),(gl+gx)/2,0,z0+GH-0.03,netMat);
+  add(new THREE.PlaneGeometry(D,GH).rotateX(Math.PI/2),(gl+gx)/2,-HW,z0+GH/2,netMat);
+  add(new THREE.PlaneGeometry(D,GH).rotateX(Math.PI/2),(gl+gx)/2, HW,z0+GH/2,netMat);
+  return parts;
+}
+function buildPitch(root){
+  if(pitchBuilt) return; pitchBuilt=true;
+  // замещаем схематичный объект поля из IFC-обследования (ОБ-0002, эл. №1348)
+  for(const mm of meshes){
+    const a=mm.geometry.attributes._eidx||mm.geometry.attributes._EIDX;
+    if(!a||!a.array.length) continue;
+    const arr=a.array; let all=arr[0]===1348;
+    if(all) for(let i=1;i<arr.length;i++){ if(arr[i]!==1348){all=false;break;} }
+    if(all){ mm.userData.superseded=true; mm.visible=false; }
+  }
+  pitchGroup=new THREE.Group(); pitchGroup.name='Футбольное поле · натуральный газон';
+  const ex={storey:'Футбольное поле · натуральный газон',cls:'PITCH'};
+  const geo=new THREE.PlaneGeometry(PITCH.x1-PITCH.x0,PITCH.y1-PITCH.y0);
+  const mat=new THREE.MeshStandardMaterial({map:pitchTexture(),roughness:0.95,metalness:0,
+    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  const m=new THREE.Mesh(geo,mat);
+  m.position.set((PITCH.x0+PITCH.x1)/2,0,PITCH.z);
+  m.userData={ex}; pitchGroup.add(m); meshes.push(m); pitchCount++;
+  for(const [gl,s] of [[PITCH.x0,1],[PITCH.x1,-1]])
+    for(const g of buildGoal(gl,s)){ g.userData={ex}; pitchGroup.add(g); meshes.push(g); pitchCount++; }
+  root.add(pitchGroup);
 }
 
 function pnUpdate(t){
