@@ -476,6 +476,8 @@ function buildPneumo(root){
   pnGroup=new THREE.Group(); pnGroup.name='Пневмопокрытие';
   const matC=new THREE.MeshPhysicalMaterial({color:0xbfdcf2, transparent:true, opacity:0.62,
     roughness:0.28, metalness:0, side:THREE.DoubleSide, depthWrite:false, clearcoat:0.4});
+  const matPk=new THREE.MeshPhysicalMaterial({color:0x93b4d2, transparent:true, opacity:0.7,
+    roughness:0.32, metalness:0, side:THREE.DoubleSide, depthWrite:false, clearcoat:0.4});
   const matP=new THREE.MeshStandardMaterial({color:0xa9bdd6, transparent:true, opacity:0.78, roughness:0.55});
   const matR=new THREE.MeshStandardMaterial({color:0x465062, roughness:0.5, metalness:0.4});
   const ex={storey:'Пневмопокрытие · концепция', cls:'PNEUMO'};
@@ -491,7 +493,7 @@ function buildPneumo(root){
     pnPacks.push(pk); pnGroup.add(pk); meshes.push(pk);
   }
   for(const sgn of [1,-1]){                 // припаркованные поля малых проёмов (постоянно)
-    const pm=new THREE.Mesh(parkedGeo(sgn),matC);
+    const pm=new THREE.Mesh(parkedGeo(sgn),matPk);
     pm.userData={ex};
     pnGroup.add(pm); meshes.push(pm);
   }
