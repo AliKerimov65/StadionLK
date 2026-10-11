@@ -129,7 +129,7 @@
         <div id="pnSpeedRow">скорость
           <select id="pnSpeed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
         </div>
-        <div id="pnState">припарковано на фермах скатов · 17 подушек по 6,4 м</div>
+        <div id="pnState">припарковано в кассетах на границах центрального проёма · 17 подушек по 6,4 м</div>
       </div>
     </div>
     <div id="sideBg"></div>
@@ -373,54 +373,44 @@ function applyFilters(){
    Привязка к модели (координаты IFC/GLB, Z вверх; замеры по вершинам GLB):
    поле X -40..+65, Y -34..+34 (105×68 м), отм. поля Z -22.2;
    устье чаши между угловыми фермами X -42..+67 (109 м), Y -75..+75;
-   скаты кровли Y ±(75..100), огибающая стали — фактический профиль pnZ.
+   скаты кровли Y ±(75..100).
    Три проёма по оси юг-север: центральный строго над полем (|Y|<=34),
    малые над трибунами (34<|Y|<=76) — постоянно закрыты припаркованными
    линзовидными подушками. Центральный проём перекрывают 17 выдвижных
-   подушек (полосы по 6,41 м, центральная полоса №9 по оси поля X=12.5):
-   нечётные из кассет на южной ферме, чётные из кассет на северной,
-   каждая полным пролётом до дальней фермы (через одну навстречу).
-   По линиям стыка полос — натянутые канаты без провиса (Z=9.6).
-   Верх подушек линзовидный (выпуклый): сток дождевых осадков к скатам. */
-const PN_PY=[75,77,79,81,83,85,87,89,91,93,95,97,99];
-const PN_PZ=[9.08,8.96,8.69,8.34,7.95,7.48,6.91,6.15,5.29,4.48,3.46,2.36,1.11];
-function pnZ(y){                    // фактическая огибающая стали ската (замер по модели)
-  if(y<=PN_PY[0]) return PN_PZ[0];
-  for(let i=0;i<PN_PY.length-1;i++){
-    if(y<PN_PY[i+1]){ const f=(y-PN_PY[i])/(PN_PY[i+1]-PN_PY[i]); return PN_PZ[i]+(PN_PZ[i+1]-PN_PZ[i])*f; }
-  }
-  return PN_PZ[PN_PZ.length-1];
-}
+   подушек (полосы по 6,41 м, центральная полоса №9 по оси поля X=12.5).
+   Кассеты стоят на границах центрального проёма (Y=±34): нечётные полосы
+   из кассет южной границы, чётные из кассет северной, каждая выдвигается
+   до противоположной границы (через одну навстречу, пролёт 68 м).
+   По линиям стыка полос — натянутые канаты без провиса (Z=13.0).
+   Вся пневмоподушечная кровля поднята НАД фермами: по замеру GLB верхний
+   пояс поперечных ферм над чашей на отм. +12.1, плоскость канатов и низ
+   подушек +13.0 (зазор 0,9 м); кассеты опираются на граничные фермы (Y=±34).
+   Верх подушек линзовидный (выпуклый): сток осадков от оси поля
+   к границам проёма и далее по припаркованным линзам к скатам. */
 const PN = {
   strips: 17, x0: -42, stripW: 109/17,  // 17 полос по 6,41 м; полоса №9 по оси X=12.5
   openY: 34, slopeY: 75,                // кромка центрального проёма / кромка ската
-  cableZ: 9.6,                          // плоскость натянутых канатов (без провиса)
+  cableZ: 13.0,                         // плоскость канатов и низ подушек: над верхним поясом ферм (+12.1)
   lensT: 2.6,                           // стрелка линзы выдвижной подушки в центре пролёта
   parkT: 0.8,                           // стрелка линзы припаркованных подушек
-  casY: 80,                             // ось кассеты, уложенной на ферму ската
+  casY: 34,                             // ось кассеты на границе центрального проёма
   dur: 26, t: 0, playing: false, speed: 1
 };
 let pnGroup=null, pnCushions=[], pnPacks=[], pnBuilt=false;
 
 function pnEase(u){ return u<0.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2; }
-function pnBaseZ(y){                    // низ выдвижной подушки: канаты -> спуск на ферму
+function pnLensT(y){                    // толщина линзы: максимум над центром поля, сток к границам
   const ay=Math.abs(y);
-  if(ay<=76) return PN.cableZ;
-  if(ay>=80) return pnZ(Math.min(ay,99))+0.55;
-  const f=(ay-76)/4, zt=pnZ(ay)+0.55;
-  return PN.cableZ*(1-f)+zt*f;
-}
-function pnLensT(y){                    // толщина линзы: максимум в центре, сток к скатам
-  const ay=Math.abs(y);
-  if(ay>=78) return 0.12;
-  return PN.lensT*(1-(ay/78)*(ay/78))+0.12;
+  if(ay>=PN.openY) return 0.12;
+  return PN.lensT*(1-(ay/PN.openY)*(ay/PN.openY))+0.12;
 }
 
 function cushionGeo(u, dir, xc){
-  /* u 0..1 — состояние подушки; dir=+1: кассета на юге, нос идёт на север (+Y) */
-  const tailY  = dir>0 ? -(PN.casY+0.5) : (PN.casY+0.5);    // хвост остаётся в кассете на ферме
-  const nosePark = dir>0 ? -(PN.slopeY-1.0) : (PN.slopeY-1.0);
-  const noseDock = dir>0 ?  (PN.casY-0.5) : -(PN.casY-0.5); // нос доходит до дальней фермы
+  /* u 0..1 — состояние подушки; dir=+1: кассета на южной границе проёма (Y=-34),
+     нос идёт на север (+Y) до противоположной границы */
+  const tailY  = dir>0 ? -PN.casY : PN.casY;            // хвост остаётся в кассете на ближней границе
+  const nosePark = dir>0 ? -(PN.casY-0.6) : (PN.casY-0.6);  // припарковано: короткий хвост в кассете
+  const noseDock = dir>0 ?  PN.casY : -PN.casY;         // нос доходит до дальней границы проёма
   const noseY = nosePark + (noseDock-nosePark)*pnEase(u);
   const NY=64, NT=7, w=PN.stripW*0.5-0.15;
   const infl=0.30+0.70*Math.min(1,u/0.35);
@@ -430,7 +420,7 @@ function cushionGeo(u, dir, xc){
     const f=i/NY, y=y0+(y1-y0)*f;
     const distNose = dir>0 ? noseY-y : y-noseY;
     const taper = Math.min(1, Math.max(0.15, distNose/2.0));
-    const zb=pnBaseZ(y), lt=pnLensT(y)*taper*infl;
+    const zb=PN.cableZ, lt=pnLensT(y)*taper*infl;
     for(let j=0;j<NT;j++){
       const s=j/(NT-1);
       const xx=xc+(s-0.5)*2*w;
@@ -458,7 +448,7 @@ function parkedGeo(sgn){                  // припаркованные лин
     for(let i=0;i<=NY;i++){
       const ay=34.0+(76.0-34.0)*i/NY, y=sgn*ay;
       const f=Math.min(1,(ay-34)/41);
-      const zb=8.4+0.4*f;
+      const zb=PN.cableZ;                 // припаркованные линзы в той же плоскости +13.0, над фермами
       const lt=PN.parkT*Math.sin(Math.PI*f);
       for(let j=0;j<NT;j++){
         const s=j/(NT-1);
@@ -489,16 +479,12 @@ function buildPneumo(root){
   const ex={storey:'Пневмопокрытие · концепция', cls:'PNEUMO'};
   for(let i=0;i<PN.strips;i++){
     const xc=PN.x0+PN.stripW*(i+0.5);
-    const dir=(i%2===0)?1:-1;               // №1,3,5... — из кассеты на южной ферме; №2,4... — с северной
+    const dir=(i%2===0)?1:-1;               // №1,3,5... — из кассеты на южной границе; №2,4... — с северной
     const m=new THREE.Mesh(cushionGeo(0,dir,xc),matC);
     m.userData={dir,xc,ex,lastU:0};
     pnCushions.push(m); pnGroup.add(m); meshes.push(m);
-    const pk=new THREE.Mesh(new THREE.BoxGeometry(PN.stripW-0.7,6,1.0),matP);
-    const py=dir>0?-PN.casY:PN.casY;
-    const ay=Math.abs(py);
-    const dzy=(pnZ(Math.min(ay+1,99))-pnZ(ay-1))/2*(py>0?1:-1);
-    pk.position.set(xc, py, pnZ(ay)+1.0);
-    pk.rotation.x=-Math.atan(dzy);
+    const pk=new THREE.Mesh(new THREE.BoxGeometry(PN.stripW-0.5,2.4,1.0),matP);
+    pk.position.set(xc, dir>0?-PN.casY:PN.casY, PN.cableZ-0.5);   // кассета на граничной ферме (Y=±34)
     pk.userData={ex};
     pnPacks.push(pk); pnGroup.add(pk); meshes.push(pk);
   }
@@ -508,9 +494,9 @@ function buildPneumo(root){
     pnGroup.add(pm); meshes.push(pm);
   }
   for(let k=0;k<=PN.strips;k++){            // натянутые канаты по линиям стыка, без провиса
-    const xb=PN.x0+PN.stripW*k;
-    const a=new THREE.Vector3(xb,-(PN.slopeY+3),PN.cableZ);
-    const b=new THREE.Vector3(xb, (PN.slopeY+3),PN.cableZ);
+    const xb=PN.x0+PN.stripW*k;             // анкеровка в граничных фермах центрального проёма
+    const a=new THREE.Vector3(xb,-(PN.openY+0.8),PN.cableZ);
+    const b=new THREE.Vector3(xb, (PN.openY+0.8),PN.cableZ);
     const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(a,b),2,0.05,5),matR);
     tube.userData={ex};
     pnGroup.add(tube); meshes.push(tube);
@@ -531,9 +517,9 @@ function pnUpdate(t){
     pnPacks[i].scale.y=1-0.45*pnEase(u);
   }
   document.getElementById('pnState').textContent =
-    t<=0 ? 'припарковано на фермах скатов · 17 подушек по 6,4 м' :
-    t>=1 ? 'перекрыто · центральный проём закрыт, носы у дальних ферм' :
-    `развёртывание · ${Math.round(t*100)}% · через одну навстречу, полный пролёт`;
+    t<=0 ? 'припарковано в кассетах на границах центрального проёма · 17 подушек по 6,4 м' :
+    t>=1 ? 'перекрыто · центральный проём закрыт, носы у противоположной границы' :
+    `развёртывание · ${Math.round(t*100)}% · через одну навстречу, пролёт 68 м`;
 }
 
 function getEidx(mesh){
