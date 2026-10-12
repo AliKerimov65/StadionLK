@@ -195,11 +195,10 @@ const CLS_RU={
   IFCCOLUMN:'Колонны', IFCWINDOW:'Окна и витражи', IFCDOOR:'Двери',
   IFCSITE:'Рельеф и площадка', IFCSTAIR:'Лестницы', IFCROOF:'Покрытие',
   PITCH:'Футбольное поле (газон, разметка, ворота)',
-  MEMBRANE:'Мембрана покрытия (ПВХ PROTAN G)',
   PNEUMO:'Пневмоподушки (концепция)', MEDIA:'Медиакубы (концепция)'
 };
-const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PITCH','PNEUMO','MEMBRANE','MEDIA'];
-const FLOOR_ORDER=['Площадка и поле','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Чаша трибун · гребёнки и сиденья','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
+const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PITCH','PNEUMO','MEDIA'];
+const FLOOR_ORDER=['Площадка и поле','Уровень земли · отм. 0.000','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Чаша трибун · гребёнки и сиденья','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
 
 const view=document.getElementById('view');
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -224,9 +223,6 @@ controls.maxDistance=2000;
 scene.add(new THREE.HemisphereLight(0xdfe8f5,0x2a2f36,1.15));
 const sun=new THREE.DirectionalLight(0xfff2df,1.6); sun.position.set(300,420,180); scene.add(sun);
 const fill=new THREE.DirectionalLight(0xbcd2ff,0.5); fill.position.set(-260,180,-220); scene.add(fill);
-
-const grid=new THREE.GridHelper(600,30,0x2a3442,0x1c232e);
-grid.position.y=-0.05; scene.add(grid);
 
 function resize(){
   const w=view.clientWidth,h=view.clientHeight;
@@ -347,7 +343,7 @@ async function boot(){
   buildCubes(modelRoot);             // слой «Медиакубы» (концепция), подвесы к граничным фермам
   buildTierSlab(modelRoot);         // слой «Площадка между ярусами»: ж/б плита 200 мм, отм. +7.890
   buildPitch(modelRoot);           // слой «Футбольное поле»: натуральный газон 105×68, разметка IFAB, ворота
-  buildMembrane(modelRoot);         // слой «Мембрана»: ПВХ PROTAN G 1,5 мм поверх ОБ-0004 (козырьки)
+  buildGround(modelRoot);          // слой «Уровень земли»: плоскость отм. 0.000 + сетка 10×10 м
   { const _q=new URLSearchParams(location.search);
     const _p=parseFloat(_q.get('pnt'));
     if(!isNaN(_p)&&_p>0){ const v=Math.min(1,_p); pnT.value=Math.round(v*1000); pnUpdate(v); }
@@ -367,9 +363,10 @@ async function boot(){
   clCount['IFCSLAB']=(clCount['IFCSLAB']||0)+tierSlabSegs;
   flCount['Футбольное поле · натуральный газон']=pitchCount;
   clCount['PITCH']=pitchCount;
-  if(membCount){ flCount['Мембрана покрытия · PROTAN G 1,5 мм']=membCount; clCount['MEMBRANE']=membCount; }
+  flCount['Уровень земли · отм. 0.000']=groundCount;
+  clCount['IFCSITE']=(clCount['IFCSITE']||0)+groundCount;
   // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
-  const ROOF_STOREYS=['Площадка между ярусами · плита 200 мм','Мембрана покрытия · PROTAN G 1,5 мм','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция'];
+  const ROOF_STOREYS=['Площадка между ярусами · плита 200 мм','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция'];
   const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
   const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s));
   const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
@@ -754,80 +751,28 @@ function buildPitch(root){
   root.add(pitchGroup);
 }
 
-/* ===== МЕМБРАНА ПОКРЫТИЯ · PROTAN G =====
-   Основание — проект П-01-16-1-АР, спецификация «Тип кровли 2/3» (Изм 2.4,
-   кровля VIP-ложи в осях 24-26 и аппаратной в осях 15-19): верхний слой
-   кровельного ковра — ПВХ мембрана PROTAN G толщиной 1,5 мм.
-   Слой строится по огибающей верха элементов ОБ-0004 («Козырьки трибун»):
-   поверхность на сетке азимут×радиус с максимальной отметкой вершин ОБ-0004,
-   промежутки между радиальными лентами заполняются интерполяцией по азимуту.
-   Реальные 1,5 мм в масштабе модели неразличимы, поэтому мембрана поднята
-   на 50 мм над огибающей (против z-fighting); толщина — в имени слоя. */
-const MEMB={cx:12.5, cy:0, nt:360, rMin:52, rMax:115, rStep:0.5, lift:0.05};
-let membGroup=null, membBuilt=false, membCount=0;
-function buildMembrane(root){
-  if(membBuilt) return; membBuilt=true;
-  const ob=new Set();
-  META.elements.forEach((e,i)=>{ if(e.n==='ОБ-0004') ob.add(i); });
-  if(!ob.size) return;
-  const NT=MEMB.nt, NR=Math.round((MEMB.rMax-MEMB.rMin)/MEMB.rStep);
-  const z=new Float32Array(NT*NR).fill(NaN);
-  // огибающая верха ОБ-0004: максимум z в ячейке (θ, r)
-  for(const mm of meshes){
-    const ea=mm.geometry.attributes._eidx||mm.geometry.attributes._EIDX;
-    if(!ea) continue;
-    const pa=mm.geometry.attributes.position; if(!pa) continue;
-    const P=pa.array, E=ea.array, n=Math.min(P.length/3,E.length);
-    for(let i=0;i<n;i++){
-      if(!ob.has(E[i])) continue;
-      const x=P[i*3]-MEMB.cx, y=P[i*3+1]-MEMB.cy, zz=P[i*3+2];
-      let t=Math.atan2(y,x); if(t<0)t+=Math.PI*2;
-      const ti=Math.min(NT-1,Math.floor(t/(Math.PI*2)*NT));
-      const ri=Math.floor((Math.hypot(x,y)-MEMB.rMin)/MEMB.rStep);
-      if(ri<0||ri>=NR) continue;
-      const k=ti*NR+ri;
-      if(isNaN(z[k])||zz>z[k]) z[k]=zz;
-    }
-  }
-  // заполнение промежутков между радиальными лентами (кольцевая интерполяция по θ)
-  for(let ri=0;ri<NR;ri++){
-    let any=false;
-    for(let ti=0;ti<NT;ti++) if(!isNaN(z[ti*NR+ri])){any=true;break;}
-    if(!any) continue;
-    for(let ti=0;ti<NT;ti++){
-      const k=ti*NR+ri;
-      if(!isNaN(z[k])) continue;
-      let dp=0; while(isNaN(z[(((ti-dp)%NT)+NT)%NT*NR+ri])) dp++;
-      let dn=0; while(isNaN(z[(((ti+dn)%NT)+NT)%NT*NR+ri])) dn++;
-      const zp=z[(((ti-dp)%NT)+NT)%NT*NR+ri], zn=z[(((ti+dn)%NT)+NT)%NT*NR+ri];
-      z[k]=zp+(zn-zp)*dn/(dp+dn);
-    }
-  }
-  // поверхность мембраны
-  const pos=[], idx=[];
-  const vid=new Int32Array(NT*NR).fill(-1);
-  for(let ti=0;ti<NT;ti++) for(let ri=0;ri<NR;ri++){
-    const k=ti*NR+ri; if(isNaN(z[k])) continue;
-    const th=(ti+0.5)/NT*Math.PI*2, rr=MEMB.rMin+(ri+0.5)*MEMB.rStep;
-    vid[k]=pos.length/3;
-    pos.push(MEMB.cx+rr*Math.cos(th), MEMB.cy+rr*Math.sin(th), z[k]+MEMB.lift);
-  }
-  for(let ti=0;ti<NT;ti++) for(let ri=0;ri<NR-1;ri++){
-    const t2=(ti+1)%NT;
-    const a=vid[ti*NR+ri], b=vid[t2*NR+ri], c=vid[ti*NR+ri+1], d=vid[t2*NR+ri+1];
-    if(a<0||b<0||c<0||d<0) continue;
-    idx.push(a,c,b, b,c,d);
-  }
-  if(!idx.length) return;
-  const g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
-  g.setIndex(idx); g.computeVertexNormals();
-  const mat=new THREE.MeshStandardMaterial({color:0xf2efe8, roughness:0.5, metalness:0.02, side:THREE.DoubleSide});
-  membGroup=new THREE.Group(); membGroup.name='Мембрана покрытия · PROTAN G';
-  const m=new THREE.Mesh(g,mat);
-  m.userData={ex:{storey:'Мембрана покрытия · PROTAN G 1,5 мм', cls:'MEMBRANE'}};
-  membGroup.add(m); meshes.push(m); membCount=1;
-  root.add(membGroup);
+/* ===== УРОВЕНЬ ЗЕМЛИ =====
+   Проектные отметки: glb_z + 23,16 (datum в existing.json); 0.000 = уровень
+   площадки. Базовая плоскость земли вокруг стадиона ставится чуть ниже
+   площадки (z = -23,21), чтобы не спорить с рельефом из обследования
+   (слой «Площадка и поле»): внутри границ площадки виден снятый рельеф,
+   снаружи — базовая плоскость. Линии на плоскости — сетка 10×10 м (масштаб). */
+let groundCount=0;
+function buildGround(root){
+  const GZ=-23.21, CX=13.5, CY=0, S=560;
+  const ex={storey:'Уровень земли · отм. 0.000', cls:'IFCSITE'};
+  const grp=new THREE.Group(); grp.name='Уровень земли';
+  const plane=new THREE.Mesh(new THREE.PlaneGeometry(S,S),
+    new THREE.MeshStandardMaterial({color:0x1b2129, roughness:0.96, metalness:0.0,
+      polygonOffset:true, polygonOffsetFactor:2, polygonOffsetUnits:2}));
+  plane.position.set(CX,CY,GZ); plane.userData={ex};
+  grp.add(plane); meshes.push(plane); groundCount++;
+  const gh=new THREE.GridHelper(S,56,0x394657,0x2a3340);   // 560/56 = 10 м
+  gh.geometry.rotateX(Math.PI/2);                          // из XZ в плоскость XY (координаты IFC)
+  gh.material.transparent=true; gh.material.opacity=0.6;
+  gh.position.set(CX,CY,GZ+0.02); gh.userData={ex};
+  grp.add(gh); meshes.push(gh); groundCount++;
+  root.add(grp);
 }
 
 function pnUpdate(t){
