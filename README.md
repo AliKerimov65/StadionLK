@@ -8,4 +8,5 @@
 - `existing_1.glb`, `existing_2.glb` — геометрия IFC-обследования в двух частях без сжатия (13,3 + 14,2 МБ, каждая < 25 МБ, точность 1:1 с исходным IFC); `existing.json` — свойства элементов
 - `assets/` — изображения концепции и чертежи
 
+Production: https://stadionlk.vomirek.com (Cloudflare Workers)
 GitHub Pages: https://alikerimov65.github.io/StadionLK/
