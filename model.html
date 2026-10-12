@@ -760,20 +760,29 @@ function buildPitch(root){
    площадки. Базовая плоскость земли вокруг стадиона ставится чуть ниже
    площадки (z = -23,21), чтобы не спорить с рельефом из обследования
    (слой «Площадка и поле»): внутри границ площадки виден снятый рельеф,
-   снаружи — базовая плоскость. Линии на плоскости — сетка 10×10 м (масштаб). */
+   снаружи — подложка генплана прилегающей территории из ТЗ (см. ниже).
+   Линии поверх — сетка 10×10 м (масштаб). */
 let groundCount=0;
 function buildGround(root){
-  const GZ=-23.21, CX=13.5, CY=0, S=560;
+  const GZ=-23.21, CX=12.97, CY=-0.04, S=730;
   const ex={storey:'Уровень земли · отм. 0.000', cls:'IFCSITE'};
   const grp=new THREE.Group(); grp.name='Уровень земли';
+  /* Подложка: кусок генплана из ТЗ «Академия футбола» (DWG 000000, топосъёмка
+     09.09): проезды, сооружения, озеленение, деревья, граница участка
+     24:50:0300290:79. Окно 730×730 м (стадион + ~250 м по периметру).
+     Привязка: стройсетка ТЗ соосна модели (поворот 0° по совмещению контура
+     стадиона), сдвиг по совмещению центров эллипсов стадиона
+     (DWG 48985.77,12426.36 → GLB 12.97,−0.04). Отметки не используются. */
+  const tex=new THREE.TextureLoader().load('./assets/genplan_underlay.png');
+  tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=8;
   const plane=new THREE.Mesh(new THREE.PlaneGeometry(S,S),
-    new THREE.MeshStandardMaterial({color:0x1b2129, roughness:0.96, metalness:0.0,
+    new THREE.MeshStandardMaterial({map:tex, roughness:0.96, metalness:0.0,
       polygonOffset:true, polygonOffsetFactor:2, polygonOffsetUnits:2}));
   plane.position.set(CX,CY,GZ); plane.userData={ex};
   grp.add(plane); meshes.push(plane); groundCount++;
-  const gh=new THREE.GridHelper(S,56,0x394657,0x2a3340);   // 560/56 = 10 м
+  const gh=new THREE.GridHelper(S,73,0x394657,0x2a3340);   // 730/73 = 10 м
   gh.geometry.rotateX(Math.PI/2);                          // из XZ в плоскость XY (координаты IFC)
-  gh.material.transparent=true; gh.material.opacity=0.6;
+  gh.material.transparent=true; gh.material.opacity=0.35;
   gh.position.set(CX,CY,GZ+0.02); gh.userData={ex};
   grp.add(gh); meshes.push(gh); groundCount++;
   root.add(grp);
