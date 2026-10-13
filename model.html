@@ -407,7 +407,10 @@ async function boot(){
 }
 
 const activeFloors=new Set(), activeCls=new Set();
-const OFF_BY_DEFAULT=new Set(['Прожекторы под фермами · концепция']);  // слои, скрытые при загрузке
+const OFF_BY_DEFAULT=new Set(['Прожекторы под фермами · концепция',
+  'Чаша трибун · гребёнки и сиденья',   // существующая чаша: временно скрыта (реконструкция)
+  'Чаша трибун · замыкание углов'       // замыкание углов существующей чаши: скрыто вместе с ней
+]);  // слои, скрытые при загрузке
 function buildFilters(floors,roofSt,flCount,clCount){
   const fbox=document.getElementById('floors'), cbox=document.getElementById('classes');
   floors.forEach(f=>{
