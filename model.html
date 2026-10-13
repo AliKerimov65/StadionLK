@@ -598,6 +598,19 @@ function buildCubes(root){
     emissive:0x33506b, emissiveIntensity:0.85});
   const matH=new THREE.MeshStandardMaterial({color:0x465062, roughness:0.5, metalness:0.4});
   const ex={storey:'Медиакубы · концепция', cls:'MEDIA'};
+  // Видеотрансляция на экранах: лёгкий зацикленный клип (480×270, ~200 КБ, без звука)
+  const vid=document.createElement('video');
+  vid.muted=true; vid.loop=true; vid.playsInline=true; vid.preload='auto';
+  vid.src='assets/media/football_loop.mp4';
+  const vtex=new THREE.VideoTexture(vid);
+  vtex.colorSpace=THREE.SRGBColorSpace; vtex.minFilter=THREE.LinearFilter; vtex.generateMipmaps=false;
+  // cover-кадрирование 16:9 клипа на почти квадратный экран 4.6×4.4
+  const planeAR=4.6/4.4, vidAR=16/9, covU=planeAR/vidAR;
+  vtex.repeat.set(covU,1); vtex.offset.set((1-covU)/2,0);
+  const matVid=new THREE.MeshBasicMaterial({map:vtex, toneMapped:false});
+  const tryPlay=()=>{ vid.play().catch(()=>{}); };
+  vid.addEventListener('canplay',tryPlay,{once:true});
+  addEventListener('pointerdown',tryPlay,{once:true});
   for(const sgn of [1,-1]){
     const yc=sgn*CB.y, zc=CB.top-CB.size/2;
     const frame=new THREE.Mesh(new THREE.BoxGeometry(CB.size,CB.size,CB.size),matF);
@@ -608,6 +621,9 @@ function buildCubes(root){
       const sc=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.12,4.4),matS);
       sc.position.set(CB.x+Math.sin(a)*(CB.size/2+0.06), yc+Math.cos(a)*(CB.size/2+0.06), zc);
       sc.rotation.y=a; sc.userData={ex};
+      const pl=new THREE.Mesh(new THREE.PlaneGeometry(4.6,4.4),matVid);
+      pl.position.set(0,0,0.065);           // лицевая панель экрана, наследует видимость корпуса
+      sc.add(pl);
       cubeGroup.add(sc); meshes.push(sc);
     }
     for(const dx of [-2.2,2.2]) for(const dy of [-2.2,2.2]){   // 4 вертикальных подвеса к нижнему поясу
