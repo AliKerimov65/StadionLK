@@ -401,25 +401,29 @@ async function boot(){
   floors.sort((a,b)=>FLOOR_ORDER.indexOf(a)-FLOOR_ORDER.indexOf(b));
   document.getElementById('stFl').textContent=floors.length;
   buildFilters(floors,roofSt,flCount,clCount);
+  applyFilters();                      // скрыть слои, выключенные по умолчанию
 
   document.getElementById('loading').style.display='none';
 }
 
 const activeFloors=new Set(), activeCls=new Set();
+const OFF_BY_DEFAULT=new Set(['Прожекторы под фермами · концепция']);  // слои, скрытые при загрузке
 function buildFilters(floors,roofSt,flCount,clCount){
   const fbox=document.getElementById('floors'), cbox=document.getElementById('classes');
   floors.forEach(f=>{
-    activeFloors.add(f);
+    const on=!OFF_BY_DEFAULT.has(f);
+    if(on) activeFloors.add(f);
     const el=document.createElement('label'); el.className='flt';
-    el.innerHTML=`<input type="checkbox" checked> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
+    el.innerHTML=`<input type="checkbox" ${on?'checked':''}> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
     el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
     fbox.appendChild(el);
   });
   // конструкции покрытия (бывшие «этажи») — в начало группы «Конструкции»
   roofSt.forEach(f=>{
-    activeFloors.add(f);
+    const on=!OFF_BY_DEFAULT.has(f);
+    if(on) activeFloors.add(f);
     const el=document.createElement('label'); el.className='flt';
-    el.innerHTML=`<input type="checkbox" checked> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
+    el.innerHTML=`<input type="checkbox" ${on?'checked':''}> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
     el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
     cbox.appendChild(el);
   });
