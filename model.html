@@ -637,9 +637,10 @@ function buildCubes(root){
   vid.src='assets/media/football_loop.mp4';
   const vtex=new THREE.VideoTexture(vid);
   vtex.colorSpace=THREE.SRGBColorSpace; vtex.minFilter=THREE.LinearFilter; vtex.generateMipmaps=false;
-  // cover-кадрирование 16:9 клипа на почти квадратный экран 4.6×4.4
+  // cover-кадрирование 16:9 клипа на почти квадратный экран 4.6×4.4;
+  // repeat.y=-1: панель повёрнута в плоскость экрана через rotation.x=-PI/2 (текстура встаёт вертикально)
   const planeAR=4.6/4.4, vidAR=16/9, covU=planeAR/vidAR;
-  vtex.repeat.set(covU,1); vtex.offset.set((1-covU)/2,0);
+  vtex.repeat.set(covU,-1); vtex.offset.set((1-covU)/2,1);
   const matVid=new THREE.MeshBasicMaterial({map:vtex, toneMapped:false});
   const tryPlay=()=>{ vid.play().catch(()=>{}); };
   vid.addEventListener('canplay',tryPlay,{once:true});
@@ -653,9 +654,11 @@ function buildCubes(root){
       const a=k*Math.PI/2;
       const sc=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.12,4.4),matS);
       sc.position.set(CB.x+Math.sin(a)*(CB.size/2+0.06), yc+Math.cos(a)*(CB.size/2+0.06), zc);
-      sc.rotation.y=a; sc.userData={ex};
+      sc.rotation.z=-a;                     // поворот вокруг вертикальной оси: локальная +Y смотрит наружу
+      sc.userData={ex};
       const pl=new THREE.Mesh(new THREE.PlaneGeometry(4.6,4.4),matVid);
-      pl.position.set(0,0,0.065);           // лицевая панель экрана, наследует видимость корпуса
+      pl.rotation.x=-Math.PI/2;             // плоскость панели = плоскость грани (XZ), нормаль +Y наружу
+      pl.position.set(0,0.066,0);           // 6 мм от лицевой грани корпуса
       sc.add(pl);
       cubeGroup.add(sc); meshes.push(sc);
     }
