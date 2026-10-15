@@ -455,6 +455,12 @@ function buildFilters(floors,roofSt,flCount,clCount){
     el.innerHTML=`<input type="checkbox" ${on?'checked':''}> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
     el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
     cbox.appendChild(el);
+    if(f===FL_STOREY){   // тумблер именно света (не видимости слоя)
+      const li=document.createElement('label'); li.className='flt'; li.style.paddingLeft='26px';
+      li.innerHTML=`<input type="checkbox" ${flLightOn?'checked':''}> <span>освещение поля · свет вкл/выкл</span>`;
+      li.querySelector('input').onchange=ev=>flSetLight(ev.target.checked);
+      cbox.appendChild(li);
+    }
   });
   const classes=[...new Set(meshes.map(m=>m.userData.ex.cls))];
   classes.sort((a,b)=>CLS_ORDER.indexOf(a)-CLS_ORDER.indexOf(b));
@@ -471,6 +477,7 @@ function applyFilters(){
     const ex=m.userData.ex;
     m.visible=!m.userData.superseded&&activeFloors.has(ex.storey)&&activeCls.has(ex.cls);
   });
+  flSyncLight();   // свет прожекторов: лучи и источники следуют видимости слоя и тумблеру
 }
 
 /* ================= ПНЕВМОПОКРЫТИЕ (концепция) =================
@@ -994,7 +1001,20 @@ const FL_POINTS=[
   [-42.03,-36.6,8.17,-27,10,-22.13,-13,-8,-22.13],
   [-41.56,-40.01,8.16,-27,-10,-22.13,-13,8,-22.13]
 ];
-let flGroup=null, flBuilt=false;
+const FL_STOREY='Прожекторы под фермами · концепция';
+let flGroup=null, flBuilt=false, flLightOn=true, flLights=[], flMatL=null, flBeamMesh=null;
+function flSyncLight(){
+  if(!flBuilt) return;
+  const layerOn=activeFloors.has(FL_STOREY)&&activeCls.has('LIGHT');
+  const on=flLightOn&&layerOn;
+  flLights.forEach(l=>{ l.visible=on; });        // источники света
+  if(flBeamMesh) flBeamMesh.visible=on;          // световые лучи только при вкл. свете
+}
+function flSetLight(on){
+  flLightOn=on;
+  if(flMatL){ flMatL.emissiveIntensity=on?2.2:0.0; flMatL.color.set(on?0xfff3da:0x474d55); }
+  flSyncLight();
+}
 function buildFloodlights(root){
   if(flBuilt) return; flBuilt=true;
   flGroup=new THREE.Group(); flGroup.name='Прожекторы';
@@ -1026,6 +1046,17 @@ function buildFloodlights(root){
     }
   }
   flGroup.add(imH,imL,imB); meshes.push(imH,imL,imB);
+  // реальное освещение поля: SpotLight на каждой 6-й точке (~16 шт), без теней
+  const stride=Math.max(1,Math.round(FL_POINTS.length/16));
+  for(let i=0;i<FL_POINTS.length;i+=stride){
+    const p=FL_POINTS[i];
+    const sp=new THREE.SpotLight(0xfff2d8,1400,0,0.45,0.6,2.0);
+    sp.position.set(p[0],p[1],p[2]);
+    sp.target.position.set((p[3]+p[6])/2,(p[4]+p[7])/2,(p[5]+p[8])/2);
+    sp.visible=false;                    // включится через flSyncLight, если слой видим
+    flGroup.add(sp,sp.target); flLights.push(sp);
+  }
+  flMatL=matL; flBeamMesh=imB;
   root.add(flGroup);
 }
 
