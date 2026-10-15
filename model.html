@@ -243,7 +243,9 @@ async function boot(){
   const loader=new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
 
-  // Модель поставляется двумя частями: existing_1.glb + existing_2.glb (каждая < 25 МБ).
+  // Модель поставляется частями: existing_1.glb + existing_2.glb (каждая < 25 МБ)
+  // + pylons_morph.glb (пилоны и морфы из Пилоны_Морф_v2.ifc, замещают одноимённые
+  // элементы обследования — их треугольники удалены из existing_1.glb).
   // Запасные варианты: монолит existing.glb, затем base64-чанки
   // (вариант публикации на GitHub, где бинарные файлы хранятся как текстовые части)
   const CHUNKS=3;
@@ -268,7 +270,7 @@ async function boot(){
     for(let i=0;i<n;i++)u8[i]=bin.charCodeAt(i);
     return u8.buffer;
   }
-  const PARTS=['existing_1.glb','existing_2.glb'];
+  const PARTS=['existing_1.glb','existing_2.glb','pylons_morph.glb'];
   let buffers=null;
   try{
     const h=await fetch(PARTS[0],{method:'HEAD'});
