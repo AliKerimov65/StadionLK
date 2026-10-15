@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="modules.css">
+<title>Центральный стадион — 3D планы этажей 1–3</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #eef0f2; font-family: system-ui, sans-serif; }
+  #app { width: 100%; height: 100%; }
+  #hud {
+    position: fixed; top: 70px; left: 12px; background: rgba(255,255,255,.88);
+    border-radius: 10px; padding: 10px 14px; box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    font-size: 13px; line-height: 1.5; color: #333; z-index: 5;
+  }
+  #hud b { font-size: 14px; }
+  #hud label { display: block; cursor: pointer; }
+  #err { position: fixed; bottom: 12px; left: 12px; color: #b00020; font-size: 13px; z-index: 11; }
+  #load {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #eef0f2; z-index: 10; transition: opacity .4s;
+  }
+  #load.done { opacity: 0; pointer-events: none; }
+  #load .card {
+    background: rgba(255,255,255,.92); border-radius: 12px; padding: 18px 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12); font-size: 14px; color: #333; text-align: center;
+  }
+  #load .bar { width: 240px; height: 6px; background: #dfe3e8; border-radius: 3px; margin: 10px auto 0; overflow: hidden; }
+  #load .bar i { display: block; height: 100%; width: 0; background: #4a76a8; border-radius: 3px; transition: width .2s; }
+  #load.ind .bar i { width: 30%; animation: ind 1.2s ease-in-out infinite; }
+  @keyframes ind { 0% { margin-left: -30%; } 100% { margin-left: 100%; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./three.module.js" } }
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud">
+  <b>Этажи 1–3 (из DXF «Испр»)</b><br>
+  <label><input type="checkbox" data-p="Плита" checked> Плиты</label>
+  <label><input type="checkbox" data-p="Стены" checked> Стены</label>
+  <label><input type="checkbox" data-p="Витражи" checked> Витражи</label>
+  <label><input type="checkbox" data-p="Ограждения" checked> Ограждения</label>
+  <div id="hint" style="margin-top:6px;color:#777">Вращение — ЛКМ, масштаб — колесо</div>
+</div>
+<div id="load" class="ind"><div class="card">
+  <b>Загрузка модели</b>
+  <div id="loadtxt" style="margin-top:6px;color:#555">Подождите…</div>
+  <div class="bar"><i id="loadbar"></i></div>
+</div></div>
+<div id="err"></div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from './addons/controls/OrbitControls.js';
+import { GLTFLoader } from './addons/loaders/GLTFLoader.js';
+
+if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
+  document.getElementById('hint').textContent = 'Вращение — палец, масштаб — щипок';
+}
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef0f2);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 5000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+document.getElementById('app').appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(1, 1.4, 0.8);
+scene.add(sun);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+
+const loadEl = document.getElementById('load');
+const loadTxt = document.getElementById('loadtxt');
+const loadBar = document.getElementById('loadbar');
+const fmtMB = n => (n / 1048576).toFixed(1).replace('.', ',') + ' МБ';
+
+new GLTFLoader().load('./model.glb', (g) => {
+  loadEl.classList.add('done');
+  setTimeout(() => loadEl.remove(), 500);
+  const root = g.scene;
+  scene.add(root);
+  const box = new THREE.Box3().setFromObject(root);
+  const c = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3()).length();
+  camera.position.set(c.x + size * 0.45, c.y + size * 0.4, c.z + size * 0.45);
+  controls.target.copy(c);
+  controls.update();
+  // фильтры по системам
+  document.querySelectorAll('#hud input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      root.traverse(o => {
+        if (o.isMesh && o.name.includes(cb.dataset.p)) o.visible = cb.checked;
+      });
+    });
+  });
+}, (p) => {
+  if (p.total > 0) {
+    loadEl.classList.remove('ind');
+    const pc = Math.min(100, Math.round(p.loaded / p.total * 100));
+    loadBar.style.width = pc + '%';
+    loadTxt.textContent = fmtMB(p.loaded) + ' из ' + fmtMB(p.total) + ' (' + pc + ' %)';
+  } else {
+    loadTxt.textContent = 'Загружено ' + fmtMB(p.loaded);
+  }
+}, (e) => {
+  loadTxt.textContent = 'Не удалось загрузить model.glb';
+  loadTxt.style.color = '#b00020';
+  document.getElementById('err').textContent = 'Не удалось загрузить model.glb: ' + e;
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+</script>
+<script src="modules.js"></script>
+</body>
+</html>
