@@ -308,6 +308,60 @@ async function boot(){
     gltfs.push(await new Promise((res,rej)=>loader.parse(b,'',res,rej)));
   }
 
+  // ---- периметровый LED-экран: рекламная видеопетля (бегущая строка) ----
+  // UV строится по геометрии ленты: U = доля длины периметра, V = высота 0..1.
+  let adTex=null;
+  function attachAdVideo(o){
+    const g=o.geometry, pos=g.attributes.position, n=pos.count;
+    let z0=1e9, z1=-1e9;
+    for(let i=0;i<n;i++){ const z=pos.getZ(i); if(z<z0)z0=z; if(z>z1)z1=z; }
+    const HH=Math.max(0.01, z1-z0);
+    const uv=new Float32Array(n*2);
+    const qp=k=>[pos.getX(k),pos.getY(k)];
+    const CX=12.5, CY=0.0;                 // центр поля: текст читается для зрителя внутри чаши
+    let cum=0;
+    for(let q=0;q+6<=n;q+=6){
+      const pts=[];
+      for(let v=0;v<6;v++){
+        const p=qp(q+v);
+        if(!pts.some(t=>Math.hypot(t[0]-p[0],t[1]-p[1])<1e-4)) pts.push(p);
+      }
+      if(pts.length<2){                      // вырожденный стык станций
+        for(let v=0;v<6;v++){ uv[(q+v)*2]=cum; uv[(q+v)*2+1]=(pos.getZ(q+v)-z0)/HH; }
+        continue;
+      }
+      let a=pts[0], b=pts[1];
+      // ориентация каждого квада: U растёт вправо для зрителя, стоящего в центре поля
+      const mx=(a[0]+b[0])/2-CX, my=(a[1]+b[1])/2-CY;
+      const fl=Math.hypot(mx,my)||1, fx=mx/fl, fy=my/fl;
+      const rx=fy, ry=-fx;                 // right = forward x up
+      if((b[0]-a[0])*rx+(b[1]-a[1])*ry<0){ const t=a;a=b;b=t; }
+      const u0=cum; cum+=Math.hypot(b[0]-a[0],b[1]-a[1]); const u1=cum;
+      for(let v=0;v<6;v++){
+        const p=qp(q+v);
+        const isA=Math.hypot(p[0]-a[0],p[1]-a[1])<=Math.hypot(p[0]-b[0],p[1]-b[1]);
+        uv[(q+v)*2]=isA?u0:u1; uv[(q+v)*2+1]=(pos.getZ(q+v)-z0)/HH;
+      }
+    }
+    for(let i=0;i<n;i++) uv[i*2]/=cum;
+    g.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    if(!adTex){
+      const vid=document.createElement('video');
+      vid.muted=true; vid.loop=true; vid.playsInline=true; vid.preload='auto'; vid.autoplay=true;
+      vid.src='assets/media/football_loop.mp4';            // готовый футбольный ролик (как в медиакубах)
+      adTex=new THREE.VideoTexture(vid);
+      adTex.colorSpace=THREE.SRGBColorSpace;
+      adTex.minFilter=THREE.LinearFilter; adTex.generateMipmaps=false;
+      adTex.wrapS=THREE.RepeatWrapping;
+      adTex.repeat.x=Math.max(1,Math.round(cum/HH*9/16));  // повтор без искажения пропорций 16:9
+      const play=()=>{ vid.play().catch(()=>{}); };
+      vid.addEventListener('canplay',play,{once:true});
+      addEventListener('pointerdown',play,{once:true});
+    }
+    o.material=new THREE.MeshBasicMaterial({map:adTex, toneMapped:false, side:THREE.DoubleSide,
+      polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2});  // выше панели крепления
+  }
+
   document.getElementById('loadmsg').textContent='построение сцены…';
   const modelRoot=new THREE.Group();      // общий корень: обе части модели + процедурные слои
   let totalTris=0;
@@ -331,6 +385,7 @@ async function boot(){
       o.material=mat;
       o.userData.ex=ex;
       o.__parser=parser;
+      if(ex.storey==='Экран светодиодный · периметр'&&String(ex.color).toUpperCase()==='10161D') attachAdVideo(o);
       meshes.push(o);
       totalTris+=ex.ntri||0;
       }catch(errMesh){ console.error('[boot] mesh fail', o.name, errMesh); throw errMesh; }
