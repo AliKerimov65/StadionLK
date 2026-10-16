@@ -308,10 +308,20 @@ async function boot(){
     gltfs.push(await new Promise((res,rej)=>loader.parse(b,'',res,rej)));
   }
 
-  // ---- периметровый LED-экран: рекламная видеопетля (бегущая строка) ----
+  // ---- периметровый LED-экран: бегущая строка «ФК ЕНИСЕЙ» ----
   // UV строится по геометрии ленты: U = доля длины периметра, V = высота 0..1.
-  let adTex=null;
-  function attachAdVideo(o){
+  let adTex=null, adRate=0;             // текстура строки и скорость сдвига (1/с в долях тайла)
+  const TICKER_TEXT='ФК ЕНИСЕЙ';
+  function drawTickerCanvas(cv){
+    const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+    ctx.fillStyle='#10161D'; ctx.fillRect(0,0,W,H);
+    ctx.font='700 96px Inter, Arial, sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#E8322B'; ctx.shadowColor='#E8322B'; ctx.shadowBlur=14;
+    const N=2;                                    // две фразы на тайл, равные промежутки => бесшовно
+    for(let i=0;i<N;i++) ctx.fillText(TICKER_TEXT, (i+0.5)*W/N, H*0.54);
+  }
+  function attachLedTicker(o){
     const g=o.geometry, pos=g.attributes.position, n=pos.count;
     let z0=1e9, z1=-1e9;
     for(let i=0;i<n;i++){ const z=pos.getZ(i); if(z<z0)z0=z; if(z>z1)z1=z; }
@@ -334,7 +344,7 @@ async function boot(){
       // ориентация каждого квада: U растёт вправо для зрителя, стоящего в центре поля
       const mx=(a[0]+b[0])/2-CX, my=(a[1]+b[1])/2-CY;
       const fl=Math.hypot(mx,my)||1, fx=mx/fl, fy=my/fl;
-      const rx=fy, ry=-fx;                 // right = forward x up
+      const rx=-fy, ry=fx;                 // right = forward x up (forward = от центра к кваду)
       if((b[0]-a[0])*rx+(b[1]-a[1])*ry<0){ const t=a;a=b;b=t; }
       const u0=cum; cum+=Math.hypot(b[0]-a[0],b[1]-a[1]); const u1=cum;
       for(let v=0;v<6;v++){
@@ -346,17 +356,18 @@ async function boot(){
     for(let i=0;i<n;i++) uv[i*2]/=cum;
     g.setAttribute('uv',new THREE.BufferAttribute(uv,2));
     if(!adTex){
-      const vid=document.createElement('video');
-      vid.muted=true; vid.loop=true; vid.playsInline=true; vid.preload='auto'; vid.autoplay=true;
-      vid.src='assets/media/football_loop.mp4';            // готовый футбольный ролик (как в медиакубах)
-      adTex=new THREE.VideoTexture(vid);
+      const cv=document.createElement('canvas');
+      cv.width=2048; cv.height=128;               // тайл 16:1 => 28.8 м на 1.8 м высоты ленты
+      drawTickerCanvas(cv);
+      adTex=new THREE.CanvasTexture(cv);
       adTex.colorSpace=THREE.SRGBColorSpace;
       adTex.minFilter=THREE.LinearFilter; adTex.generateMipmaps=false;
       adTex.wrapS=THREE.RepeatWrapping;
-      adTex.repeat.x=Math.max(1,Math.round(cum/HH*9/16));  // повтор без искажения пропорций 16:9
-      const play=()=>{ vid.play().catch(()=>{}); };
-      vid.addEventListener('canplay',play,{once:true});
-      addEventListener('pointerdown',play,{once:true});
+      adTex.repeat.x=Math.max(1,Math.round(cum/(HH*16)));   // целое число тайлов на периметр
+      const V_MPS=3.5;                            // скорость строки, м/с
+      adRate=V_MPS*adTex.repeat.x/cum;            // сдвиг offset.x в секунду
+      document.fonts.ready.then(()=>{ drawTickerCanvas(cv); adTex.needsUpdate=true; });
+      window.__led={tex:adTex, rate:()=>adRate};
     }
     o.material=new THREE.MeshBasicMaterial({map:adTex, toneMapped:false, side:THREE.DoubleSide,
       polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2});  // выше панели крепления
@@ -385,7 +396,7 @@ async function boot(){
       o.material=mat;
       o.userData.ex=ex;
       o.__parser=parser;
-      if(ex.storey==='Экран светодиодный · периметр'&&String(ex.color).toUpperCase()==='10161D') attachAdVideo(o);
+      if(ex.storey==='Экран светодиодный · периметр'&&String(ex.color).toUpperCase()==='10161D') attachLedTicker(o);
       meshes.push(o);
       totalTris+=ex.ntri||0;
       }catch(errMesh){ console.error('[boot] mesh fail', o.name, errMesh); throw errMesh; }
@@ -1278,6 +1289,8 @@ renderer.setAnimationLoop(()=>{
     if(t>=1){ t=1; PN.playing=false; pnPlay.textContent='▶ Развернуть'; }
     pnSet(t);
   }
+  const led=window.__led;                      // бегущая строка «ФК ЕНИСЕЙ» на периметре
+  if(led&&led.tex){ led.tex.offset.x=(led.tex.offset.x+led.rate()*dt)%1; }
   controls.update(); renderer.render(scene,camera);
 });
 </script>
