@@ -190,6 +190,7 @@ import {OrbitControls} from './addons/controls/OrbitControls.js';
 
 const CLS_RU={
   IFCSLAB:'Плиты (трибуны, перекрытия)', IFCBEAM:'Балки и ригели',
+  IFCFURNITURE:'Кресла и мебель',
   IFCWALL:'Стены', IFCWALLSTANDARDCASE:'Стены (типовые)',
   IFCBUILDINGELEMENTPROXY:'Металлоконструкции (фермы, связи)',
   IFCCOLUMN:'Колонны', IFCWINDOW:'Окна и витражи', IFCDOOR:'Двери',
@@ -344,7 +345,7 @@ async function boot(){
       // ориентация каждого квада: U растёт вправо для зрителя, стоящего в центре поля
       const mx=(a[0]+b[0])/2-CX, my=(a[1]+b[1])/2-CY;
       const fl=Math.hypot(mx,my)||1, fx=mx/fl, fy=my/fl;
-      const rx=-fy, ry=fx;                 // right = forward x up (forward = от центра к кваду)
+      const rx=fy, ry=-fx;                 // ось U ленты (референс-тест глифом «Б»: единственный немirrorный вариант)
       if((b[0]-a[0])*rx+(b[1]-a[1])*ry<0){ const t=a;a=b;b=t; }
       const u0=cum; cum+=Math.hypot(b[0]-a[0],b[1]-a[1]); const u1=cum;
       for(let v=0;v<6;v++){
