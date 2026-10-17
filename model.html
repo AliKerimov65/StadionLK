@@ -199,8 +199,8 @@ const CLS_RU={
   PNEUMO:'Пневмоподушки (концепция)', MEDIA:'Медиакубы (концепция)',
   LIGHT:'Прожекторы (концепция)'
 };
-const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSITE','PITCH','PNEUMO','MEDIA','LIGHT'];
-const FLOOR_ORDER=['Площадка и поле','Морф','Уровень земли · отм. 0.000','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Трибуны · новые (разрезы 1/20)','Опоры трибун','Трибуны · прежние (на удаление)','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
+const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDCASE','IFCWALL','IFCCOLUMN','IFCWINDOW','IFCDOOR','IFCSTAIR','IFCFURNITURE','IFCSITE','PITCH','PNEUMO','MEDIA','LIGHT'];
+const FLOOR_ORDER=['Площадка и поле','Морф','Уровень земли · отм. 0.000','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Трибуны · новые (разрезы 1/20)','Кресла зрительские · сектора','VIP-зона · верхний ярус','Лестницы и проходы трибун','Эвакуационные выходы · палуба','Экран светодиодный · периметр','Опоры трибун','Трибуны · прежние (на удаление)','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
 
 const view=document.getElementById('view');
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -237,7 +237,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261017b';
+const GLB_V='20261017c';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
