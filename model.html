@@ -267,6 +267,29 @@ async function boot(){
     for(const c of chunks){u8.set(c,off);off+=c.length;}
     return u8;
   }
+  // Контроль целостности GLB: иногда сеть/edge отдаёт усечённое тело с чистым
+  // концом потока — такой файл «загружается», но меши за точкой обрыва пустые
+  // и слои молча пропадают. Проверяем магию 'glTF' и заявленную в заголовке
+  // длину, при расхождении повторяем загрузку (до 4 попыток, антикэш-суффикс).
+  const GLB_V='20261017a';
+  function glbLenOK(u8){
+    if(u8.length<12) return false;
+    if(u8[0]!==0x67||u8[1]!==0x6C||u8[2]!==0x54||u8[3]!==0x46) return false; // 'glTF'
+    const dv=new DataView(u8.buffer,u8.byteOffset);
+    return dv.getUint32(8,true)===u8.length;
+  }
+  async function fetchGlb(url,onProgress){
+    let note='';
+    for(let a=1;a<=4;a++){
+      try{
+        const u8=await fetchBuf(url+'?v='+GLB_V+(a>1?'&r'+a:''),onProgress);
+        if(glbLenOK(u8)) return u8;
+        note='обрыв на '+(u8.length/1e6).toFixed(1)+' МБ';
+      }catch(e){ note=e.message; }
+      if(a<4) await new Promise(rs=>setTimeout(rs,600*a));
+    }
+    throw new Error(url+': файл пришёл не целиком ('+note+'). Обновите страницу');
+  }
   function b64ToBuf(b64){
     const bin=atob(b64); const n=bin.length; const u8=new Uint8Array(n);
     for(let i=0;i<n;i++)u8[i]=bin.charCodeAt(i);
@@ -279,7 +302,7 @@ async function boot(){
     if(h.ok){
       const got=PARTS.map(()=>0), tot=PARTS.map(()=>0);
       buffers=await Promise.all(PARTS.map(async(u,i)=>{
-        const u8=await fetchBuf(u,(g,t)=>{ got[i]=g; if(t)tot[i]=t;
+        const u8=await fetchGlb(u,(g,t)=>{ got[i]=g; if(t)tot[i]=t;
           const d=got.reduce((a,b)=>a+b,0), tt=tot.reduce((a,b)=>a+b,0);
           if(tt>0) setProg(d,tt); });
         return u8.buffer;
