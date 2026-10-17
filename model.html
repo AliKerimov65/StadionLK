@@ -237,8 +237,9 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
+const GLB_V='20261017b';
 async function boot(){
-  META=await (await fetch('existing.json')).json();
+  META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
 
   const loader=new GLTFLoader();
@@ -271,7 +272,6 @@ async function boot(){
   // концом потока — такой файл «загружается», но меши за точкой обрыва пустые
   // и слои молча пропадают. Проверяем магию 'glTF' и заявленную в заголовке
   // длину, при расхождении повторяем загрузку (до 4 попыток, антикэш-суффикс).
-  const GLB_V='20261017a';
   function glbLenOK(u8){
     if(u8.length<12) return false;
     if(u8[0]!==0x67||u8[1]!==0x6C||u8[2]!==0x54||u8[3]!==0x46) return false; // 'glTF'
@@ -521,7 +521,7 @@ async function boot(){
   for(const k of OLD_STANDS){ _oldStandsCnt+=flCount[k]||0; delete flCount[k]; }
   if(_oldStandsCnt) flCount[OLD_STANDS_RU]=(flCount[OLD_STANDS_RU]||0)+_oldStandsCnt;
   // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
-  const ROOF_STOREYS=['Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция','Прожекторы под фермами · концепция'];
+  const ROOF_STOREYS=['Козырьки трибун','Навес трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция','Прожекторы под фермами · концепция'];
   const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
   const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s));
   const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
