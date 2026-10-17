@@ -122,6 +122,8 @@
       <div id="results"></div>
       <h2>Этажи</h2>
       <div id="floors"></div>
+      <h2>Удаленные</h2>
+      <div id="deleted"></div>
       <h2>Конструкции</h2>
       <div id="classes"></div>
       <h2>Пневмопокрытие · концепция</h2>
@@ -237,7 +239,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261017d';
+const GLB_V='20261017e';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
@@ -522,12 +524,14 @@ async function boot(){
   if(_oldStandsCnt) flCount[OLD_STANDS_RU]=(flCount[OLD_STANDS_RU]||0)+_oldStandsCnt;
   // надстроечные конструкции покрытия показываем в группе «Конструкции», а не «Этажи»
   const ROOF_STOREYS=['Козырьки трибун','Навес трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция','Медиакубы · концепция','Прожекторы под фермами · концепция'];
+  const DEL_STOREYS=['Удаленные'];  // временно снятые элементы: отдельный слой, не этаж, скрыт при загрузке
   const allStoreys=[...new Set(meshes.map(m=>m.userData.ex.storey))];
-  const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s));
+  const floors=allStoreys.filter(s=>!ROOF_STOREYS.includes(s)&&!DEL_STOREYS.includes(s));
   const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
   floors.sort((a,b)=>FLOOR_ORDER.indexOf(a)-FLOOR_ORDER.indexOf(b));
   document.getElementById('stFl').textContent=floors.length;
-  buildFilters(floors,roofSt,flCount,clCount);
+  const delSt=DEL_STOREYS.filter(s=>allStoreys.includes(s));
+  buildFilters(floors,roofSt,delSt,flCount,clCount);
   applyFilters();                      // скрыть слои, выключенные по умолчанию
 
   document.getElementById('loading').style.display='none';
@@ -535,10 +539,11 @@ async function boot(){
 
 const activeFloors=new Set(), activeCls=new Set();
 const OFF_BY_DEFAULT=new Set([
-  'Трибуны · прежние (на удаление)'     // существующая чаша и замыкания углов: скрыты, ждут удаления
+  'Трибуны · прежние (на удаление)',    // существующая чаша и замыкания углов: скрыты, ждут удаления
+  'Удаленные'                           // типовые стены Этажа 3: временно сняты в отдельный слой, ждут решения
 ]);  // слои, скрытые при загрузке (прожекторы видны сразу, свет включается вручную)
-function buildFilters(floors,roofSt,flCount,clCount){
-  const fbox=document.getElementById('floors'), cbox=document.getElementById('classes');
+function buildFilters(floors,roofSt,delSt,flCount,clCount){
+  const fbox=document.getElementById('floors'), cbox=document.getElementById('classes'), dbox=document.getElementById('deleted');
   floors.forEach(f=>{
     const on=!OFF_BY_DEFAULT.has(f);
     if(on) activeFloors.add(f);
@@ -546,6 +551,15 @@ function buildFilters(floors,roofSt,flCount,clCount){
     el.innerHTML=`<input type="checkbox" ${on?'checked':''}> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
     el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
     fbox.appendChild(el);
+  });
+  // временно удалённые элементы — отдельная группа, скрыта при загрузке
+  delSt.forEach(f=>{
+    const on=!OFF_BY_DEFAULT.has(f);
+    if(on) activeFloors.add(f);
+    const el=document.createElement('label'); el.className='flt';
+    el.innerHTML=`<input type="checkbox" ${on?'checked':''}> <span>${f}</span> <span class="cnt">${fmt(flCount[f]||0)}</span>`;
+    el.querySelector('input').onchange=ev=>{ ev.target.checked?activeFloors.add(f):activeFloors.delete(f); applyFilters(); };
+    dbox.appendChild(el);
   });
   // конструкции покрытия (бывшие «этажи») — в начало группы «Конструкции»
   roofSt.forEach(f=>{
