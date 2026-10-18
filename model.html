@@ -122,8 +122,6 @@
       <div id="results"></div>
       <h2>Этажи</h2>
       <div id="floors"></div>
-      <h2>Удаленные</h2>
-      <div id="deleted"></div>
       <h2>Конструкции</h2>
       <div id="classes"></div>
       <h2>Пневмопокрытие · концепция</h2>
@@ -239,7 +237,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261018f';
+const GLB_V='20261018g';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
@@ -498,7 +496,7 @@ async function boot(){
   const roofSt=ROOF_STOREYS.filter(s=>allStoreys.includes(s));
   floors.sort((a,b)=>FLOOR_ORDER.indexOf(a)-FLOOR_ORDER.indexOf(b));
   document.getElementById('stFl').textContent=floors.length;
-  const delSt=DEL_STOREYS.filter(s=>allStoreys.includes(s));
+  const delSt=DEL_STOREYS.filter(s=>allStoreys.includes(s)&&(flCount[s]||0)>0);  // пустой слой «Удаленные» не показываем
   buildFilters(floors,roofSt,delSt,flCount,clCount);
   applyFilters();                      // скрыть слои, выключенные по умолчанию
 
