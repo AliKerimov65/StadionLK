@@ -237,7 +237,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261020e';
+const GLB_V='20261020f';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
@@ -295,7 +295,7 @@ async function boot(){
     for(let i=0;i<n;i++)u8[i]=bin.charCodeAt(i);
     return u8.buffer;
   }
-  const PARTS=['existing_1.glb','existing_2.glb','pylons_morph.glb','tribuny_new.glb'];
+  const PARTS=['existing_1.glb','existing_2.glb','pylons_morph.glb','tribuny_new.glb','vstroyka.glb'];
   let buffers=null;
   try{
     const h=await fetch(PARTS[0],{method:'HEAD'});
