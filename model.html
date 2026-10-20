@@ -237,7 +237,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261020f';
+const GLB_V='20261021a';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
