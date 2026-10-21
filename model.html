@@ -237,7 +237,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261021h';
+const GLB_V='20261022a';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
@@ -412,8 +412,9 @@ async function boot(){
       o.geometry.computeVertexNormals();
       const col=new THREE.Color('#'+(ex.color||'BFBFBF'));
       const tr=ex.opacity||0;
+      const isMemb=ex.cls==='IFCMEMBRANE';
       const mat=new THREE.MeshStandardMaterial({
-        color:col, roughness:0.82, metalness:0.08,
+        color:col, roughness:isMemb?0.35:0.82, metalness:isMemb?0.55:0.08,
         transparent:tr>0.03, opacity:tr>0.03?Math.max(0.3,1-tr*0.9):1,
         side:(ex.doubleSided||tr>0.03)?THREE.DoubleSide:THREE.FrontSide
       });
