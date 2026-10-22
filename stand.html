@@ -14,6 +14,12 @@
 html,body{height:100%;overflow:hidden;background:#0d1424;color:#e8e6df;font-family:'Inter',system-ui,sans-serif}
 #scene{position:fixed;inset:0}
 #scene canvas{display:block}
+
+/* видеорежим: приложен stand_demo.mp4 — крутим его вместо 3D-автодемо */
+#demoVid{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#0d1424;display:none;z-index:2}
+body.vidmode #demoVid{display:block}
+body.vidmode #scene,body.vidmode .ovl,body.vidmode #capWrap,body.vidmode #card,body.vidmode #cardBG,
+body.vidmode #hud,body.vidmode .progTick,body.vidmode #sndBtn{display:none!important}
 #vignette{position:fixed;inset:0;pointer-events:none;z-index:3;
   background:radial-gradient(ellipse at center,transparent 52%,rgba(5,8,16,.55) 100%)}
 
@@ -90,6 +96,7 @@ html,body{height:100%;overflow:hidden;background:#0d1424;color:#e8e6df;font-fami
 </head>
 <body>
 <div id="scene"></div>
+<video id="demoVid" muted loop playsinline preload="auto" src="stand_demo.mp4"></video>
 <div id="vignette"></div>
 
 <img class="ovl" id="ovlA" alt="">
@@ -421,6 +428,10 @@ function setPaused(v){
   paused=v;
   pauseHint.classList.toggle('paused',paused||menuOpen);
   pauseHint.textContent=(paused||menuOpen)?'Пауза · Пробел — продолжить':'Пробел — пауза · Касание — меню · Свайп ← → — разделы';
+  if(document.body.classList.contains('vidmode')){
+    const dv=document.getElementById('demoVid');
+    if(dv){if(paused||menuOpen)dv.pause();else dv.play().catch(()=>{})}
+  }
   if(paused&&curAudio)curAudio.pause();else if(!paused&&curAudio)sndOn&&curAudio.play().catch(()=>{});
 }
 document.addEventListener('stand:menu-open',()=>{menuOpen=true;setPaused(true)});
@@ -505,6 +516,41 @@ function animate(now){
 /* ================= СТАРТ ================= */
 (async()=>{
   loadBar.style.width='8%';
+  /* видеорежим: если приложен stand_demo.mp4, он заменяет 3D-автодемо */
+  let vidOK=false;
+  if(!RECORD){try{const h=await fetch('stand_demo.mp4',{method:'HEAD'});vidOK=h.ok}catch(e){}}
+  if(vidOK){
+    document.body.classList.add('vidmode');
+    const vid=document.getElementById('demoVid');
+    loadSt.textContent='Загрузка ролика…';loadBar.style.width='45%';
+    vid.play().catch(()=>{});
+    addEventListener('pointerdown',()=>vid.play().catch(()=>{}),{once:true});
+    const autoTry=setInterval(()=>{                    // повторные попытки автозапуска
+      if(!paused&&!menuOpen&&vid.paused&&vid.readyState>=2)vid.play().catch(()=>{});
+    },1200);
+    await new Promise(res=>{
+      vid.addEventListener('canplay',res,{once:true});
+      vid.addEventListener('error',res,{once:true});
+      setTimeout(res,8000);
+    });
+    loadBar.style.width='100%';
+    document.getElementById('load').classList.add('done');
+    vid.play().catch(()=>{});
+    vid.addEventListener('pointerup',()=>{              // касание — меню модулей
+      const b=document.getElementById('modNavBtn');
+      if(b){b.click();
+        const sw=ev=>{ev.stopPropagation();ev.preventDefault()};
+        document.addEventListener('click',sw,{capture:true,once:true});
+        setTimeout(()=>document.removeEventListener('click',sw,{capture:true}),400);
+      }
+    });
+    const tick=()=>{
+      if(vid.duration)prog.style.width=(vid.currentTime/vid.duration*100).toFixed(2)+'%';
+      requestAnimationFrame(tick);
+    };
+    tick();
+    return;                                             // 3D-автодемо не загружаем
+  }
   await loadModel();
   buildFuture();applyFuture(0);
   buildCameras();
