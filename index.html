@@ -488,6 +488,33 @@ document.querySelectorAll('img[data-img]').forEach(async img=>{
     img.src='data:image/jpeg;base64,'+t.replace(/\s+/g,''); }catch(e){}
 });
 </script>
+<script>
+/* переход по #assembly: доводим до секции после догрузки изображений выше и запускаем ролик */
+(function(){
+  var dead=false, t0=0, running=false;
+  function stop(){ dead=true; }
+  function go(){
+    if(location.hash!=='#assembly')return;
+    var s=document.getElementById('assembly'); if(!s)return;
+    var v=document.getElementById('assemblyVid');
+    if(v){ v.muted=true; var p=v.play(); if(p&&p.catch)p.catch(function(){}); }
+    t0=Date.now(); dead=false;
+    ['wheel','touchstart','keydown'].forEach(function(ev){
+      window.addEventListener(ev,stop,{once:true,passive:true});
+    });
+    if(running)return; running=true;
+    (function tick(){
+      if(dead||Date.now()-t0>7000){ running=false; return; }
+      var r=s.getBoundingClientRect();
+      if(Math.abs(r.top)>48) s.scrollIntoView({block:'start'});
+      setTimeout(tick,350);
+    })();
+  }
+  window.addEventListener('load',go);
+  window.addEventListener('hashchange',go);
+  if(document.readyState!=='loading')go(); else document.addEventListener('DOMContentLoaded',go);
+})();
+</script>
 <script src="modules.js"></script>
 </body>
 </html>
