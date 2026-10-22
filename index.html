@@ -6,17 +6,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/img/vomirek/icon-192.png">
 <link rel="apple-touch-icon" href="assets/img/vomirek/icon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="yandex-verification" content="3874821adf2c6fdc" />
-<meta name="description" content="Концепция модернизации стадиона им. Ленинского комсомола в Красноярске: поворот поля на 90°, 25 000 зрителей, раздвижная крыша, BIM-модель, бюджет 5 млрд ₽ и сроки реализации.">
-<link rel="canonical" href="https://stadionlk.vomirek.com/">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="ru_RU">
-<meta property="og:site_name" content="VOMIREK">
-<meta property="og:title" content="Стадион им. Ленинского комсомола — модернизация · Красноярск">
-<meta property="og:description" content="Концепция модернизации стадиона им. Ленинского комсомола в Красноярске: поворот поля на 90°, 25 000 зрителей, раздвижная крыша, BIM-модель, бюджет 5 млрд ₽ и сроки реализации.">
-<meta property="og:url" content="https://stadionlk.vomirek.com/">
-<meta property="og:image" content="https://stadionlk.vomirek.com/assets/img/future_aerial_roof.jpg">
-<meta name="twitter:card" content="summary_large_image">
 <title>Стадион им. Ленинского комсомола — модернизация · Красноярск</title>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="modules.css">
@@ -130,6 +119,7 @@ section:not(.light) .bars .track{background:rgba(255,255,255,.08)}
 /* ---------- 3d ---------- */
 .viewerbox{margin-top:26px;border:1px solid rgba(201,162,39,.4);background:#0a0f1c}
 .viewerbox iframe{width:100%;height:72vh;min-height:480px;border:0;display:block}
+.viewerbox video{width:100%;max-height:80vh;display:block;background:#0a0f1c}
 .vbtns{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap}
 .btn{display:inline-block;padding:11px 26px;background:var(--gold);color:var(--navy2)!important;text-decoration:none;
   font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-radius:2px}
@@ -178,6 +168,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <a href="#stands">Трибуны</a>
     <a href="#roof">Крыша</a>
     <a href="#construct">Конструктив</a>
+    <a href="#assembly">Сборка</a>
     <a href="#schedule">Сроки</a>
     <a href="#budget">Бюджет</a>
     <a href="#docs">Документация</a>
@@ -323,6 +314,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
       <div><h3>Игровые виды спорта</h3><p>Крытые многофункциональные залы для мини-футбола, баскетбола, волейбола и бадминтона с профессиональным покрытием.</p></div>
       <div><h3>Единоборства и гимнастика</h3><p>Специализированные залы для борьбы, дзюдо, йоги, пилатеса, художественной и спортивной гимнастики.</p></div>
       <div><h3>Фитнес и тренажёрные</h3><p>Современные фитнес-пространства для профессиональных спортсменов и широкой городской аудитории.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASSEMBLY ================= -->
+<section id="assembly">
+  <div class="wrap">
+    <div class="kicker">Анимация сборки</div>
+    <h2>Концепция реконструкции за 84 секунды</h2>
+    <p class="lead">Последовательность строительства новой несущей системы: разбивка осей и свайных полей, буронабивные сваи, восемь опорных ног с наклонными мачтами, фермы прямоугольного контура 105 × 141 м, навес над чашей, встройка северного и южного торцов с новыми трибунами, прожекторы и медиа, выдвижное пневмопокрытие центрального проёма. Существующие конструкции стадиона остаются нетронутыми на всех этапах.</p>
+    <div class="viewerbox"><video id="assemblyVid" src="build_demo.mp4" poster="build_poster.jpg" controls loop playsinline preload="metadata" title="Анимация сборки концепции реконструкции"></video></div>
+    <div class="vbtns">
+      <a class="btn" href="model.html" target="_blank" rel="noopener">Открыть 3D-модель</a>
+      <a class="btn ghost" href="#construct">Конструктивные решения</a>
     </div>
   </div>
 </section>
