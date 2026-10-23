@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<script src="/gate.js"></script>
 <meta charset="utf-8">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/img/vomirek/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/img/vomirek/icon-192.png">
@@ -204,7 +203,8 @@ const CLS_ORDER=['IFCSLAB','IFCBEAM','IFCBUILDINGELEMENTPROXY','IFCWALLSTANDARDC
 const FLOOR_ORDER=['Площадка и поле','Морф','Уровень земли · отм. 0.000','Футбольное поле · натуральный газон','Этаж 1 · подтрибунные (отм. 0.000)','Этаж 2 · подтрибунные (отм. +4.200)','Этаж 3 · подтрибунные (отм. +7.000)','Трибуны · новые (разрезы 1/20)','Кресла зрительские · сектора','VIP-зона · верхний ярус','Лестницы и проходы трибун','Эвакуационные выходы · палуба','Экран светодиодный · периметр','Опоры трибун','Радиокомментаторская (отм. +18.550)','Козырьки трибун','Фермы покрытия','Пилоны','Пневмопокрытие · концепция'];
 
 const view=document.getElementById('view');
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const FILM_MODE=location.search.indexOf('film=1')>=0;
+const renderer=new THREE.WebGLRenderer({antialias:!FILM_MODE,preserveDrawingBuffer:FILM_MODE});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 view.appendChild(renderer.domElement);
@@ -222,6 +222,41 @@ controls.maxDistance=2000;
 { const _q=new URLSearchParams(location.search);
   if(_q.get('cam')) camera.position.set(..._q.get('cam').split(',').map(Number));
   if(_q.get('tgt')) controls.target.set(..._q.get('tgt').split(',').map(Number)); }
+
+/* ===== РЕЖИМ СЪЁМКИ РОЛИКА (?film=1) — покадровая запись, на обычный просмотр не влияет ===== */
+const FILM=new URLSearchParams(location.search).get('film')==='1';
+if(FILM){
+  controls.enableDamping=false;
+  const st=document.createElement('style');
+  st.textContent=`
+header,#side,#sideBg,#toolbar,#hint,#info,#modNavBtn,#modMenu,#idlePill,#gxPager,#gxPtr{display:none!important}
+#view{position:fixed!important;inset:0;z-index:1}
+#filmUI{position:fixed;inset:0;pointer-events:none;z-index:50;font-family:Inter,system-ui,sans-serif}
+#fVig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 54%,rgba(4,7,14,.52) 100%)}
+#fCap{position:absolute;left:5%;bottom:9%;max-width:66%;opacity:0;transition:opacity .4s ease}
+#fCap.on{opacity:1}
+#fKick{font:600 12.5px Inter,system-ui;letter-spacing:.3em;text-transform:uppercase;color:#e0bc45;margin-bottom:9px}
+#fTitle{font:900 clamp(26px,2.9vw,46px)/1.08 'Playfair Display',Georgia,serif;color:#f4efdd;text-shadow:0 3px 22px rgba(0,0,0,.68)}
+#fSub{margin-top:9px;font:400 clamp(13px,1.05vw,16.5px)/1.5 Inter,system-ui;color:#cfd5e2;text-shadow:0 2px 12px rgba(0,0,0,.62)}
+#fFade{position:absolute;inset:0;background:#070b14;opacity:1;transition:opacity .55s ease}
+#fCardBG{position:absolute;inset:0;background:rgba(8,12,22,.5);opacity:0;transition:opacity .7s ease}
+#fCardBG.on{opacity:1;backdrop-filter:blur(5px)}
+#fCard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.965);width:min(840px,86vw);
+  padding:48px 58px;text-align:center;background:rgba(13,20,36,.93);border:1px solid rgba(201,162,39,.55);
+  border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.62);opacity:0;transition:opacity .7s ease,transform .7s ease}
+#fCard.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#fCKick{font:600 13px Inter,system-ui;letter-spacing:.32em;text-transform:uppercase;color:#c9a227}
+#fCTitle{margin:15px 0 13px;font:900 clamp(26px,3.1vw,48px)/1.12 'Playfair Display',Georgia,serif;color:#f4efdd}
+#fCSub{font:400 clamp(13px,1.1vw,16.5px)/1.55 Inter,system-ui;color:#c6ccdb}
+#fQR{display:none;margin:24px auto 0;width:150px;height:150px;background:#fff;border-radius:10px;padding:8px}
+#fQR.on{display:block}
+#fQRlbl{display:none;margin-top:9px;font:500 13px Inter,system-ui;color:#9aa3b6;letter-spacing:.07em}
+#fQRlbl.on{display:block}`;
+  document.head.appendChild(st);
+  const ui=document.createElement('div'); ui.id='filmUI';
+  ui.innerHTML='<div id="fVig"></div><div id="fCap"><div id="fKick"></div><div id="fTitle"></div><div id="fSub"></div></div><div id="fCardBG"></div><div id="fCard"><div id="fCKick"></div><div id="fCTitle"></div><div id="fCSub"></div><img id="fQR" alt="QR"><div id="fQRlbl"></div></div><div id="fFade"></div>';
+  document.body.appendChild(ui);
+}
 
 scene.add(new THREE.HemisphereLight(0xdfe8f5,0x2a2f36,1.15));
 const sun=new THREE.DirectionalLight(0xfff2df,1.6); sun.position.set(300,420,180); scene.add(sun);
@@ -1269,6 +1304,7 @@ boot().catch(err=>{
 
 let pnPrev=performance.now();
 renderer.setAnimationLoop(()=>{
+  if(FILM)return;   // режим съёмки: кадр собирается снаружи через __film.render()
   const now=performance.now(), dt=(now-pnPrev)/1000; pnPrev=now;
   if(PN.playing){
     let t=PN.t+dt*PN.speed/PN.dur;
@@ -1279,6 +1315,81 @@ renderer.setAnimationLoop(()=>{
   if(led&&led.tex){ led.tex.offset.x=(led.tex.offset.x+led.rate()*dt)%1; }
   controls.update(); renderer.render(scene,camera);
 });
+
+if(FILM){
+  window.__film={
+    THREE,scene,camera,renderer,controls,PN,
+    ready:()=>!!META,
+    storeys:()=>[...new Set(meshes.map(m=>m.userData.ex.storey))],
+    all(){ activeFloors.clear(); [...new Set(meshes.map(m=>m.userData.ex.storey))].forEach(f=>{ if(f!=='Удаленные') activeFloors.add(f); }); applyFilters(); },
+    only(list){ activeFloors.clear(); (list||[]).forEach(f=>activeFloors.add(f)); applyFilters(); },
+    cam(p,t){ camera.position.set(p[0],p[1],p[2]); controls.target.set(t[0],t[1],t[2]); camera.lookAt(t[0],t[1],t[2]); },
+    pneu(t){ pnSet(t); },
+    light(on){ flSetLight(on); },
+    mood(day){ scene.traverse(o=>{ if(o.isHemisphereLight) o.intensity=1.15*day; }); sun.intensity=1.6*day; fill.intensity=0.5*day; },
+    led(o){ const l=window.__led; if(l&&l.tex) l.tex.offset.x=o%1; },
+    buildInit(defs){                         // реестр анимации сборки концепции
+      renderer.localClippingEnabled=true;
+      const B=window.__build||(window.__build={});
+      const BB=new THREE.Box3();
+      (defs||[]).forEach(d=>{
+        const items=[];
+        meshes.forEach(m=>{
+          const st=m.userData&&m.userData.ex&&m.userData.ex.storey;
+          if(!st||d.storeys.indexOf(st)<0)return;
+          if(!m.userData.__bc){ m.material=m.material.clone(); m.userData.__bc=1; }
+          if(d.mode==='sink'){ m.material=m.material.clone(); items.push({m,y0:m.position.y}); m.visible=false; }
+          else if(d.mode==='fade'){ m.material.transparent=true; m.material.opacity=0; items.push({m}); }
+          else if(d.mode==='ghost'){ items.push({m}); }
+          else{ const pl=new THREE.Plane(new THREE.Vector3(0,-1,0),0);
+            m.material.clippingPlanes=[pl];
+            m.material.polygonOffset=true; m.material.polygonOffsetFactor=-1.5; m.material.polygonOffsetUnits=-2;
+            BB.setFromObject(m); items.push({m,pl,y0:BB.min.y,y1:BB.max.y}); }
+        });
+        B[d.name]={mode:d.mode,items};
+      });
+    },
+    build(name,frac){                        // frac 0..1: рост/вдавливание/появление группы
+      const b=(window.__build||{})[name]; if(!b)return;
+      const f=Math.max(0,Math.min(1,frac));
+      b.items.forEach(it=>{
+        if(b.mode==='sink'){ it.m.visible=f>0; it.m.position.y=it.y0+(1-f)*35;
+          const mt=it.m.material;
+          if('emissive' in mt){
+            if(f<1){ mt.emissive.setHex(0xc9a227); mt.emissiveIntensity=0.25+0.75*(1-f); }
+            else{ mt.emissiveIntensity=0; } } }
+        else if(b.mode==='ghost'){ const mt=it.m.material, op=Math.max(0.06,f);
+          mt.transparent=op<0.999; mt.opacity=op; mt.depthWrite=op>=0.999; }
+        else if(b.mode==='fade'){ const mt=it.m.material;
+          mt.opacity=f; if(f>=0.999){ mt.transparent=false; mt.opacity=1; } }
+        else{ it.pl.constant=it.y0+f*(it.y1-it.y0+0.01);
+          const mt=it.m.material;
+          if('emissive' in mt){
+            if(f<1){ mt.emissive.setHex(0xc9a227); mt.emissiveIntensity=0.55*(1-f); }
+            else{ mt.emissiveIntensity=0; }
+          }
+          if(f>=1)mt.clippingPlanes=null; }
+      });
+    },
+    render(){ controls.update(); renderer.render(scene,camera); },
+    fade(o){ document.getElementById('fFade').style.opacity=o; },
+    cap(k,t2,s2){ const c=document.getElementById('fCap');
+      if(!k&&!t2&&!s2){ c.classList.remove('on'); return; }
+      document.getElementById('fKick').textContent=k||'';
+      document.getElementById('fTitle').textContent=t2||'';
+      document.getElementById('fSub').textContent=s2||'';
+      c.classList.add('on'); },
+    card(on,o){ const bg=document.getElementById('fCardBG'),cd=document.getElementById('fCard');
+      if(on){ document.getElementById('fCKick').textContent=o.kick||'';
+        document.getElementById('fCTitle').textContent=o.title||'';
+        document.getElementById('fCSub').textContent=o.sub||'';
+        const q=document.getElementById('fQR'),ql=document.getElementById('fQRlbl');
+        if(o.qr){ q.src=o.qr; q.classList.add('on'); } else q.classList.remove('on');
+        if(o.qrlbl){ ql.textContent=o.qrlbl; ql.classList.add('on'); } else ql.classList.remove('on');
+        bg.classList.add('on'); cd.classList.add('on'); }
+      else { bg.classList.remove('on'); cd.classList.remove('on'); } }
+  };
+}
 </script>
 <script src="modules.js"></script>
 </body>
