@@ -14,7 +14,8 @@
   ];
   const IDLE_SEC=75;          // бездействие до возврата в автодемо
   const COUNTDOWN_SEC=15;     // за сколько секунд показать индикатор
-  const page=(location.pathname.split('/').pop()||'index.html');
+  let page=location.pathname.split('/').pop()||'index.html';
+  if(!/\.html?$/i.test(page))page+='.html';   /* Cloudflare отдаёт адреса без .html: /model → model.html */
   const isStand=(page==='stand.html');
   const fullKey=page+location.hash;
   /* точное совпадение с якорем важнее совпадения только по файлу */
@@ -100,7 +101,7 @@
   document.body.dataset.page=page;
 
   /* пейджер текущего модуля (тап — открыть меню) */
-  if(cur){
+  if(cur&&location.search.indexOf('film=1')<0){   /* в режиме съёмки ?film=1 пейджер не выводим */
     const pg=document.createElement('button');
     pg.id='gxPager';pg.setAttribute('aria-label','Меню модулей');
     pg.innerHTML='<b>'+cur.n+'</b><i>/ '+MODULES.length+'</i><span>'+(cur.short||cur.t)+'</span>';
