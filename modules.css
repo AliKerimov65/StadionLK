@@ -42,7 +42,7 @@
 #modMenu .mmFoot b{color:#c6ccdb;font-weight:600}
 
 /* idle: обратный отсчёт до автодемо + скрытие курсора */
-#idlePill{position:fixed;bottom:22px;right:22px;z-index:940;display:none;padding:10px 18px;border-radius:6px;
+#idlePill{position:fixed;bottom:calc(var(--lawH,24px) + 14px);right:22px;z-index:940;display:none;padding:10px 18px;border-radius:6px;
   background:rgba(13,20,36,.88);border:1px solid rgba(201,162,39,.5);color:#e8e6df;
   font:500 13px 'Inter',sans-serif;letter-spacing:.04em}
 #idlePill b{color:var(--mn-gold2)}
@@ -60,7 +60,7 @@ body.kioskIdle, body.kioskIdle *{cursor:none!important}
 #gxPtr.rdy{border-color:#e0bc45;box-shadow:0 0 26px rgba(201,162,39,.45)}
 #gxPtr.rdy svg{fill:#e0bc45}
 
-#gxPager{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:890;
+#gxPager{position:fixed;left:50%;bottom:calc(var(--lawH,24px) + 12px);transform:translateX(-50%);z-index:890;
   display:flex;align-items:baseline;gap:7px;padding:9px 16px;border-radius:999px;cursor:pointer;
   background:rgba(13,20,36,.82);border:1px solid rgba(201,162,39,.4);backdrop-filter:blur(6px);
   color:#e8e6df;font:600 12px 'Inter',system-ui,sans-serif;letter-spacing:.06em}
@@ -72,8 +72,8 @@ body[data-page="compare.html"] #gxPager{left:14px;transform:none}
 body[data-page="compare.html"] #gxPager:active{transform:scale(.95)}
 body[data-page="model.html"] #gxPager{left:auto;right:14px;transform:none}
 body[data-page="model.html"] #gxPager:active{transform:scale(.95)}
-body[data-page="model.html"] #idlePill{bottom:64px}
-@media(max-width:720px){#gxPager{bottom:10px;padding:8px 13px}}
+body[data-page="model.html"] #idlePill{bottom:calc(var(--lawH,24px) + 56px)}
+@media(max-width:720px){#gxPager{bottom:calc(var(--lawH,24px) + 10px);padding:8px 13px}}
 
 /* переходы между модулями */
 html.gx-out-l body,html.gx-out-r body{transition:transform .24s ease-in,opacity .24s ease-in}
@@ -104,3 +104,11 @@ html.gx-in-r body{animation:gxInR .38s ease-out}
   #modMenu .mmFoot{padding:12px 16px 16px;font-size:11.5px;gap:8px}
   #idlePill{bottom:auto;top:64px;right:12px;left:12px;text-align:center}
 }
+
+/* компактный футер: права + благотворительность (элемент создаётся в modules.js) */
+#gxLaw{position:fixed;left:0;right:0;bottom:0;z-index:34;padding:5px 12px;text-align:center;
+  font:10.5px/1.4 'Inter',system-ui,sans-serif;color:#8a93a8;background:rgba(5,8,16,.82);
+  border-top:1px solid rgba(201,162,39,.25)}
+#gxLaw b{color:#b9c0d4;font-weight:500}
+body{padding-bottom:calc(var(--lawH,24px) + 6px)}
+@media(max-width:720px){#gxLaw{font-size:9.5px;line-height:1.32;padding:4px 8px}body{padding-bottom:calc(var(--lawH,24px) + 6px)}}
