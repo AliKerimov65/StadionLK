@@ -53,9 +53,10 @@ a{color:var(--gold2);text-decoration:none}
 .fxChips i{display:block;font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em}
 .fxChips b{display:block;font-family:var(--mono);font-size:15px;color:var(--paper);margin-top:4px;font-weight:600}
 
-/* ---------- вкладки ---------- */
-.fxTabs{position:sticky;top:0;z-index:30;background:var(--navy2);border-bottom:1px solid var(--line);
-  display:flex;gap:2px;overflow-x:auto;padding:10px 0 0;scrollbar-width:none}
+/* ---------- подразделы: кнопки + слайдер ---------- */
+.fxTabsWrap{position:sticky;top:0;z-index:30;background:var(--navy2);border-bottom:1px solid var(--line);
+  display:flex;align-items:stretch;padding-top:10px}
+.fxTabs{flex:1;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .fxTabs::-webkit-scrollbar{display:none}
 .fxTab{flex:0 0 auto;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);
   font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
@@ -64,7 +65,14 @@ a{color:var(--gold2);text-decoration:none}
 .fxTab.cur{color:var(--gold2);border-bottom-color:var(--gold)}
 .fxTab.cur .dot{background:var(--gold2);animation:fxPulse 2.2s infinite}
 @keyframes fxPulse{0%,100%{box-shadow:0 0 0 0 rgba(224,188,69,.5)}50%{box-shadow:0 0 0 5px rgba(224,188,69,0)}}
-.fxPane{padding:26px 0 10px;animation:fxIn .45s cubic-bezier(.22,1,.36,1)}
+.fxArr{flex:0 0 auto;background:none;border:0;color:var(--gold2);font-family:var(--mono);font-size:17px;
+  padding:0 9px;cursor:pointer;line-height:1}
+.fxArr:disabled{color:var(--faint);opacity:.35;cursor:default}
+.fxArr:not(:disabled):hover{color:#fff}
+.fxStage{overflow:hidden}
+.fxTrack{display:flex;align-items:flex-start;will-change:transform;
+  transition:transform .38s cubic-bezier(.22,1,.36,1),height .3s ease}
+.fxPane{flex:0 0 100%;min-width:0;padding:26px 0 10px}
 @keyframes fxIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .fxPane h2{font-size:clamp(19px,2.2vw,25px);margin:0 0 6px;max-width:46ch}
 .fxPane .lead{color:var(--mut);font-size:14.5px;max-width:78ch}
@@ -159,6 +167,105 @@ a{color:var(--gold2);text-decoration:none}
 .fxSrc ol{margin:12px 0 0;padding-left:20px}
 .fxSrc li{font-size:12.5px;color:var(--mut);margin-bottom:7px}
 
+/* ---------- вместимость: график спроса и барьеры ---------- */
+.fxChart{border:1px solid var(--line);background:var(--panel);padding:16px;margin-top:16px}
+.fxChart svg{width:100%;height:auto;display:block}
+.fxGrow{transform-box:fill-box;transform-origin:50% 100%;animation:fxGrow .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes fxGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.fxBarr{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px}
+.fxBarr .b{border:1px solid var(--line);background:var(--panel);padding:14px 16px}
+.fxBarr .l{font-family:var(--mono);font-size:20px;color:var(--red);line-height:1}
+.fxBarr .b h3{margin:8px 0 5px;font-size:15.5px}
+.fxBarr .b p{margin:0;font-size:12.5px;color:var(--mut);line-height:1.5}
+
+/* ---------- вместимость: калибровка по аренам ---------- */
+.fxHB{border:1px solid var(--line);background:var(--panel);padding:6px 16px 14px;margin-top:16px}
+.fxHRow{display:grid;grid-template-columns:190px 1fr 96px;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.fxHRow:first-of-type{border-top:0}
+.fxHRow .who b{display:block;font-size:13.5px}
+.fxHRow .who i{display:block;font-style:normal;font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:2px;line-height:1.45}
+.fxHRow .trk{position:relative;height:20px;background:rgba(255,255,255,.05)}
+.fxHRow .fill2,.fxSRow .fill2{position:absolute;top:0;bottom:0;left:0;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.fxHRow .val{text-align:right}
+.fxHRow .val b{display:block;font-family:var(--mono);font-size:15px}
+.fxHRow .val i{display:block;font-style:normal;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:2px}
+.fillGood{background:linear-gradient(90deg,rgba(127,182,133,.45),#7fb685)}
+.fillMid{background:linear-gradient(90deg,rgba(201,162,39,.5),#e0bc45)}
+.fillBad{background:linear-gradient(90deg,rgba(194,59,42,.40),#c23b2a)}
+.fxZone{position:absolute;top:-4px;bottom:-4px;background:rgba(224,188,69,.10);border-left:1px dashed rgba(224,188,69,.55);border-right:1px dashed rgba(224,188,69,.55);pointer-events:none}
+.fxMlb{position:absolute;top:-6px;bottom:-6px;width:0;border-left:1px dashed rgba(255,255,255,.55);pointer-events:none}
+.fxLegend{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.fxLegend span::before{content:'';display:inline-block;width:14px;height:8px;margin-right:7px}
+.fxLegend .lgG::before{background:#7fb685}
+.fxLegend .lgM::before{background:#e0bc45}
+.fxLegend .lgB::before{background:#c23b2a}
+.fxLegend .lgZ::before{background:rgba(224,188,69,.12);border-left:1px dashed rgba(224,188,69,.6);border-right:1px dashed rgba(224,188,69,.6)}
+.fxLegend .lgL::before{background:none;border-top:1px dashed rgba(255,255,255,.55);height:0;vertical-align:3px}
+
+/* ---------- вместимость: факторная модель ---------- */
+.fxFGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:16px}
+.fxF{border:1px solid var(--line);background:var(--panel);padding:16px;display:flex;flex-direction:column}
+.fxF .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fxF .code{font-family:var(--mono);font-size:15px;color:var(--gold2)}
+.fxF h3{margin:9px 0 6px;font-size:15.5px;line-height:1.3}
+.fxF p{margin:0;font-size:12.5px;color:var(--mut);line-height:1.5;flex:1}
+.fxF .eff{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:16px;color:var(--gold2)}
+.fxF .src{margin-top:9px;font-family:var(--mono);font-size:9.5px;color:var(--faint);border-top:1px dashed var(--line);padding-top:8px;line-height:1.55}
+.fxBadge{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.bMeas{border:1px solid rgba(127,182,133,.5);color:var(--green)}
+.bLit{border:1px solid rgba(95,168,199,.5);color:var(--blue)}
+.bMod{border:1px solid rgba(217,162,74,.55);color:var(--amber)}
+.bReq{border:1px solid rgba(255,255,255,.25);color:var(--mut)}
+.fxConsole{margin-top:20px;border:1px solid rgba(201,162,39,.45);background:linear-gradient(180deg,rgba(201,162,39,.07),rgba(201,162,39,.02));padding:20px}
+.fxConsole .ttl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2)}
+.fxSPills{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 12px}
+.fxSPill{border:1px solid var(--line);background:none;color:var(--mut);border-radius:99px;padding:7px 13px;
+  font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:.03em}
+.fxSPill:hover{border-color:var(--gold);color:var(--paper)}
+.fxSPill.cur{border-color:var(--gold2);color:var(--gold2);background:rgba(201,162,39,.10)}
+.fxTogs{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px}
+.fxTog{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--navy2);padding:9px 12px;cursor:pointer;user-select:none}
+.fxTog .sw{width:30px;height:16px;border-radius:99px;background:rgba(255,255,255,.12);position:relative;flex:0 0 auto;transition:background .2s}
+.fxTog .sw::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:99px;background:var(--mut);transition:left .2s,background .2s}
+.fxTog.on .sw{background:rgba(201,162,39,.5)}
+.fxTog.on .sw::after{left:16px;background:var(--gold2)}
+.fxTog .tx b{display:block;font-family:var(--mono);font-size:11px;color:var(--paper);font-weight:600}
+.fxTog .tx i{display:block;font-style:normal;font-size:10.5px;color:var(--mut);margin-top:1px}
+.fxCalcOut{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:rgba(201,162,39,.30);border:1px solid rgba(201,162,39,.30);margin-top:16px}
+.fxCalcOut>div{background:var(--navy2);padding:12px 14px}
+.fxCalcOut i{display:block;font-style:normal;font-family:var(--mono);font-size:9.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em}
+.fxCalcOut b{display:block;font-family:var(--mono);font-size:19px;color:var(--gold2);margin-top:5px;font-weight:600}
+.fxCalcOut .s2{display:block;font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:2px}
+.fxCalcNote{margin-top:12px;font-size:12px;color:var(--mut);max-width:95ch;line-height:1.55}
+
+/* ---------- вместимость: сценарии ---------- */
+.fxScen{border:1px solid var(--line);background:var(--panel);padding:16px 18px;margin-top:14px}
+.fxScen .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.fxScen .hd h3{margin:0;font-size:16.5px}
+.fxScen .hd .calc{font-family:var(--mono);font-size:11.5px;color:var(--gold2)}
+.fxScen .rows{margin-top:12px;display:grid;gap:9px}
+.fxSRow{display:grid;grid-template-columns:160px 1fr 128px;gap:10px;align-items:center}
+.fxSRow .lb{font-family:var(--mono);font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.fxSRow .trk{position:relative;height:16px;background:rgba(255,255,255,.05)}
+.fxSRow .vl{font-family:var(--mono);font-size:12px;text-align:right;color:var(--paper)}
+.fxBand{position:absolute;top:0;bottom:0;background:rgba(194,59,42,.16);border-left:1px solid var(--red);border-right:1px solid var(--red);transition:left .9s cubic-bezier(.22,1,.36,1),width .9s cubic-bezier(.22,1,.36,1)}
+.fxWarn{margin-top:12px;font-size:12.5px;color:#e08a7d;border-left:2px solid var(--red);padding-left:10px}
+.fxCorridor{margin-top:20px;border:1px solid rgba(201,162,39,.5);background:rgba(201,162,39,.08);padding:16px 20px;
+  font-family:var(--mono);font-size:14px;color:var(--gold2);display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline}
+.fxCorridor b{font-size:22px;font-weight:600}
+
+/* ---------- вместимость: резерв и рекомендация ---------- */
+.fxVerdict{margin-top:18px;border:1px solid rgba(201,162,39,.45);background:linear-gradient(180deg,rgba(201,162,39,.09),transparent);padding:28px 22px;text-align:center}
+.fxVerdict .big{font-family:'Playfair Display','PT Serif',Georgia,serif;font-size:clamp(46px,7vw,84px);line-height:1;color:var(--gold2)}
+.fxVerdict .cap{font-family:var(--mono);font-size:12px;color:var(--mut);margin-top:10px}
+.fxVerdict .ext{margin-top:16px;display:inline-block;border:1px dashed rgba(224,188,69,.6);color:var(--gold2);border-radius:99px;padding:8px 18px;font-family:var(--mono);font-size:11.5px;line-height:1.5;max-width:640px}
+.fxScale{border:1px solid var(--line);background:var(--panel);padding:14px;margin-top:18px}
+.fxScale svg{width:100%;height:auto;display:block}
+.fxProg{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:8px}
+.fxProg div{border:1px solid var(--line);background:var(--navy2);padding:10px 13px;font-size:12.5px;color:var(--mut);display:flex;gap:10px;align-items:baseline;line-height:1.45}
+.fxProg div::before{content:'';flex:0 0 auto;width:8px;height:8px;border:1px solid var(--gold2);transform:rotate(45deg)}
+.fxBim{margin-top:16px;border-left:2px solid var(--green);background:rgba(127,182,133,.07);padding:12px 16px;font-size:13.5px;color:var(--paper);max-width:95ch}
+
 /* ---------- мобильная адаптация ---------- */
 @media(max-width:960px){
   .fxRail{position:static;width:auto;border-right:0;border-bottom:1px solid var(--line)}
@@ -171,8 +278,11 @@ a{color:var(--gold2);text-decoration:none}
   .fxScheme{position:static}
   .fxBig{text-align:left}
   .fxEv{grid-template-columns:56px 1fr;gap:10px}
+  .fxHRow{grid-template-columns:118px 1fr 78px}
+  .fxSRow{grid-template-columns:104px 1fr 96px}
+  .fxCalcOut b{font-size:16px}
 }
-@media print{.fxRail,.fxTabs,.fxVars{display:none}.fxMain{margin:0}}
+@media print{.fxRail,.fxTabsWrap,.fxVars{display:none}.fxMain{margin:0}.fxStage{overflow:visible}.fxTrack{display:block;transform:none!important;height:auto!important}}
 </style>
 </head>
 <body>
@@ -210,8 +320,13 @@ a{color:var(--gold2);text-decoration:none}
     renderFeature(f);
   }
 
-  /* ---------- шапка + вкладки ---------- */
+  /* ---------- шапка + кнопки подразделов + слайдер ---------- */
+  const R={plan:rPlan,cards:rCards,heat:rHeat,meshki:rMeshki,timeline:rTimeline,checklist:rChecklist,conclusions:rConclusions,
+    demand:rDemand,calib:rCalib,factors:rFactors,scenarios:rScenarios,reserve:rReserve,verdict:rVerdict};
+  let F=null,cur=0,track=null,stage=null,tabsBar=null,drag=null;
+
   function renderFeature(f){
+    F=f;
     const main=document.getElementById('fxMain');
     main.innerHTML=
       '<header class="fxHead">'+
@@ -221,29 +336,102 @@ a{color:var(--gold2);text-decoration:none}
         '<div class="fxMeta"><span class="fxStatus">'+f.status+'</span><span class="fxDate">'+f.date+'</span></div>'+
         '<div class="fxChips">'+f.chips.map(c=>'<div><i>'+c[0]+'</i><b>'+c[1]+'</b></div>').join('')+'</div>'+
       '</header>'+
+      '<div class="fxTabsWrap"><button class="fxArr" id="fxPrev" aria-label="Предыдущий подраздел">‹</button>'+
       '<nav class="fxTabs" id="fxTabs"></nav>'+
-      '<section class="fxPane" id="fxPane"></section>';
-    const tabs=document.getElementById('fxTabs');
-    f.tabs.forEach((t,i)=>{
+      '<button class="fxArr" id="fxNext" aria-label="Следующий подраздел">›</button></div>'+
+      '<div class="fxStage" id="fxStage"><div class="fxTrack" id="fxTrack"></div></div>';
+    tabsBar=document.getElementById('fxTabs');
+    stage=document.getElementById('fxStage');
+    track=document.getElementById('fxTrack');
+    /* все подразделы строятся сразу: слайдер листает готовые панели */
+    f.tabs.forEach(t=>{
       const b=document.createElement('button');
-      b.className='fxTab'+(i===0?' cur':'');
+      b.className='fxTab';
       b.innerHTML='<span class="dot"></span>'+t.label;
-      b.addEventListener('click',()=>{
-        tabs.querySelectorAll('.fxTab').forEach(x=>x.classList.remove('cur'));
-        b.classList.add('cur');renderTab(f,t);
-      });
-      tabs.appendChild(b);
+      b.addEventListener('click',()=>setTab(f.tabs.indexOf(t)));
+      tabsBar.appendChild(b);
+      const sec=document.createElement('section');
+      sec.className='fxPane';
+      sec.dataset.tab=t.id;
+      track.appendChild(sec);          /* сначала в DOM: рендереры ищут свои id по документу */
+      R[t.type](sec,f);
     });
-    renderTab(f,f.tabs[0]);
+    document.getElementById('fxPrev').addEventListener('click',()=>setTab(cur-1));
+    document.getElementById('fxNext').addEventListener('click',()=>setTab(cur+1));
+    bindSwipe();
+    if(window.ResizeObserver){
+      const ro=new ResizeObserver(en=>{en.forEach(e=>{if(e.target===track.children[cur])syncH()})});
+      Array.from(track.children).forEach(p=>ro.observe(p));
+    }
+    addEventListener('resize',()=>{setPos(false);syncH()});
+    let i0=0;
+    const qt=qp.get('t');
+    if(qt){const k=f.tabs.findIndex(t=>t.id===qt);if(k>=0)i0=k;}
+    setTab(i0,false);
     window.scrollTo({top:0});
   }
 
-  function renderTab(f,t){
-    const pane=document.getElementById('fxPane');
-    const R={plan:rPlan,cards:rCards,heat:rHeat,meshki:rMeshki,timeline:rTimeline,checklist:rChecklist,conclusions:rConclusions};
-    pane.innerHTML='';
-    R[t.type](pane,f);
+  function setPos(anim){
+    if(!anim)track.style.transition='none';
+    track.style.transform='translateX('+(-cur*100)+'%)';
+    if(!anim){void track.offsetHeight;track.style.transition='';}
   }
+  function syncH(){const p=track&&track.children[cur];if(p)track.style.height=p.offsetHeight+'px';}
+  function setTab(i,anim){
+    if(!F)return;
+    cur=Math.max(0,Math.min(F.tabs.length-1,i));
+    tabsBar.querySelectorAll('.fxTab').forEach((x,k)=>{
+      x.classList.toggle('cur',k===cur);
+      if(k===cur)x.scrollIntoView({block:'nearest',inline:'nearest'});
+    });
+    document.getElementById('fxPrev').disabled=(cur===0);
+    document.getElementById('fxNext').disabled=(cur===F.tabs.length-1);
+    setPos(anim!==false);
+    syncH();
+    history.replaceState(null,'','?f='+F.id+'&t='+F.tabs[cur].id);
+  }
+
+  /* свайп внутри раздела: живой драг, листает только подразделы */
+  function bindSwipe(){
+    stage.addEventListener('touchstart',e=>{
+      if(e.touches.length!==1)return;
+      if(e.target.closest('input,select,textarea,a,button,summary,label'))return;
+      const t=e.touches[0];
+      drag={x:t.clientX,y:t.clientY,dx:0,lock:null};
+    },{passive:true});
+    stage.addEventListener('touchmove',e=>{
+      if(!drag||e.touches.length!==1)return;
+      const t=e.touches[0],dx=t.clientX-drag.x,dy=t.clientY-drag.y;
+      if(!drag.lock){
+        if(Math.abs(dx)<10&&Math.abs(dy)<10)return;
+        drag.lock=(Math.abs(dx)>Math.abs(dy)*1.25)?'h':'v';
+      }
+      if(drag.lock!=='h')return;
+      e.preventDefault();
+      drag.dx=dx;
+      const W=stage.clientWidth;
+      let px=-cur*W+dx;
+      if((cur===0&&dx>0)||(cur===F.tabs.length-1&&dx<0))px=-cur*W+dx*.35;  /* упругость на краях */
+      track.style.transition='none';
+      track.style.transform='translateX('+px+'px)';
+    },{passive:false});
+    const end=()=>{
+      if(!drag)return;
+      const dx=drag.dx,lk=drag.lock;drag=null;
+      track.style.transition='';
+      if(lk==='h'&&Math.abs(dx)>56)setTab(cur+(dx<0?1:-1));
+      else{setPos(true);syncH();}
+    };
+    stage.addEventListener('touchend',end,{passive:true});
+    stage.addEventListener('touchcancel',end,{passive:true});
+  }
+
+  /* стрелки клавиатуры листают подразделы этого раздела */
+  document.addEventListener('keydown',e=>{
+    if(e.target&&e.target.closest&&e.target.closest('input,select,textarea'))return;
+    if(e.key==='ArrowRight')setTab(cur+1);
+    else if(e.key==='ArrowLeft')setTab(cur-1);
+  });
 
   function paneHead(pane,num,title,lead){
     pane.innerHTML='<span class="fxNum">'+num+'</span><h2>'+title+'</h2>'+(lead?'<p class="lead">'+lead+'</p>':'');
@@ -444,6 +632,191 @@ a{color:var(--gold2);text-decoration:none}
     pane.insertAdjacentHTML('beforeend','<ol class="fxConcl">'+f.conclusions.map(c=>'<li>'+c+'</li>').join('')+'</ol>');
     pane.insertAdjacentHTML('beforeend','<details class="fxSrc"><summary>Источники ('+f.sources.length+')</summary><ol>'+
       f.sources.map(s=>'<li>'+s+'</li>').join('')+'</ol></details>');
+  }
+
+  /* ===== Особенность 01 · вместимость: шесть блоков ===== */
+  function nfmt(n){return n.toLocaleString('ru-RU');}
+
+  /* ---------- 01 · спрос сейчас: график + барьеры ---------- */
+  function rDemand(pane,f){
+    const d=f.demand;
+    paneHead(pane,'01 / Базис','Фактический спрос: стадион 1967 года на 15 000 мест',d.note);
+    const W=860,H=400,base=320,k=260/11000,x0=70,slot=(W-110)/5,bw=66;
+    let bars='';
+    d.seasons.forEach((s,i)=>{
+      const x=x0+i*slot+(slot-bw)/2, h=s.avg*k, y=base-h, rpl=(s.lg==='РПЛ');
+      bars+='<rect class="fxGrow" style="animation-delay:'+(i*0.09)+'s" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" fill="'+(rpl?'rgba(224,188,69,.85)':'rgba(95,168,199,.55)')+'" stroke="'+(rpl?'#e0bc45':'#5fa8c7')+'" stroke-width="1"/>'
+        +'<text x="'+(x+bw/2)+'" y="'+(y-24).toFixed(1)+'" fill="'+(rpl?'#e0bc45':'#e8e6df')+'" font-size="15" font-family="var(--mono)" text-anchor="middle" font-weight="600">'+s.fill+' %</text>'
+        +'<text x="'+(x+bw/2)+'" y="'+(y-8).toFixed(1)+'" fill="#9aa3b8" font-size="10.5" font-family="var(--mono)" text-anchor="middle">'+nfmt(s.avg)+'</text>'
+        +'<text x="'+(x+bw/2)+'" y="'+(base+18)+'" fill="#e8e6df" font-size="12" font-family="var(--mono)" text-anchor="middle">'+s.s+'</text>'
+        +'<text x="'+(x+bw/2)+'" y="'+(base+33)+'" fill="#69707a" font-size="9.5" font-family="var(--mono)" text-anchor="middle">'+s.lg.toUpperCase()+'</text>';
+      if(s.peak){
+        const py=base-s.peak*k;
+        bars+='<line x1="'+(x-16)+'" y1="'+py.toFixed(1)+'" x2="'+(x+bw+16)+'" y2="'+py.toFixed(1)+'" stroke="#e0bc45" stroke-width="1" stroke-dasharray="4 3"/>'
+          +'<path d="M'+(x+bw/2)+','+(py-8).toFixed(1)+' l6,8 l-6,8 l-6,-8 z" fill="#e0bc45"/>'
+          +'<text x="'+(x+bw/2)+'" y="'+(py-16).toFixed(1)+'" fill="#e0bc45" font-size="9.5" font-family="var(--mono)" text-anchor="middle">ПИК '+nfmt(s.peak)+'</text>';
+      }
+    });
+    const ry=base-7723*k;
+    const svg='<svg viewBox="0 0 '+W+' '+H+'">'
+      +'<line x1="40" y1="'+base+'" x2="'+(W-30)+'" y2="'+base+'" stroke="rgba(255,255,255,.25)"/>'
+      +'<line x1="40" y1="'+ry.toFixed(1)+'" x2="'+(W-30)+'" y2="'+ry.toFixed(1)+'" stroke="rgba(224,188,69,.4)" stroke-width="1" stroke-dasharray="2 5"/>'
+      +'<text x="'+(W-32)+'" y="'+(ry-6).toFixed(1)+'" fill="#c9a227" font-size="9.5" font-family="var(--mono)" text-anchor="end">РПЛ НА СТАРОМ СТАДИОНЕ: ×2,1 К СРЕДНЕЙ ФНЛ</text>'
+      +bars
+      +'<text x="42" y="30" fill="#69707a" font-size="9.5" font-family="var(--mono)">СТОЛБЕЦ — СРЕДНЯЯ ПОСЕЩАЕМОСТЬ, ЧЕЛ/МАТЧ · ПОДПИСЬ НАД СТОЛБЦОМ — ЗАПОЛНЯЕМОСТЬ 15 000</text>'
+      +'</svg>';
+    pane.insertAdjacentHTML('beforeend','<div class="fxChart">'+svg+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxBarr">'+d.barriers.map(b=>
+      '<div class="b"><span class="l">'+b[0]+'</span><h3>'+b[1]+'</h3><p>'+b[2]+'</p></div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxFoot">'+d.foot+'</div>');
+  }
+
+  /* ---------- 02 · калибровка: бары заполняемости ---------- */
+  function rCalib(pane,f){
+    const c=f.calib;
+    paneHead(pane,'02 / Эталоны','Какая заполняемость считается здоровой',c.lead);
+    const rows=c.arenas.map(a=>
+      '<div class="fxHRow"><div class="who"><b>'+a.club+'</b><i>'+a.arena+' · '+a.tag+'</i></div>'+
+      '<div class="trk"><div class="fxZone" style="left:55%;width:10%"></div><div class="fxMlb" style="left:70%"></div>'+
+      '<div class="fill2 fill'+(a.cls==='good'?'Good':a.cls==='mid'?'Mid':'Bad')+'" data-w="'+a.fill+'"></div></div>'+
+      '<div class="val"><b style="color:'+(a.cls==='good'?'#7fb685':a.cls==='mid'?'#e0bc45':'#e08a7d')+'">'+a.fill+' %</b><i>'+nfmt(a.avg)+' из '+nfmt(a.cap)+'</i></div></div>').join('');
+    pane.insertAdjacentHTML('beforeend','<div class="fxHB">'+rows+'</div>'
+      +'<div class="fxLegend"><span class="lgG">эталон размерности</span><span class="lgM">средний уровень</span>'
+      +'<span class="lgB">анти-пример ЧМ-2018</span><span class="lgZ">целевая зона проекта 55–65 %</span><span class="lgL">MLB: эталон массового спорта 70 %</span></div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxCards">'+c.facts.map(x=>
+      '<div class="c"><span class="k">'+x[0]+'</span><span class="v">'+x[1]+'</span></div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxBarr">'+c.points.map((p,i)=>
+      '<div class="b"><span class="l" style="color:var(--gold2);font-size:14px">0'+(i+1)+'</span><p style="margin-top:6px">'+p+'</p></div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxFoot">'+c.foot+'</div>');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      pane.querySelectorAll('.fill2').forEach(el=>{el.style.width=el.dataset.w+'%'});
+    }));
+  }
+
+  /* ---------- 03 · факторная модель: карточки + консоль ---------- */
+  function rFactors(pane,f){
+    const d=f.factors;
+    paneHead(pane,'03 / Модель','Семь факторов: как качество арены двигает посещаемость',d.lead);
+    pane.insertAdjacentHTML('beforeend','<div class="fxFGrid">'+d.list.map(x=>
+      '<div class="fxF"><div class="hd"><span class="code">'+x.code+'</span><span class="fxBadge '+x.cls+'">'+x.badge+'</span></div>'+
+      '<h3>'+x.title+'</h3><p>'+x.mech+'</p><span class="eff">'+x.eff+'</span><div class="src">'+x.src+'</div></div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend',
+      '<div class="fxConsole"><span class="ttl">Консоль модели · соберите произведение факторов</span>'+
+      '<div class="fxSPills" id="fxCPills">'+d.console.scen.map((s,i)=>
+        '<button class="fxSPill'+(i===1?' cur':'')+'" data-i="'+i+'">'+s.label+'</button>').join('')+'</div>'+
+      '<div class="fxTogs" id="fxCTogs">'+d.list.filter(x=>x.tog).map(x=>
+        '<div class="fxTog on" data-v="'+x.val+'" role="switch" aria-checked="true"><span class="sw"></span>'+
+        '<span class="tx"><b>'+x.code+' · +'+x.val+' %</b><i>'+x.title+'</i></span></div>').join('')+'</div>'+
+      '<div class="fxCalcOut">'+
+        '<div><i>База сценария</i><b id="fxCBase">—</b><span class="s2">чел/матч</span></div>'+
+        '<div><i>Множитель факторов</i><b id="fxCProd">—</b><span class="s2">F3 × F4 × F5 × F7</span></div>'+
+        '<div><i>Средний спрос</i><b id="fxCAvg">—</b><span class="s2">чел/матч</span></div>'+
+        '<div><i>Вместимость при 60 %</i><b id="fxCCap">—</b><span class="s2">мест</span></div>'+
+        '<div><i>Пики ×1,7–2,0</i><b id="fxCPeak">—</b><span class="s2">мест</span></div>'+
+      '</div>'+
+      '<div class="fxCalcNote">'+d.note+'</div></div>');
+    let si=1;
+    const pills=Array.from(pane.querySelectorAll('.fxSPill'));
+    const togs=Array.from(pane.querySelectorAll('.fxTog'));
+    const r100=x=>Math.round(x/100)*100;
+    function recalc(){
+      const sc=d.console.scen[si];
+      let prod=1;
+      togs.forEach(t=>{if(t.classList.contains('on'))prod*=1+(+t.dataset.v)/100});
+      const avg=r100(r100(sc.base*prod)*(sc.boost||1)); /* порядок округления как в записке: сначала средняя РПЛ, потом рост лиги */
+      const cap=avg/0.6, p1=avg*1.7, p2=avg*2.0;
+      pane.querySelector('#fxCBase').textContent=nfmt(Math.round(sc.base*(sc.boost||1)));
+      pane.querySelector('#fxCProd').textContent='× '+prod.toFixed(2);
+      pane.querySelector('#fxCAvg').textContent='≈ '+nfmt(avg);
+      pane.querySelector('#fxCCap').textContent='≈ '+nfmt(r100(cap));
+      pane.querySelector('#fxCPeak').textContent=nfmt(r100(p1))+'–'+nfmt(r100(p2));
+    }
+    pills.forEach(p=>p.addEventListener('click',()=>{
+      si=+p.dataset.i;pills.forEach(x=>x.classList.toggle('cur',x===p));recalc();
+    }));
+    togs.forEach(t=>t.addEventListener('click',()=>{
+      t.classList.toggle('on');t.setAttribute('aria-checked',t.classList.contains('on'));recalc();
+    }));
+    recalc();
+  }
+
+  /* ---------- 04 · сценарии спроса ---------- */
+  function rScenarios(pane,f){
+    const d=f.scenarios, A=d.axis;
+    paneHead(pane,'04 / Размерность','Сценарии спроса: вместимость строится под пики',d.lead);
+    const zx=d.corridor;
+    d.list.forEach(s=>{
+      const row=(lb,html,vl)=>'<div class="fxSRow"><span class="lb">'+lb+'</span><div class="trk">'+html+'</div><span class="vl">'+vl+'</span></div>';
+      const zone='<div class="fxZone" style="left:'+(zx[0]/A*100).toFixed(1)+'%;width:'+((zx[1]-zx[0])/A*100).toFixed(1)+'%"></div>';
+      pane.insertAdjacentHTML('beforeend',
+        '<div class="fxScen"><div class="hd"><h3>'+s.name+'</h3><span class="calc">'+s.calc+'</span></div><div class="rows">'
+        +row('Средний спрос', zone+'<div class="fill2 fillMid" data-w="'+(s.avg/A*100).toFixed(1)+'" style="background:linear-gradient(90deg,rgba(95,168,199,.45),#5fa8c7)"></div>', nfmt(s.avg))
+        +row('Вместимость · 60 %', zone+'<div class="fill2 fillMid" data-w="'+(s.cap/A*100).toFixed(1)+'"></div>', nfmt(s.cap))
+        +row('Пиковые матчи', zone+'<div class="fxBand" data-lo="'+(s.peak[0]/A*100).toFixed(1)+'" data-w="'+((s.peak[1]-s.peak[0])/A*100).toFixed(1)+'"></div>', nfmt(s.peak[0])+'–'+nfmt(s.peak[1]))
+        +'</div>'+(s.warn?'<div class="fxWarn">'+s.warn+'</div>':'')+'</div>');
+    });
+    pane.insertAdjacentHTML('beforeend','<div class="fxCorridor"><span>РАСЧЁТНЫЙ КОРИДОР ПО СПРОСУ</span><b>18 000–22 000 мест</b><span>ПОКРЫТИЕ ПИКОВ НА УРОВНЕ 90–95-ГО ПЕРЦЕНТИЛЯ</span></div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxFoot">'+d.foot+'</div>');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      pane.querySelectorAll('.fill2').forEach(el=>{el.style.width=el.dataset.w+'%'});
+      pane.querySelectorAll('.fxBand').forEach(el=>{el.style.left=el.dataset.lo+'%';el.style.width=el.dataset.w+'%'});
+    }));
+  }
+
+  /* ---------- 05 · резерв на десятилетия ---------- */
+  function rReserve(pane,f){
+    const d=f.reserve, g=d.diagram;
+    paneHead(pane,'05 / Горизонт 50 лет','Почему расчётный коридор сдвигается вверх',d.lead);
+    const W=860,x0=60,x1=800,k=(x1-x0)/(g.axis[1]-g.axis[0]);
+    const X=v=>x0+(v-g.axis[0])*k;
+    const svg='<svg viewBox="0 0 '+W+' 210">'
+      +'<rect x="'+X(g.from[0]).toFixed(1)+'" y="86" width="'+((g.from[1]-g.from[0])*k).toFixed(1)+'" height="30" fill="rgba(95,168,199,.18)" stroke="#5fa8c7"/>'
+      +'<rect x="'+X(g.to[0]).toFixed(1)+'" y="86" width="'+((g.to[1]-g.to[0])*k).toFixed(1)+'" height="30" fill="rgba(224,188,69,.18)" stroke="#e0bc45" stroke-width="1.5"/>'
+      +'<path d="M'+(X(g.from[1])+8).toFixed(1)+',70 L'+(X(g.to[1])-8).toFixed(1)+',70" stroke="#e0bc45" stroke-width="1.5" marker-end="url(#fxArr2)"/>'
+      +'<text x="'+((X(g.from[1])+X(g.to[1]))/2).toFixed(1)+'" y="58" fill="#e0bc45" font-size="12" font-family="var(--mono)" text-anchor="middle">СТРАТЕГИЧЕСКИЙ РЕЗЕРВ '+g.shift+'</text>'
+      +'<text x="'+((X(g.from[0])+X(g.from[1]))/2).toFixed(1)+'" y="140" fill="#5fa8c7" font-size="11" font-family="var(--mono)" text-anchor="middle">РАСЧЁТНЫЙ КОРИДОР ПО СПРОСУ</text>'
+      +'<text x="'+((X(g.from[0])+X(g.from[1]))/2).toFixed(1)+'" y="155" fill="#9aa3b8" font-size="10.5" font-family="var(--mono)" text-anchor="middle">18 000–22 000</text>'
+      +'<text x="'+((X(g.to[0])+X(g.to[1]))/2).toFixed(1)+'" y="140" fill="#e0bc45" font-size="11" font-family="var(--mono)" text-anchor="middle">ПРОЕКТНЫЙ КОРИДОР</text>'
+      +'<text x="'+((X(g.to[0])+X(g.to[1]))/2).toFixed(1)+'" y="155" fill="#e8e6df" font-size="10.5" font-family="var(--mono)" text-anchor="middle">21 000–26 000</text>'
+      +'<line x1="'+x0+'" y1="180" x2="'+x1+'" y2="180" stroke="rgba(255,255,255,.25)"/>'
+      +[15000,18000,21000,22000,26000,28000].map(v=>
+        '<text x="'+X(v).toFixed(1)+'" y="196" fill="#69707a" font-size="9.5" font-family="var(--mono)" text-anchor="middle">'+nfmt(v)+'</text>').join('')
+      +'<defs><marker id="fxArr2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#e0bc45"/></marker></defs>'
+      +'</svg>';
+    pane.insertAdjacentHTML('beforeend','<div class="fxChart">'+svg+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxBarr">'+d.cards.map(c=>
+      '<div class="b"><h3 style="margin-top:0">'+c[0]+'</h3><p>'+c[1]+'</p></div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxFoot">'+d.foot+'</div>');
+  }
+
+  /* ---------- 06 · рекомендация ---------- */
+  function rVerdict(pane,f){
+    const d=f.verdict, g=d.scale;
+    paneHead(pane,'06 / Итог разбора','Рекомендация по вместимости','Верхняя половина проектного коридора: спрос покрыт с запасом, атмосфера и эксплуатационная нагрузка сохранены.');
+    pane.insertAdjacentHTML('beforeend',
+      '<div class="fxVerdict"><div class="big">'+d.rec+'</div><div class="cap">'+d.recSub+'</div>'+
+      '<div><span class="ext">'+d.ext+'</span></div></div>');
+    const W=860,H=240,x0=60,x1=800,k=(x1-x0)/(g.axis[1]-g.axis[0]),yb=170;
+    const X=v=>x0+(v-g.axis[0])*k;
+    const colors={gray:'#69707a',blue:'#5fa8c7',green:'#7fb685',gold:'#e0bc45',goldO:'#e0bc45'};
+    const labelY={15000:96,22000:58,23648:96,25000:40,28000:70};
+    let mk='';
+    g.markers.forEach(m=>{
+      const v=m[0],t=m[1],c=colors[m[2]],x=X(v),ly=labelY[v]||70;
+      mk+='<line x1="'+x.toFixed(1)+'" y1="'+ly+'" x2="'+x.toFixed(1)+'" y2="'+yb+'" stroke="'+c+'" stroke-width="'+(m[2]==='gold'?2.5:1.3)+'"'+(m[2]==='goldO'?' stroke-dasharray="5 4"':'')+'/>'
+        +'<circle cx="'+x.toFixed(1)+'" cy="'+yb+'" r="'+(m[2]==='gold'?5:3.5)+'" fill="'+c+'"/>'
+        +'<text x="'+x.toFixed(1)+'" y="'+(ly-6)+'" fill="'+c+'" font-size="'+(m[2]==='gold'?12:10)+'" font-family="var(--mono)" text-anchor="middle" font-weight="'+(m[2]==='gold'?'600':'400')+'">'+t.toUpperCase()+'</text>'
+        +'<text x="'+x.toFixed(1)+'" y="'+(yb+20)+'" fill="'+(m[2]==='gray'?'#69707a':'#e8e6df')+'" font-size="10.5" font-family="var(--mono)" text-anchor="middle">'+nfmt(v)+'</text>';
+    });
+    const svg='<svg viewBox="0 0 '+W+' '+H+'">'
+      +'<defs><pattern id="fxHatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="rgba(194,59,42,.5)" stroke-width="1"/></pattern></defs>'
+      +'<rect x="'+X(g.redzone[0]).toFixed(1)+'" y="'+(yb-26)+'" width="'+((g.redzone[1]-g.redzone[0])*k).toFixed(1)+'" height="26" fill="url(#fxHatch)"/>'
+      +'<text x="'+((X(g.redzone[0])+X(g.redzone[1]))/2).toFixed(1)+'" y="'+(yb-36)+'" fill="#e08a7d" font-size="9.5" font-family="var(--mono)" text-anchor="middle">НИЖЕ 21 000 — ПОВТОРНАЯ РЕКОНСТРУКЦИЯ УЖЕ К 2040-М</text>'
+      +'<line x1="'+x0+'" y1="'+yb+'" x2="'+x1+'" y2="'+yb+'" stroke="rgba(255,255,255,.25)"/>'
+      +mk+'</svg>';
+    pane.insertAdjacentHTML('beforeend','<div class="fxScale">'+svg+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxProg">'+d.program.map(p=>'<div>'+p+'</div>').join('')+'</div>');
+    pane.insertAdjacentHTML('beforeend','<div class="fxBim">'+d.bim+'</div>');
   }
 
   renderAll();
