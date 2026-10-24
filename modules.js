@@ -5,7 +5,7 @@
     {n:2,href:'compare.html',      img:'now_aerial',        t:'Сейчас / Будет',      s:'Полноэкранное сравнение: объект 1967 года и образ после модернизации'},
     {n:3,href:'architecture.html', img:'arch_views',        t:'Архитектура · 3D виды', short:'3D виды', s:'Общие виды модели, фасады BIM, слайдеры «до / после», зонирование и концепция модернизации'},
     {n:4,href:'model.html',        img:'bim_model',         t:'Концепция - BIM модель', short:'Концепция · BIM', s:'Цифровой двойник существующего стадиона · 8 слоёв по проекту П-01-16-1-АР + концепции: пневмопокрытие с анимацией развёртывания, медиакубы, прожекторы под фермами (FIFA A, 224 шт) · фильтры, поиск, сечение'},
-    {n:5,href:'index.html#construct',img:'future_aerial2',  t:'Конструктив',         s:'Восемь опорных ног · буронабивные сваи · подвешенная крыша'},
+    {n:5,href:'features.html',blank:true,img:'future_aerial2',t:'Конструктивно-технические особенности',short:'Особенности · КТО',s:'Интерактивные разборы инженерных решений: выдвижное пневмопокрытие — оценка для климата Красноярска, снеговые мешки, сценарий +10 °C'},
     {n:6,href:'index.html#assembly', img:'build_anim',      t:'Сборка концепции',    short:'Сборка · ролик', s:'Анимация сборки модели за 84 секунды: сваи, пилоны, фермы, навес, встройка, кресла, медиа и пневмопокрытие'},
     {n:7,href:'budget.html',       img:'budget_algo',       t:'Бюджет и сроки',      s:'5,0 млрд ₽ с НДС · 22 месяца · маршрут по ГрК РФ от ТЗ до ввода в эксплуатацию'},
     {n:8,href:'index.html',        img:'now_bridge',        t:'Полная презентация',  s:'Лонгрид проекта: наследие, поворот поля, трибуны, крыша, сроки'},
@@ -33,7 +33,7 @@
     '<span class="mmForum">Форум «Россия — спортивная держава» · Красноярск<br>Стадион им. Ленинского комсомола · АНИИГБ им. М. В. Кима</span>'+
     '<button class="mmClose" title="Закрыть (Esc)">✕</button></div>'+
     '<div class="mmGrid">'+MODULES.map(m=>
-      '<a class="mmCard'+(cur&&cur.n===m.n?' cur':'')+'" href="'+m.href+'" data-key="'+m.n+'">'+
+      '<a class="mmCard'+(cur&&cur.n===m.n?' cur':'')+'" href="'+m.href+'" data-key="'+m.n+'"'+(m.blank?' target="_blank" rel="noopener"':'')+'>'+
       '<span class="mmKey">'+m.n+'</span>'+
       '<span class="mmThumb"><img data-img="'+m.img+'" alt=""></span>'+
       '<span class="mmBody"><b>'+m.t+'</b><span>'+m.s+'</span></span></a>').join('')+
@@ -67,7 +67,7 @@
     if(e.key==='Escape'){setOpen(!open);return}
     if(open&&/^[0-9]$/.test(e.key)){
       const k=e.key==='0'?10:+e.key;
-      const m=MODULES.find(x=>x.n===k);if(m)location.href=m.href;
+      const m=MODULES.find(x=>x.n===k);if(m){if(m.blank)window.open(m.href,'_blank','noopener');else location.href=m.href}
     }
   });
 
