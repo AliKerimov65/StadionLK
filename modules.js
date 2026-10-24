@@ -207,18 +207,37 @@
   document.addEventListener('touchcancel',()=>{g=null;ptrHide()},{passive:true});
 })();
 
-/* ===== Компактный футер: права и благотворительность (все страницы) ===== */
+/* ===== Компактный футер: права, благотворительность, счётчик посетителей ===== */
 (function(){
+  function showCnt(n){
+    const s=n.toLocaleString('ru-RU');
+    [['gxLawCntRow','gxLawCnt'],['footCntRow','footCnt']].forEach(function(p){
+      const row=document.getElementById(p[0]),el=document.getElementById(p[1]);
+      if(row&&el){el.textContent=s;row.style.display='';}
+    });
+  }
+  async function cnt(){
+    if(!/^https?:$/.test(location.protocol))return;
+    try{
+      let r;
+      if(sessionStorage.getItem('gxHit'))r=await fetch('/hit');
+      else{r=await fetch('/hit',{method:'POST'});if(r.ok)sessionStorage.setItem('gxHit','1');}
+      if(!r.ok)return;
+      const j=await r.json();
+      if(j&&typeof j.v==='number')showCnt(j.v);
+    }catch(e){}
+  }
   function lawBar(){
     if(document.getElementById('gxLaw'))return;
     const d=document.createElement('div');
     d.id='gxLaw';
-    d.innerHTML='© 2026 АНО «АНИИГБ» им. М. В. Кима, Керимов А. Г. · Все права защищены · <b>Модель-концепт: благотворительность и поддержка ФК «Енисей» (Красноярск)</b>';
+    d.innerHTML='© 2026 АНО «АНИИГБ» им. М. В. Кима · Все права защищены · <b>Модель-концепт: благотворительность и поддержка ФК «Енисей» (Красноярск)</b><span id="gxLawCntRow" style="display:none"> · Посетителей: <b id="gxLawCnt"></b></span>';
     document.body.appendChild(d);
     const setH=()=>document.documentElement.style.setProperty('--lawH',d.offsetHeight+'px');
     setH();
     if(window.ResizeObserver)new ResizeObserver(setH).observe(d);
     addEventListener('resize',setH);
+    cnt();
   }
   if(document.body)lawBar();
   else document.addEventListener('DOMContentLoaded',lawBar);
