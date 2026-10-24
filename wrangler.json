@@ -1,0 +1,9 @@
+{
+  "name": "stadionlk",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-19",
+  "assets": { "directory": "./" },
+  "kv_namespaces": [
+    { "binding": "COUNTER", "id": "fb02ebd580c3422caba2748362a684b6" }
+  ]
+}
