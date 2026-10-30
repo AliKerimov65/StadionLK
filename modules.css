@@ -93,8 +93,8 @@ html.gx-in-r body{animation:gxInR .38s ease-out}
   #modMenu .mmHead .mmForum{display:none}
   #modMenu .mmClose{width:48px;height:48px}
   #modMenu .mmGrid{padding:14px 16px;gap:12px;grid-template-columns:1fr}
-  .mmCard{display:grid;grid-template-columns:104px 1fr;align-items:center;min-height:84px}
-  .mmCard .mmThumb{height:84px;width:104px}
+  .mmCard{display:grid;grid-template-columns:104px 1fr;align-items:center;min-height:96px}
+  .mmCard .mmThumb{height:96px;width:104px}
   .mmCard .mmBody{padding:10px 14px}
   .mmCard .mmBody b{font-size:15.5px}
   .mmCard .mmBody span{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

@@ -70,7 +70,7 @@ body.vidmode #hud,body.vidmode .progTick,body.vidmode #sndBtn{display:none!impor
 #pauseHint.paused{color:#e0bc45}
 
 /* звук */
-#sndBtn{position:fixed;top:18px;right:18px;z-index:910;display:flex;align-items:center;gap:10px;
+#sndBtn{position:fixed;top:18px;right:72px;z-index:910;display:flex;align-items:center;gap:10px;
   padding:12px 18px;background:rgba(13,20,36,.85);border:1px solid rgba(201,162,39,.45);border-radius:6px;
   color:#f0ead6;font:600 12px 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 #sndBtn:hover{border-color:#c9a227}
@@ -89,7 +89,7 @@ body.vidmode #hud,body.vidmode .progTick,body.vidmode #sndBtn{display:none!impor
 @media(max-width:760px){#capWrap{max-width:88%;bottom:12%}#hud{top:auto;bottom:24%;right:4%}
   #hud .chip{padding:10px 16px}
   #pauseHint{display:none}
-  #sndBtn{top:12px;right:12px;padding:10px 12px;font-size:11px}
+  #sndBtn{top:12px;right:66px;padding:10px 12px;font-size:11px}
   #card{width:92vw;padding:30px 22px}
   #cQR{width:96px;height:96px}}
 </style>
@@ -318,7 +318,7 @@ function buildCameras(){
 /* ================= СЦЕНАРИЙ ================= */
 const PH=[
  {t0:0.000,t1:0.089,card:'open',
-  cap:['','Модернизация Центрального стадиона КУОР','Красноярск · остров Отдыха · концептуальные предложения · 2026']},
+  cap:['','Модернизация Центрального стадиона ККОР','Красноярск · остров Отдыха · концептуальные предложения · 2026']},
  {t0:0.089,t1:0.233,voice:1,
   cap:['Наследие','Стадион 1967 года — объект культурного наследия','Реставрация и приспособление 2016–2017 гг. (П-01-16-1-АР) · наследие сохраняем, а не сносим']},
  {t0:0.233,t1:0.356,img:'plan_rotation',voice:2,
@@ -337,10 +337,10 @@ const PH=[
 const CARDS={
  open:{kick:'Форум «Россия — спортивная держава» · Красноярск',
    title:'СТАДИОН ИМ. ЛЕНИНСКОГО КОМСОМОЛА',
-   sub:'Концепция модернизации Центрального стадиона КУОР · АНО «АНИИГБ» им. М. В. Кима · директор / ГИП Керимов А. Г.',qr:false},
+   sub:'Концепция модернизации Центрального стадиона ККОР · АНО «АНИИГБ» им. М. В. Кима · директор / ГИП Керимов А. Г.',qr:false},
  close:{kick:'Проект готов к реализации',
    title:'ФОРУМ «РОССИЯ — СПОРТИВНАЯ ДЕРЖАВА»',
-   sub:'Красноярск · модернизация Центрального стадиона КУОР · демонстрация повторяется автоматически',qr:true}
+   sub:'Красноярск · модернизация Центрального стадиона ККОР · демонстрация повторяется автоматически',qr:true}
 };
 
 /* ================= DOM ================= */
@@ -561,5 +561,6 @@ function animate(now){
   requestAnimationFrame(animate);
 })();
 </script>
+<script src="site-menu.js" defer></script>
 </body>
 </html>
