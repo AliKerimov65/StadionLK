@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/vomirek/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/img/vomirek/icon-192.png">
+<link rel="apple-touch-icon" href="assets/img/vomirek/icon-180.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стадион сегодня · Стадион им. Ленинского комсомола, Красноярск</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="modules.css">
+<style>
+:root{
+  --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45;
+  --paper:#f4f1ea; --ink:#1c2438; --red:#c23b2a; --grey:#8a93a8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--navy2);color:#e8e6df;line-height:1.65}
+h1,h2,h3,.serif{font-family:'Playfair Display','PT Serif',Georgia,serif}
+a{color:var(--gold2)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* ---------- верхняя строка ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:20px;
+  padding:14px 30px;background:rgba(13,20,36,.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(201,162,39,.25)}
+.topbar .brand{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;letter-spacing:.04em;color:#f0ead6;white-space:nowrap}
+.topbar .brand b{color:var(--gold)}
+.topbar a.enter{margin-left:auto;color:var(--navy2);background:var(--gold);padding:7px 14px;border-radius:2px;
+  font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none}
+.topbar a.enter:hover{background:var(--gold2)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:64vh;display:flex;align-items:flex-end;overflow:hidden}
+.hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(rgba(10,15,28,.25),rgba(10,15,28,.94) 78%)}
+.hero .inner{position:relative;z-index:2;padding:150px 0 52px;width:100%}
+.kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2)}
+.hero h1{font-size:clamp(30px,4.6vw,60px);font-weight:900;color:#f4efdd;line-height:1.12;max-width:900px;margin-top:12px}
+.hero h1 span{color:var(--gold)}
+.hero .sub{margin-top:14px;color:#c6ccdb;font-size:clamp(14px,1.4vw,18px);max-width:760px}
+
+/* ---------- цифры ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid rgba(201,162,39,.3);border-bottom:1px solid rgba(201,162,39,.3);background:var(--navy)}
+.stats div{padding:26px 18px;text-align:center;border-right:1px solid rgba(255,255,255,.06)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font-family:'Playfair Display',serif;font-size:clamp(24px,2.6vw,38px);color:var(--gold);font-weight:700}
+.stats span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#a8b0c4}
+
+/* ---------- секции ---------- */
+section{padding:72px 0 8px}
+h2{font-size:clamp(24px,3vw,40px);color:#f0ead6;font-weight:700;line-height:1.2;margin:10px 0 18px}
+h2 span{color:var(--gold)}
+.lead{font-size:clamp(15px,1.5vw,18px);color:#c6ccdb;max-width:840px}
+.cols{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:start}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.txt p{margin-bottom:14px;color:#c6ccdb;font-size:15.5px}
+.txt b{color:#f0ead6}
+.txt .hl{color:var(--gold2)}
+
+/* ---------- фото ---------- */
+figure{margin:0 0 20px;border:1px solid rgba(201,162,39,.3);background:var(--navy)}
+figure .ph{aspect-ratio:3/2;overflow:hidden}
+figure img{width:100%;height:100%;object-fit:cover;display:block}
+figcaption{padding:10px 14px;font-size:12.5px;color:#a8b0c4;letter-spacing:.04em}
+
+/* ---------- видео ---------- */
+.video-box{margin-top:22px;border:1px solid rgba(201,162,39,.45);background:#000;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.video-box video{width:100%;max-height:76vh;display:block}
+.video-cap{padding:12px 16px;background:var(--navy);font-size:13px;color:#a8b0c4;letter-spacing:.04em}
+
+/* ---------- карточки ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:26px}
+.card{background:var(--navy);border:1px solid rgba(201,162,39,.28);padding:22px 22px 18px}
+.card h3{font-size:17px;color:#f0ead6;margin-bottom:8px}
+.card p{font-size:14px;color:#b9c0d4}
+.card .n{font-family:'Playfair Display',serif;color:var(--gold);font-size:26px;font-weight:700;display:block;margin-bottom:6px}
+
+/* ---------- события ---------- */
+.events{margin-top:30px;border-top:1px solid rgba(255,255,255,.08)}
+.ev{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.ev b{font-family:'Playfair Display',serif;color:var(--gold);font-size:19px}
+.ev p{font-size:14.5px;color:#c6ccdb}
+@media(max-width:640px){.ev{grid-template-columns:76px 1fr}}
+@media(max-width:760px){
+  .topbar{padding:10px 14px;gap:10px}
+  .topbar .brand{font-size:11.5px;white-space:normal;line-height:1.35}
+  .topbar a.enter{font-size:10.5px;padding:6px 9px;white-space:nowrap}
+}
+
+/* ---------- опрос ---------- */
+.poll{margin:80px 0 0;background:var(--navy);border:1px solid rgba(201,162,39,.45);padding:40px 42px 30px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+@media(max-width:640px){.poll{padding:26px 20px 22px}}
+.wv-q{margin-top:18px}
+.wv-q h3{font-size:16px;color:#f0ead6;margin-bottom:8px}
+.wv-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid rgba(255,255,255,.14);
+  margin-bottom:6px;cursor:pointer;font-size:14px;color:#cdd3e2}
+.wv-opt:hover{border-color:var(--gold)}
+.wv-opt.on{border-color:var(--gold);background:rgba(201,162,39,.12);color:#fff}
+.wv-opt input{accent-color:var(--gold)}
+.wv-btn{margin-top:22px;width:100%;padding:14px;background:var(--gold);color:var(--navy2);border:0;
+  font:600 15px 'Inter',sans-serif;cursor:pointer;letter-spacing:.04em}
+.wv-btn:disabled{opacity:.55;cursor:default}
+.wv-note{margin-top:12px;font-size:13px;color:#e0bc45;min-height:18px;text-align:center}
+.done{text-align:center;padding:26px 0 10px}
+.done h3{font-size:24px;color:#f0ead6;margin-bottom:10px}
+.done p{font-size:14px;color:#b9c0d4;max-width:520px;margin:0 auto}
+
+/* ---------- подвал ---------- */
+footer{margin-top:90px;border-top:1px solid rgba(201,162,39,.3);padding:34px 0 46px;background:var(--navy)}
+footer .wrap{display:flex;gap:26px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+footer p{font-size:13px;color:#8a93a8}
+footer a{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:#b9c0d4}
+footer a:hover{color:var(--gold2)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">СТАДИОН ИМ. ЛЕНИНСКОГО КОМСОМОЛА <b>· КРАСНОЯРСК</b></div>
+  <a class="enter" id="navVoteResV" href="index.html#itogi" hidden style="background:transparent;border:1px solid var(--gold);color:var(--gold2)">Итоги опроса</a>
+  <a class="enter" href="index.html">Вход для команды проекта</a>
+</div>
+
+<header class="hero">
+  <img class="bg" src="assets/img/now_bridge.jpg" alt="Стадион на острове Отдыха и Коммунальный мост через Енисей">
+  <div class="veil"></div>
+  <div class="inner"><div class="wrap">
+    <div class="kicker">Центральный стадион ККОР · остров Отдыха, 15А</div>
+    <h1>Главный стадион Красноярска: <span>каким он есть сегодня</span></h1>
+    <p class="sub">Открыт 29 октября 1967 года. Объект культурного наследия регионального значения,
+      домашняя арена ФК «Енисей». Посмотрите ролик о будущем стадиона, узнайте его историю
+      и ответьте на четыре вопроса опроса — ваш голос важен.</p>
+  </div></div>
+</header>
+
+<div class="stats">
+  <div><b>1967</b><span>год открытия</span></div>
+  <div><b>15 000</b><span>зрителей сегодня</span></div>
+  <div><b>105 × 68</b><span>поле с подогревом, м</span></div>
+  <div><b>35 000</b><span>рекорд посещаемости, 1968</span></div>
+</div>
+
+<section><div class="wrap">
+  <div class="kicker">Видео</div>
+  <h2>Стендовый ролик <span>проекта модернизации</span></h2>
+  <div class="video-box">
+    <video src="stand_demo.mp4" controls playsinline preload="none" poster="assets/img/now_aerial.jpg"></video>
+    <div class="video-cap">Концепция модернизации Центрального стадиона ККОР · 2026</div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="kicker">История</div>
+  <h2>«Летящая чаша» <span>Виталия Орехова</span></h2>
+  <div class="cols">
+    <div class="txt">
+      <p>Стадион спроектирован в 1962–1965 годах в институте «Красноярскгражданпроект» под руководством
+        главного архитектора <b>Виталия Владимировича Орехова</b>. Над проектом работал специально созданный
+        сектор из 160 архитекторов, инженеров и техников. Город настоял на индивидуальном проекте вместо
+        типового — и не прогадал.</p>
+      <p>Строительство началось 6 июня 1965 года. Генподрядчиком выступил Мостоотряд № 7, только что
+        закончивший Коммунальный мост. Летом 1966 года площадку полностью затопило наводнением, но график
+        не сорвался: стадион возвели всего за <span class="hl">два с половиной года</span>.</p>
+      <p>Силуэт стадиона задуман как <b>ладья сибирских первопроходцев с вёслами</b>: в плавных контурах
+        чаши читаются горы и гладь Енисея. «Красноярская ладья» и «летящая чаша» — так писала о нём пресса.
+        В 1968 году стадион отмечен премией Ленинского комсомола и признан одним из лучших сооружений
+        советской архитектуры, в 1969-м проект получил диплом I степени Всесоюзного конкурса молодых
+        архитекторов и был выдвинут на Государственную премию СССР.</p>
+      <p>Инженерная смелость объекта — в деталях: полную чашу зрители покидали за
+        <span class="hl">7 минут</span> благодаря наклонным пешеходным эстакадам и галерейной системе
+        эвакуации, а первое табло красноярцы собрали самостоятельно — импортный экран стоил
+        как полстадиона.</p>
+    </div>
+    <div>
+      <figure>
+        <div class="ph"><img src="assets/img/history_1960s.jpg" alt="Строительство стадиона на острове Отдыха, 1960-е годы"></div>
+        <figcaption>Строительство стадиона на острове Отдыха, 1960-е гг.</figcaption>
+      </figure>
+      <figure>
+        <div class="ph"><img src="assets/img/now_aerial.jpg" alt="Чаша стадиона сегодня, вид сверху"></div>
+        <figcaption>Чаша стадиона сегодня: 15 000 мест, легкоатлетические дорожки, поле 105 × 68 м</figcaption>
+      </figure>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="kicker">Инфраструктура</div>
+  <h2>Что есть <span>у стадиона сейчас</span></h2>
+  <div class="cols">
+    <div>
+      <div class="cards">
+        <div class="card"><span class="n">7 700 м²</span><h3>Футбольное поле</h3>
+          <p>Искусственный газон с подогревом, 105 × 68 м. Матчи идут и в межсезонье, при отрицательных температурах.</p></div>
+        <div class="card"><span class="n">8 дорожек</span><h3>Лёгкая атлетика</h3>
+          <p>400-метровые беговые дорожки, сектора для прыжков в длину и высоту, с шестом и метаний.</p></div>
+        <div class="card"><span class="n">15 000</span><h3>Трибуны</h3>
+          <p>Индивидуальные кресла, в том числе сектора для зрителей с ограниченными возможностями.
+            Трибуны открытые, без навеса — одна из причин будущей модернизации.</p></div>
+        <div class="card"><span class="n">1967 г.</span><h3>Подтрибунные помещения</h3>
+          <p>Встроенные помещения 1967–1969 годов сегодня занимают спортивные школы, в том числе
+            Красноярский колледж олимпийского резерва.</p></div>
+      </div>
+    </div>
+    <div>
+      <figure>
+        <div class="ph"><img src="assets/img/now_today.jpg" alt="Стадион в ходе реконструкции 2017–2018 годов"></div>
+        <figcaption>Реконструкция 2017–2018 гг. к зимней Универсиаде 2019</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="events">
+    <div class="ev"><b>1968</b><p>Рекорд посещаемости, не побитый до сих пор: 35 000 зрителей на матче
+      «Рассвет» — «Энергетик» (Душанбе). После игр тех лет на полчаса перекрывали Коммунальный мост,
+      чтобы болельщики разошлись.</p></div>
+    <div class="ev"><b>2015</b><p>Первый в истории российского регби еврокубковый матч: «Енисей-СТМ»
+      принимал ирландский «Коннахт» в Европейском кубке вызова.</p></div>
+    <div class="ev"><b>2016</b><p>«Енисей» обыграл действующего чемпиона страны ЦСКА со счётом 2:1
+      при полном стадионе — 16 тысяч зрителей, максимально допустимая заполняемость на тот момент.</p></div>
+    <div class="ev"><b>2019</b><p>На время зимней Универсиады на стадионе работал главный пресс-центр
+      Игр. Здесь также играют регбийные клубы «Красный Яр» и «Енисей-СТМ».</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="kicker">Что дальше</div>
+  <h2>Сохраняя историю, <span>строим будущее</span></h2>
+  <p class="lead">Концепция модернизации предполагает разворот футбольного поля на 90° внутри исторического
+    овала, новые трибуны на 25 000 зрителей по стандартам FIFA и UEFA и раздвижное покрытие.
+    Силуэт «летящей чаши» сохраняется. Насколько глубокая модернизация нужна стадиону — решать в том числе
+    горожанам. Ответьте на четыре коротких вопроса.</p>
+
+  <div class="poll" id="poll">
+    <div id="pollForm">
+      <div class="kicker">Тайное голосование · 30 секунд</div>
+      <h2 style="margin-top:10px">Каким быть стадиону?</h2>
+      <p class="lead" style="font-size:15px">Голосование тайное: итоги участникам не показываются,
+        результаты будут опубликованы после завершения опроса. Один голос с одного устройства.</p>
+      <div class="wv-q"><h3>1. Нужна ли стадиону модернизация?</h3>
+        <label class="wv-opt"><input type="radio" name="q0" value="0"><span>Да, нужна полная модернизация</span></label>
+        <label class="wv-opt"><input type="radio" name="q0" value="1"><span>Достаточно точечного ремонта</span></label>
+        <label class="wv-opt"><input type="radio" name="q0" value="2"><span>Нет, оставить как есть</span></label></div>
+      <div class="wv-q"><h3>2. Делать ли стадион крытым?</h3>
+        <label class="wv-opt"><input type="radio" name="q1" value="0"><span>Да, полностью крытый</span></label>
+        <label class="wv-opt"><input type="radio" name="q1" value="1"><span>Крыть только трибуны</span></label>
+        <label class="wv-opt"><input type="radio" name="q1" value="2"><span>Нет, оставить открытым</span></label></div>
+      <div class="wv-q"><h3>3. Пойдёте ли вы чаще на обновлённый стадион?</h3>
+        <label class="wv-opt"><input type="radio" name="q2" value="0"><span>Да, буду ходить чаще</span></label>
+        <label class="wv-opt"><input type="radio" name="q2" value="1"><span>Буду ходить, как раньше</span></label>
+        <label class="wv-opt"><input type="radio" name="q2" value="2"><span>Не хожу на стадион</span></label></div>
+      <div class="wv-q"><h3>4. Нужно ли увеличить вместимость? Сейчас 15 тысяч мест</h3>
+        <label class="wv-opt"><input type="radio" name="q3" value="0"><span>Да, до 25 тысяч и больше</span></label>
+        <label class="wv-opt"><input type="radio" name="q3" value="1"><span>Увеличить умеренно, до 18–20 тысяч</span></label>
+        <label class="wv-opt"><input type="radio" name="q3" value="2"><span>Нет, 15 тысяч достаточно</span></label></div>
+      <button class="wv-btn" id="vSend">Отправить голос</button>
+      <div class="wv-note" id="vNote"></div>
+    </div>
+    <div class="done" id="pollDone" hidden>
+      <h3 class="serif">Спасибо! Ваш голос учтён</h3>
+      <p id="pollDoneSub">Голосование тайное: промежуточные итоги участникам не показываются.
+        Результаты опубликуем после завершения опроса.</p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Красноярск, остров Отдыха, 15А · Центральный стадион ККОР<br>
+     Проектная группа модернизации · концептуальные предложения 2026</p>
+  <a href="index.html">Вход для команды проекта →</a>
+</div></footer>
+
+<script>
+(function(){
+  var API='/api';
+  if(localStorage.getItem('sk_role')==='admin'){
+    var nv=document.getElementById('navVoteResV');if(nv)nv.hidden=false;}
+  var form=document.getElementById('pollForm'), done=document.getElementById('pollDone');
+  if(localStorage.getItem('wv2026b')){form.hidden=true;done.hidden=false;}
+  form.addEventListener('change',function(e){
+    if(e.target.name){var q=e.target.closest('.wv-q');
+      q.querySelectorAll('.wv-opt').forEach(function(l){l.classList.remove('on');});
+      e.target.closest('.wv-opt').classList.add('on');}
+  });
+  document.getElementById('vSend').onclick=function(){
+    var btn=this,note=document.getElementById('vNote'),ans=[];
+    for(var i=0;i<4;i++){var r=document.querySelector('input[name=q'+i+']:checked');
+      if(!r){note.textContent='Ответьте, пожалуйста, на все четыре вопроса.';return;}ans.push(+r.value);}
+    btn.disabled=true;note.textContent='Отправляем…';
+    var tok=localStorage.getItem('sk_token')||'';
+    fetch(API+'/vote',{method:'POST',headers:{'content-type':'application/json','x-access':tok},body:JSON.stringify({q:ans})})
+      .then(function(r){
+        if(r.status===409){localStorage.setItem('wv2026b','voted');
+          document.getElementById('pollDoneSub').textContent='Голос с этого устройства уже был учтён ранее.';
+          form.hidden=true;done.hidden=false;return;}
+        if(!r.ok)throw new Error('http '+r.status);
+        localStorage.setItem('wv2026b','voted');form.hidden=true;done.hidden=false;})
+      .catch(function(){note.textContent='Не удалось отправить голос. Проверьте связь и попробуйте ещё раз.';})
+      .then(function(){btn.disabled=false;});
+  };
+})();
+</script>
+<script src="modules.js"></script>
+<script src="site-menu.js" defer></script>
+</body>
+</html>

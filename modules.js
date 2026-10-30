@@ -10,12 +10,16 @@
     {n:7,href:'budget.html',       img:'budget_algo',       t:'Бюджет и сроки',      s:'5,0 млрд ₽ с НДС · 22 месяца · маршрут по ГрК РФ от ТЗ до ввода в эксплуатацию'},
     {n:8,href:'index.html',        img:'now_bridge',        t:'Полная презентация',  s:'Лонгрид проекта: наследие, поворот поля, трибуны, крыша, сроки'},
     {n:9,href:'drawings.html',     img:'dwg_sheets',        t:'Планы · фасады · разрезы', short:'Чертежи АР', s:'Поэтажные планы, разрезы 1-1…4-4, четыре фасада и посадочные места · проект П-01-16-1-АР · сверены с BIM'},
-    {n:10,href:'team.html',        img:'team',              t:'Команда проекта',   s:'Администрация Губернатора КК · Минспорт КК · АНО «АНИИГБ» им. М. В. Кима · собственник · ФК «Енисей»'}
+    {n:10,href:'team.html',        img:'team',              t:'Команда проекта',   s:'Администрация Губернатора КК · Минспорт КК · АНО «АНИИГБ» им. М. В. Кима · собственник · ФК «Енисей»'},
+    /* дополнительная страница: в меню есть, горячей клавиши нет (x) */
+    {n:11,href:'visitor.html',     img:'now_today',         t:'Для посетителей', short:'Посетителям', s:'Без пароля: ролик, история стадиона с 1967 года, инфраструктура и тайное голосование', x:true}
   ];
   const IDLE_SEC=75;          // бездействие до возврата в автодемо
   const COUNTDOWN_SEC=15;     // за сколько секунд показать индикатор
   let page=location.pathname.split('/').pop()||'index.html';
   if(!/\.html?$/i.test(page))page+='.html';   /* Cloudflare отдаёт адреса без .html: /model → model.html */
+  /* страницы без киоск-режима: не уводим читателя в автодемо по бездействию */
+  const NO_KIOSK=['visitor.html','rotation.html','vanty-fg1.html'].includes(page);
   const isStand=(page==='stand.html');
   const fullKey=page+location.hash;
   /* точное совпадение с якорем важнее совпадения только по файлу */
@@ -34,7 +38,7 @@
     '<button class="mmClose" title="Закрыть (Esc)">✕</button></div>'+
     '<div class="mmGrid">'+MODULES.map(m=>
       '<a class="mmCard'+(cur&&cur.n===m.n?' cur':'')+'" href="'+m.href+'" data-key="'+m.n+'"'+(m.blank?' target="_blank" rel="noopener"':'')+'>'+
-      '<span class="mmKey">'+m.n+'</span>'+
+      '<span class="mmKey">'+(m.x?'·':m.n)+'</span>'+
       '<span class="mmThumb"><img data-img="'+m.img+'" alt=""></span>'+
       '<span class="mmBody"><b>'+m.t+'</b><span>'+m.s+'</span></span></a>').join('')+
     '</div>'+
@@ -64,7 +68,11 @@
   menu.querySelector('.mmClose').addEventListener('click',()=>setOpen(false));
   menu.addEventListener('click',e=>{if(e.target===menu)setOpen(false)});   // тап по фону закрывает
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){setOpen(!open);return}
+    if(e.key==='Escape'){
+      const sp=document.getElementById('smPanel'),          /* открыто общее меню сайта — Esc отдаём ему */
+            sl=document.getElementById('smPanelL');
+      if((sp&&!sp.hidden)||(sl&&!sl.hidden))return;
+      setOpen(!open);return}
     if(open&&/^[0-9]$/.test(e.key)){
       const k=e.key==='0'?10:+e.key;
       const m=MODULES.find(x=>x.n===k);if(m){if(m.blank)window.open(m.href,'_blank','noopener');else location.href=m.href}
@@ -74,7 +82,7 @@
   /* ---------- idle-менеджер (на всех страницах, кроме автодемо) ---------- */
   let idleT=0,lastTick=0;
   function resetIdle(){idleT=0;lastTick=0;pill.style.display='none';document.body.classList.remove('kioskIdle')}
-  if(!isStand){
+  if(!isStand&&!NO_KIOSK){
     ['pointermove','pointerdown','keydown','wheel','touchstart'].forEach(ev=>
       document.addEventListener(ev,resetIdle,{passive:true}));
     setInterval(()=>{
@@ -89,7 +97,7 @@
       }
       if(idleT>=IDLE_SEC)location.href='stand.html';
     },1000);
-  }else{
+  }else if(isStand){
     // на странице демо: скрываем курсор через 3 с бездействия, показываем при движении
     let cT=0;
     ['pointermove','pointerdown','keydown','touchstart'].forEach(ev=>
@@ -153,6 +161,7 @@
     if(page==='drawings.html'&&t.closest('#dwgView'))return true; /* пан/зум чертежа */
     if(page==='architecture.html'&&t.closest('#avView'))return true; /* пан/зум 3D вида */
     if(page==='compare.html'&&t.closest('#stage'))return 'h'; /* разделитель Сейчас/Будет */
+    if(page==='vanty-fg1.html'&&(t.closest('canvas')||t.closest('#hud')))return true; /* OrbitControls и панель */
     if(t.closest('.ba'))return 'h';                           /* слайдер в hero лонгрида */
     if(t.closest('iframe'))return true;
     return false;
@@ -241,6 +250,12 @@
     addEventListener('resize',setH);
     cnt();
   }
-  if(document.body)lawBar();
-  else document.addEventListener('DOMContentLoaded',lawBar);
+  /* на visitor/rotation/vanty-fg1 юридическая плашка не нужна (свой футер /
+     чистые 3D-страницы), но посещение всё равно считаем */
+  function boot(){
+    if(['visitor.html','rotation.html','vanty-fg1.html'].some(p=>location.pathname.endsWith(p))){cnt();return}
+    lawBar();
+  }
+  if(document.body)boot();
+  else document.addEventListener('DOMContentLoaded',boot);
 })();

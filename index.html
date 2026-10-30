@@ -173,6 +173,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <a href="#budget">Бюджет</a>
     <a href="#docs">Документация</a>
     <a href="#model" class="em">3D-модель</a>
+    <a href="./vanty-fg1.html" class="em">Ванты ФГ (3D)</a>
+    <a href="#" id="navVoteRes" class="em" hidden>Итоги опроса</a>
   </div>
 </nav>
 
@@ -187,7 +189,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <div class="knob" id="baKnob">⇔</div>
   </div>
   <div class="caption">
-    <h1>Модернизация Центрального стадиона КУОР: <span>сохраняя историю, строим будущее</span></h1>
+    <h1>Модернизация Центрального стадиона ККОР: <span>сохраняя историю, строим будущее</span></h1>
     <div class="sub">Концептуальные предложения · 2026 · Красноярское училище олимпийского резерва. Потяните разделитель, чтобы сравнить существующее состояние и проектный образ.</div>
   </div>
 </header>
@@ -209,7 +211,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <div>
       <div class="kicker">Обоснование · Объект культурного наследия</div>
       <h2>Сохранение наследия, а не снос</h2>
-      <p class="lead">Стадион КУОР — уникальный архитектурный объект советского модернизма 1970-х и памятник градостроительной истории Красноярска. За полвека инженерные системы устарели, объект не отвечает требованиям безопасности, комфорта и функциональности для крупных мероприятий.</p>
+      <p class="lead">Стадион ККОР — уникальный архитектурный объект советского модернизма 1970-х и памятник градостроительной истории Красноярска. За полвека инженерные системы устарели, объект не отвечает требованиям безопасности, комфорта и функциональности для крупных мероприятий.</p>
       <ul class="pts">
         <li>Объект культурного наследия регионального значения: стадион построен в 1967 г., в 2016–2017 гг. выполнены реставрация и приспособление для современного использования (проект П-01-16-1-АР, стадия П)</li>
         <li>Модернизация — единственно верный подход к сохранению культурной идентичности</li>
@@ -428,7 +430,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 
 <footer>
   <div class="wrap">
-    <div>Модернизация Центрального стадиона КУОР · Концептуальные предложения 2026<br>
+    <div>Модернизация Центрального стадиона ККОР · Концептуальные предложения 2026<br>
     <span style="color:#b9c0d4">Автор концепции: АНО «АНИИГБ» им. М. В. Кима · Директор / ГИП Керимов А. Г. — разработка концепции, научно-техническое сопровождение проектирования и строительства, консалтинг</span></div>
     <div>Красноярск, остров Отдыха · 56.01° N, 92.85° E<br>
     <span style="color:#b9c0d4">Проект представлен на форуме «Россия — спортивная держава» (Росконгресс, Красноярск)</span></div>
@@ -514,6 +516,231 @@ document.querySelectorAll('img[data-img]').forEach(async img=>{
   if(document.readyState!=='loading')go(); else document.addEventListener('DOMContentLoaded',go);
 })();
 </script>
+<!-- ================= WELCOME POLL ================= -->
+<style>
+.wv{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,15,28,.9);backdrop-filter:blur(8px);padding:18px}
+.wv[hidden]{display:none}
+.wv-card{position:relative;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;background:var(--navy);
+  border:1px solid rgba(201,162,39,.45);padding:32px 36px 26px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.wv-title{font-size:clamp(22px,3vw,30px);color:#f0ead6;margin-bottom:6px}
+.wv-sub{font-size:14px;color:#b9c0d4;opacity:.9}
+.wv-role{display:block;width:100%;text-align:left;margin-top:12px;padding:14px 16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.16);cursor:pointer;color:#cdd3e2}
+.wv-role:hover{border-color:var(--gold)}
+.wv-role b{display:block;font-family:'Playfair Display',serif;font-size:18px;color:#f0ead6;margin-bottom:3px}
+.wv-role span{font-size:13px;color:#8a93a8}
+.wv-pwd{width:100%;margin-top:16px;padding:13px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);
+  color:#f0ead6;font:400 15px 'Inter',sans-serif;letter-spacing:.06em}
+.wv-pwd:focus{outline:none;border-color:var(--gold)}
+.wv-vid{width:100%;max-height:58vh;background:#000;margin-top:16px;display:block}
+.wv-q{margin-top:18px}
+.wv-q h3{font-size:16px;color:#f0ead6;margin-bottom:8px}
+.wv-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid rgba(255,255,255,.14);
+  margin-bottom:6px;cursor:pointer;font-size:14px;color:#cdd3e2}
+.wv-opt:hover{border-color:var(--gold)}
+.wv-opt.on{border-color:var(--gold);background:rgba(201,162,39,.12);color:#fff}
+.wv-opt input{accent-color:var(--gold)}
+.wv-btn{margin-top:22px;width:100%;padding:14px;background:var(--gold);color:var(--navy2);border:0;
+  font:600 15px 'Inter',sans-serif;cursor:pointer;letter-spacing:.04em}
+.wv-btn:disabled{opacity:.55;cursor:default}
+.wv-btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold2)}
+.wv-skip{margin-top:12px;text-align:center;font-size:12.5px;color:#8a93a8;cursor:pointer}
+.wv-skip:hover{color:var(--gold2)}
+.wv-x{position:absolute;top:8px;right:12px;background:none;border:0;color:#8a93a8;font-size:26px;cursor:pointer;line-height:1}
+.wv-x:hover{color:var(--gold2)}
+.wv-note{margin-top:12px;font-size:13px;color:#e0bc45;min-height:18px;text-align:center}
+.wv-r .qq{font-family:'Playfair Display',serif;font-size:15px;color:#f0ead6;margin:16px 0 8px}
+.wv-row{display:grid;grid-template-columns:1fr auto;gap:10px;font-size:13px;color:#cdd3e2;margin-bottom:3px}
+.wv-row b{color:var(--gold2);font-weight:600}
+.wv-track{grid-column:1/-1;height:10px;background:rgba(255,255,255,.08);position:relative;margin-bottom:7px}
+.wv-fill{position:absolute;top:0;left:0;bottom:0;background:var(--gold)}
+.wv-total{margin-top:18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8a93a8;text-align:center}
+@media(max-width:640px){.wv-card{padding:24px 20px 20px}}
+</style>
+<div id="wvote" class="wv" hidden>
+  <div class="wv-card">
+    <div id="wvGate">
+      <div class="kicker">Стадион им. Ленинского комсомола</div>
+      <h2 class="wv-title">Добро пожаловать!</h2>
+      <p class="wv-sub">Выберите контур доступа к материалам проекта</p>
+      <button class="wv-role" data-role="visitor"><b>Посетитель</b><span>Без пароля · ролик, история стадиона и опрос</span></button>
+      <button class="wv-role" data-role="team"><b>Команда проекта</b><span>По паролю · все разделы сайта</span></button>
+      <button class="wv-role" data-role="admin"><b>Администратор</b><span>По паролю · полный функционал, итоги опроса</span></button>
+    </div>
+    <div id="wvPwd" hidden>
+      <div class="kicker" id="wvPwdKick">Контур</div>
+      <h2 class="wv-title">Ввод пароля</h2>
+      <p class="wv-sub">Пароль выдаёт руководитель проекта</p>
+      <input class="wv-pwd" id="wvPass" type="password" autocomplete="off" placeholder="Пароль">
+      <button class="wv-btn" id="wvLogin">Войти</button>
+      <div class="wv-skip" id="wvBack1">Назад к выбору контура</div>
+      <div class="wv-note" id="wvPwdNote"></div>
+    </div>
+    <div id="wvForm" hidden>
+      <div class="kicker">Тайное голосование · 30 секунд</div>
+      <h2 class="wv-title">Каким быть стадиону?</h2>
+      <p class="wv-sub">Ответьте на четыре вопроса и переходите на сайт. Голосование тайное: итоги участникам не показываются.</p>
+      <div class="wv-q" data-q="0">
+        <h3>1. Нужна ли стадиону модернизация?</h3>
+        <label class="wv-opt"><input type="radio" name="q0" value="0"><span>Да, нужна полная модернизация</span></label>
+        <label class="wv-opt"><input type="radio" name="q0" value="1"><span>Достаточно точечного ремонта</span></label>
+        <label class="wv-opt"><input type="radio" name="q0" value="2"><span>Нет, оставить как есть</span></label>
+      </div>
+      <div class="wv-q" data-q="1">
+        <h3>2. Делать ли стадион крытым?</h3>
+        <label class="wv-opt"><input type="radio" name="q1" value="0"><span>Да, полностью крытый</span></label>
+        <label class="wv-opt"><input type="radio" name="q1" value="1"><span>Крыть только трибуны</span></label>
+        <label class="wv-opt"><input type="radio" name="q1" value="2"><span>Нет, оставить открытым</span></label>
+      </div>
+      <div class="wv-q" data-q="2">
+        <h3>3. Пойдёте ли вы чаще на обновлённый стадион?</h3>
+        <label class="wv-opt"><input type="radio" name="q2" value="0"><span>Да, буду ходить чаще</span></label>
+        <label class="wv-opt"><input type="radio" name="q2" value="1"><span>Буду ходить, как раньше</span></label>
+        <label class="wv-opt"><input type="radio" name="q2" value="2"><span>Не хожу на стадион</span></label>
+      </div>
+      <div class="wv-q" data-q="3">
+        <h3>4. Нужно ли увеличить вместимость? Сейчас 15 тысяч мест</h3>
+        <label class="wv-opt"><input type="radio" name="q3" value="0"><span>Да, до 25 тысяч и больше</span></label>
+        <label class="wv-opt"><input type="radio" name="q3" value="1"><span>Увеличить умеренно, до 18–20 тысяч</span></label>
+        <label class="wv-opt"><input type="radio" name="q3" value="2"><span>Нет, 15 тысяч достаточно</span></label>
+      </div>
+      <button class="wv-btn" id="wvSend">Отправить голос и перейти на сайт</button>
+      <div class="wv-skip" id="wvSkip">Пропустить голосование и перейти на сайт</div>
+      <div class="wv-note" id="wvNote"></div>
+    </div>
+    <div id="wvThanks" hidden>
+      <div class="kicker">Спасибо!</div>
+      <h2 class="wv-title">Ваш голос учтён</h2>
+      <p class="wv-sub" id="wvThanksSub">Голосование тайное: промежуточные итоги участникам не показываются. Результаты опубликуем после завершения опроса.</p>
+      <button class="wv-btn" id="wvEnter">Перейти на сайт</button>
+    </div>
+  </div>
+</div>
+<div id="vadm" class="wv" hidden>
+  <div class="wv-card">
+    <button class="wv-x" id="vadmX" aria-label="Закрыть">×</button>
+    <div class="kicker">Администратор</div>
+    <h2 class="wv-title">Итоги опроса</h2>
+    <div class="wv-r" id="vadmBody"></div>
+    <div class="wv-total" id="vadmTotal"></div>
+    <button class="wv-btn ghost" id="vadmRef">Обновить</button>
+    <div class="wv-note" id="vadmNote"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var API='/api';
+  var QT=['Нужна ли стадиону модернизация?','Делать ли стадион крытым?','Пойдёте ли вы чаще на обновлённый стадион?','Нужно ли увеличить вместимость? Сейчас 15 тысяч мест'];
+  var QA=[['Да, нужна полная модернизация','Достаточно точечного ремонта','Нет, оставить как есть'],
+          ['Да, полностью крытый','Крыть только трибуны','Нет, оставить открытым'],
+          ['Да, буду ходить чаще','Буду ходить, как раньше','Не хожу на стадион'],
+          ['Да, до 25 тысяч и больше','Увеличить умеренно, до 18–20 тысяч','Нет, 15 тысяч достаточно']];
+  var box=document.getElementById('wvote');
+  var screens=['wvGate','wvPwd','wvForm','wvThanks'];
+  var role=localStorage.getItem('sk_role'), tok=localStorage.getItem('sk_token');
+  var pendRole=null;
+  function show(name){screens.forEach(function(s){document.getElementById(s).hidden=(s!==name);});
+}
+  function applyRole(){var n=document.getElementById('navVoteRes');if(n)n.hidden=(role!=='admin');}
+  function enterSite(){box.hidden=true;document.body.style.overflow='';applyRole();}
+  function open(){box.hidden=false;document.body.style.overflow='hidden';}
+  /* экран при загрузке */
+  applyRole();
+  if(role&&tok){
+    if(!localStorage.getItem('wv2026b')){show('wvForm');open();}
+  }else{
+    show('wvGate');open();
+  }
+  /* выбор контура */
+  document.querySelectorAll('.wv-role').forEach(function(b){
+    b.onclick=function(){
+      var r=b.dataset.role;
+      if(r==='visitor'){location.href='visitor.html';return;}
+      {pendRole=r;
+        document.getElementById('wvPwdKick').textContent=(r==='admin'?'Контур «Администратор»':'Контур «Команда проекта»');
+        document.getElementById('wvPwdNote').textContent='';document.getElementById('wvPass').value='';
+        show('wvPwd');setTimeout(function(){document.getElementById('wvPass').focus();},50);}
+    };
+  });
+  document.getElementById('wvBack1').onclick=function(){show('wvGate');};
+  /* вход по паролю */
+  function login(){
+    var btn=document.getElementById('wvLogin'),note=document.getElementById('wvPwdNote');
+    var pw=document.getElementById('wvPass').value;
+    if(!pw){note.textContent='Введите пароль.';return;}
+    btn.disabled=true;note.textContent='Проверяем…';
+    fetch(API+'/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({role:pendRole,password:pw})})
+      .then(function(r){if(r.status===401)throw new Error('deny');if(!r.ok)throw new Error('http '+r.status);return r.json();})
+      .then(function(d){role=d.role;tok=d.token;
+        localStorage.setItem('sk_role',role);localStorage.setItem('sk_token',tok);
+        btn.disabled=false;applyRole();
+        if(!localStorage.getItem('wv2026b'))show('wvForm');else enterSite();})
+      .catch(function(e){btn.disabled=false;
+        note.textContent=(e.message==='deny')?'Неверный пароль. Попробуйте ещё раз.':'Нет связи с сервером. Попробуйте позже.';});
+  }
+  document.getElementById('wvLogin').onclick=login;
+  document.getElementById('wvPass').addEventListener('keydown',function(e){if(e.key==='Enter')login();});
+  /* подсветка выбранных ответов */
+  document.getElementById('wvForm').addEventListener('change',function(e){
+    if(e.target.name){var q=e.target.closest('.wv-q');
+      q.querySelectorAll('.wv-opt').forEach(function(l){l.classList.remove('on');});
+      e.target.closest('.wv-opt').classList.add('on');}
+  });
+  /* отправка голоса (тайно: итоги не показываем) */
+  document.getElementById('wvSend').onclick=function(){
+    var btn=this,note=document.getElementById('wvNote'),ans=[];
+    for(var i=0;i<4;i++){var r=document.querySelector('input[name=q'+i+']:checked');
+      if(!r){note.textContent='Ответьте, пожалуйста, на все четыре вопроса.';return;}ans.push(+r.value);}
+    btn.disabled=true;note.textContent='Отправляем…';
+    fetch(API+'/vote',{method:'POST',headers:{'content-type':'application/json','x-access':tok||''},body:JSON.stringify({q:ans})})
+      .then(function(r){
+        if(r.status===409){localStorage.setItem('wv2026b','voted');
+          document.getElementById('wvThanksSub').textContent='Голос с этого устройства уже был учтён ранее.';show('wvThanks');return;}
+        if(r.status===401){note.textContent='Сессия истекла. Войдите заново.';role=null;tok=null;
+          localStorage.removeItem('sk_role');localStorage.removeItem('sk_token');show('wvGate');return;}
+        if(!r.ok)throw new Error('http '+r.status);
+        localStorage.setItem('wv2026b','voted');show('wvThanks');})
+      .catch(function(){note.textContent='Не удалось отправить голос. Проверьте связь и попробуйте ещё раз.';})
+      .then(function(){btn.disabled=false;});
+  };
+  document.getElementById('wvSkip').onclick=function(){localStorage.setItem('wv2026b','skip');enterSite();};
+  document.getElementById('wvEnter').onclick=enterSite;
+  /* итоги для администратора */
+  function loadRes(){
+    var note=document.getElementById('vadmNote');note.textContent='Загружаем…';
+    fetch(API+'/vote',{headers:{'x-access':tok||''}})
+      .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json();})
+      .then(function(d){
+        var html='';
+        for(var i=0;i<4;i++){html+='<div class="qq">'+(i+1)+'. '+QT[i]+'</div>';
+          var mx=Math.max.apply(null,d.counts[i].concat([1]));
+          for(var a=0;a<3;a++){var c=d.counts[i][a];var p=d.total?Math.round(100*c/d.total):0;
+            html+='<div class="wv-row"><span>'+QA[i][a]+'</span><b>'+p+'% · '+c+'</b></div>'+
+                  '<div class="wv-track"><div class="wv-fill" style="width:'+(100*c/mx)+'%"></div></div>';}}
+        document.getElementById('vadmBody').innerHTML=html;
+        document.getElementById('vadmTotal').textContent='Всего голосов: '+d.total;
+        note.textContent='';})
+      .catch(function(e){note.textContent='Не удалось загрузить итоги ('+e.message+').';});
+  }
+  var navR=document.getElementById('navVoteRes');
+  if(navR)navR.onclick=function(e){e.preventDefault();
+    document.getElementById('vadm').hidden=false;loadRes();};
+  /* прямая ссылка #itogi: сразу открыть итоги (только админ) */
+  function openItogi(){
+    var r=localStorage.getItem('sk_role');
+    if(location.hash==='#itogi'&&r==='admin'){
+      box.hidden=true;document.body.style.overflow='';
+      document.getElementById('vadm').hidden=false;loadRes();}}
+  openItogi();
+  window.addEventListener('hashchange',openItogi);
+  document.getElementById('vadmX').onclick=function(){document.getElementById('vadm').hidden=true;};
+  document.getElementById('vadmRef').onclick=loadRes;
+})();
+</script>
+
+
 <script src="modules.js"></script>
+<script src="site-menu.js" defer></script>
 </body>
 </html>

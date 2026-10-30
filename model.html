@@ -273,7 +273,7 @@ let highlight=null;
 
 const fmt=n=>n.toLocaleString('ru-RU');
 
-const GLB_V='20261024e';
+const GLB_V='20261030a';
 async function boot(){
   META=await (await fetch('existing.json?v='+GLB_V)).json();
   document.getElementById('stEl').textContent=fmt(META.elements.length);
@@ -314,11 +314,19 @@ async function boot(){
     const dv=new DataView(u8.buffer,u8.byteOffset);
     return dv.getUint32(8,true)===u8.length;
   }
+  async function gunzip(u8){
+    const stream=new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
   async function fetchGlb(url,onProgress){
     let note='';
+    const gzipOk='DecompressionStream' in window;
     for(let a=1;a<=4;a++){
+      const packed=gzipOk&&a===1;
       try{
-        const u8=await fetchBuf(url+'?v='+GLB_V+(a>1?'&r'+a:''),onProgress);
+        const source=packed?url+'.gz':url;
+        let u8=await fetchBuf(source+'?v='+GLB_V+(a>1?'&r'+a:''),onProgress);
+        if(packed) u8=await gunzip(u8);
         if(glbLenOK(u8)) return u8;
         note='обрыв на '+(u8.length/1e6).toFixed(1)+' МБ';
       }catch(e){ note=e.message; }
@@ -1392,5 +1400,6 @@ if(FILM){
 }
 </script>
 <script src="modules.js"></script>
+<script src="site-menu.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,41 @@
+/* StadionLK · правая золотая кнопка: меню текущей страницы (site-menu.js).
+   Левая тёмная кнопка «Модули проекта» живёт в modules.css. */
+.sm-btn{position:fixed;top:10px;right:10px;z-index:950;width:46px;height:46px;
+  background:#c9a227;border:1px solid rgba(13,20,36,.35);border-radius:6px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.sm-btn span{display:block;width:20px;height:2px;background:#0d1424;transition:transform .18s,opacity .18s}
+.sm-btn.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.sm-btn.on span:nth-child(2){opacity:0}
+.sm-btn.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.sm-btn:hover{background:#e0bc45}
+
+.sm-veil{position:fixed;inset:0;z-index:951;background:rgba(10,15,28,.55)}
+.sm-panel{position:fixed;top:64px;right:10px;z-index:952;width:min(320px,86vw);
+  max-height:78vh;overflow-y:auto;background:#131b30;border:1px solid rgba(201,162,39,.5);
+  border-radius:8px;box-shadow:0 24px 70px rgba(0,0,0,.6);padding:8px 0 12px}
+.sm-head{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 10px;
+  border-bottom:1px solid rgba(201,162,39,.3)}
+.sm-head b{font-family:'Playfair Display',serif;color:#f0ead6;font-size:17px;letter-spacing:.04em}
+.sm-x{background:none;border:0;color:#8a93a8;font-size:26px;cursor:pointer;line-height:1}
+.sm-x:hover{color:#e0bc45}
+.sm-grp{padding:12px 16px 4px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8a93a8}
+.sm-a{display:block;padding:9px 16px;color:#cdd3e2;text-decoration:none;font-size:14.5px;line-height:1.35}
+.sm-a:hover{background:rgba(201,162,39,.12);color:#fff}
+.sm-a.act{color:#e0bc45;font-weight:600}
+.sm-a.act::before{content:'· '}
+.sm-a.sm-adm{color:#e0bc45;font-weight:600}
+
+/* на главной в десктопе есть строка разделов — бургер не нужен */
+@media(min-width:901px){body.sm-has-inline .sm-btn{display:none}}
+
+/* на мобильной главной расчистить место под обе кнопки в шапке */
+@media(max-width:900px){body.sm-has-inline nav .brand{padding-left:56px;padding-right:56px}}
+
+/* расчистить место под кнопку в шапках внутренних страниц */
+@media(max-width:900px){
+  .topbar{padding-right:70px}
+}
+@media(min-width:901px){
+  body:not(.sm-has-inline) .topbar{padding-right:70px}
+}
