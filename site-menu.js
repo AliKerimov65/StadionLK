@@ -2,7 +2,7 @@
    СЛЕВА вверху (тёмная кнопка modules.js): «Модули проекта» — главное меню
    сайта, сетка карточек всех страниц. Показывается везде.
    СПРАВА вверху (золотая кнопка, этот файл): меню ТЕКУЩЕЙ страницы —
-   её разделы-якоря; у админа добавляется «Итоги опроса».
+   её разделы-якоря; у админа добавляются «Итоги опроса» и Partner Hub.
    Кнопка выводится, только если у страницы есть разделы или вошёл админ.
    На главной в десктопе (≥901px) не показывается: там есть строка разделов. */
 (function(){
@@ -55,7 +55,8 @@
     }
     if (localStorage.getItem('sk_role') === 'admin')
       html += '<div class="sm-grp">Администратор</div>' +
-              '<a class="sm-a sm-adm" href="index.html#itogi">Итоги опроса</a>';
+              '<a class="sm-a sm-adm" href="index.html#itogi">Итоги опроса</a>' +
+              '<a class="sm-a sm-adm" href="https://partners.stadionlk.vomirek.com/admin" target="_blank" rel="noopener">Partner Hub: отбор партнёров</a>';
     return html;
   }
 
