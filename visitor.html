@@ -9,7 +9,6 @@
 <title>Стадион сегодня · Стадион им. Ленинского комсомола, Красноярск</title>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="modules.css">
-<link rel="stylesheet" href="site-menu.css">
 <style>
 :root{
   --navy:#131b30; --navy2:#0d1424; --gold:#c9a227; --gold2:#e0bc45;
@@ -23,25 +22,19 @@ a{color:var(--gold2)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
 
 /* ---------- верхняя строка ---------- */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:16px;
-  padding:14px 70px 14px 240px;background:rgba(13,20,36,.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(201,162,39,.25)}
-.topbar .brand{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;letter-spacing:.04em;color:#f0ead6;white-space:nowrap;min-width:0}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:20px;
+  padding:14px 30px;background:rgba(13,20,36,.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(201,162,39,.25)}
+.topbar .brand{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;letter-spacing:.04em;color:#f0ead6;white-space:nowrap}
 .topbar .brand b{color:var(--gold)}
-.topbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-left:auto}
-.topbar a.enter{margin-left:0;color:var(--navy2);background:var(--gold);padding:8px 14px;border-radius:2px;min-height:44px;
-  display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;
+.topbar a.enter{margin-left:auto;color:var(--navy2);background:var(--gold);padding:7px 14px;border-radius:2px;
   font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none}
-.topbar a.enter[hidden]{display:none}
 .topbar a.enter:hover{background:var(--gold2)}
-.topbar a.enter.club{background:transparent;border:1px solid var(--gold);color:var(--gold2)}
-.topbar a.enter.club:hover{background:rgba(201,162,39,.14)}
-#modNavBtn{min-height:44px}
 
 /* ---------- hero ---------- */
 .hero{position:relative;min-height:64vh;display:flex;align-items:flex-end;overflow:hidden}
 .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero .veil{position:absolute;inset:0;background:linear-gradient(rgba(10,15,28,.25),rgba(10,15,28,.94) 78%)}
-.hero .inner{position:relative;z-index:2;padding:calc(var(--visitor-header-h,64px) + 72px) 0 52px;width:100%}
+.hero .inner{position:relative;z-index:2;padding:150px 0 52px;width:100%}
 .kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2)}
 .hero h1{font-size:clamp(30px,4.6vw,60px);font-weight:900;color:#f4efdd;line-height:1.12;max-width:900px;margin-top:12px}
 .hero h1 span{color:var(--gold)}
@@ -88,18 +81,25 @@ figcaption{padding:10px 14px;font-size:12.5px;color:#a8b0c4;letter-spacing:.04em
 .ev{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .ev b{font-family:'Playfair Display',serif;color:var(--gold);font-size:19px}
 .ev p{font-size:14.5px;color:#c6ccdb}
+/* ---------- мессенджеры клуба ---------- */
+.chan{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:28px}
+.chanCard{display:flex;align-items:center;gap:14px;min-height:64px;padding:16px 20px;text-decoration:none;
+  border:1px solid rgba(201,162,39,.35);border-radius:12px;
+  background:linear-gradient(180deg,rgba(19,27,48,.8),rgba(13,20,36,.8));
+  transition:border-color .25s,transform .25s}
+.chanCard:hover{border-color:rgba(224,188,69,.7);transform:translateY(-2px)}
+.chanIc{flex:0 0 44px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:var(--navy2);
+  background:linear-gradient(135deg,var(--gold2),var(--gold))}
+.chanTx b{display:block;color:#f0ead6;font-size:15px}
+.chanTx span{display:block;margin-top:2px;font-size:12.5px;color:#a8b0c4;line-height:1.4}
+@media(max-width:640px){.chan{grid-template-columns:1fr}}
+
 @media(max-width:640px){.ev{grid-template-columns:76px 1fr}}
-@media(max-width:1200px){
-  .topbar{padding:10px 12px;gap:8px;flex-wrap:wrap}
-  .topbar .brand{flex:0 0 100%;min-height:48px;padding:0 68px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;font-size:12px;white-space:normal;line-height:1.35}
-  .topbar .brand b{display:block}
-  .topbar-actions{width:100%;margin-left:0;justify-content:stretch;gap:8px}
-  .topbar a.enter{flex:1 1 100px;min-height:44px;padding:8px 10px;font-size:11px;white-space:normal}
-  #modNavBtn{top:12px;left:12px;padding:13px 14px;gap:0}
-  #modNavBtn>span:last-child{display:none}
-  #modNavBtn .burger{width:22px}
-  .hero .inner{padding:calc(var(--visitor-header-h,120px) + 44px) 0 44px}
+@media(max-width:760px){
+  .topbar{padding:10px 14px;gap:10px}
+  .topbar .brand{font-size:11.5px;white-space:normal;line-height:1.35}
+  .topbar a.enter{font-size:10.5px;padding:6px 9px;white-space:nowrap}
 }
 
 /* ---------- опрос ---------- */
@@ -132,11 +132,8 @@ footer a:hover{color:var(--gold2)}
 
 <div class="topbar">
   <div class="brand">СТАДИОН ИМ. ЛЕНИНСКОГО КОМСОМОЛА <b>· КРАСНОЯРСК</b></div>
-  <div class="topbar-actions">
-    <a class="enter club" href="https://community.stadionlk.vomirek.com/fans" target="_blank" rel="noopener">Клуб болельщиков</a>
-    <a class="enter" id="navVoteResV" href="index.html#itogi" hidden style="background:transparent;border:1px solid var(--gold);color:var(--gold2)">Итоги опроса</a>
-    <a class="enter" href="index.html">Вход для команды проекта</a>
-  </div>
+  <a class="enter" id="navVoteResV" href="index.html#itogi" hidden style="background:transparent;border:1px solid var(--gold);color:var(--gold2)">Итоги опроса</a>
+  <a class="enter" href="index.html">Вход для команды проекта</a>
 </div>
 
 <header class="hero">
@@ -282,6 +279,23 @@ footer a:hover{color:var(--gold2)}
   </div>
 </div></section>
 
+<section><div class="wrap">
+  <div class="kicker">Клуб на связи</div>
+  <h2>Мы в <span>мессенджерах</span></h2>
+  <p class="lead">Новости ФК «Енисей», анонсы матчей и закулисье: в официальных каналах клуба.
+    Переходы открывают внешние страницы клуба в новой вкладке.</p>
+  <div class="chan">
+    <a class="chanCard" href="https://slk.vomirek.com/tg" target="_blank" rel="noopener noreferrer">
+      <span class="chanIc">TG</span>
+      <span class="chanTx"><b>Telegram · @EniseyFC</b><span>Официальный канал ФК «Енисей»</span></span>
+    </a>
+    <a class="chanCard" href="https://slk.vomirek.com/max" target="_blank" rel="noopener noreferrer">
+      <span class="chanIc">MAX</span>
+      <span class="chanTx"><b>MAX · fcenisey</b><span>Канал клуба в мессенджере MAX</span></span>
+    </a>
+  </div>
+</div></section>
+
 <footer><div class="wrap">
   <p>Красноярск, остров Отдыха, 15А · Центральный стадион ККОР<br>
      Проектная группа модернизации · концептуальные предложения 2026</p>
@@ -290,11 +304,6 @@ footer a:hover{color:var(--gold2)}
 
 <script>
 (function(){
-  var topbar=document.querySelector('.topbar');
-  function fitVisitorHeader(){document.documentElement.style.setProperty('--visitor-header-h',topbar.offsetHeight+'px');}
-  fitVisitorHeader();
-  if('ResizeObserver' in window){new ResizeObserver(fitVisitorHeader).observe(topbar);}
-  else{window.addEventListener('resize',fitVisitorHeader);}
   var API='/api';
   if(localStorage.getItem('sk_role')==='admin'){
     var nv=document.getElementById('navVoteResV');if(nv)nv.hidden=false;}
